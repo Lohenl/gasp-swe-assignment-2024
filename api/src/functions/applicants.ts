@@ -5,7 +5,7 @@ import { app, HttpRequest, HttpResponseInit, InvocationContext } from "@azure/fu
 * /applicants:
 *   get:
 *       summary: Get a resource
-*       description: Get a specific resource by ID.
+*       description: Get a specific resource by ID. (Placeholder description)
 *       parameters:
 *           - in: path
 *             name: id
@@ -20,7 +20,7 @@ import { app, HttpRequest, HttpResponseInit, InvocationContext } from "@azure/fu
 export async function applicants(request: HttpRequest, context: InvocationContext): Promise<HttpResponseInit> {
     context.log(`Http function processed request for url "${request.url}"`);
 
-    const name = request.query.get('name') || await request.text() || 'world';
+    const name = request.query.get('name') || await request.text() || 'applicant';
 
     return { body: `Hello, ${name}!` };
 };
