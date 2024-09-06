@@ -12,7 +12,7 @@ Coding Assignment for SWE role in GovTech GASP
 - [ ] DB Design
     - [x] Schema Design
     - [ ] ORM/ODM Integration (sequelize)
-    - [ ] PostgreSQL Local Setup (  Rmb to use Podman!)
+    - [x] PostgreSQL Local Setup (  Rmb to use Podman!)
     - [ ] Build Models in API
     - [ ] Mock Data
     - [ ] Seed Script
