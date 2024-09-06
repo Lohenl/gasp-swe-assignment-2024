@@ -8,10 +8,10 @@ Coding Assignment for SWE role in GovTech GASP
     - [x] Docs (Note: Might need to bake into /api instead, later)
 - [ ] Readings
     - [ ] Recap on DB best practices
-    - [ ] Swagger Workflow
+    - [x] Swagger Workflow
 - [ ] DB Design
     - [ ] Schema Design
-    - [ ] PostgreSQL Local Setup
+    - [ ] PostgreSQL Local Setup (Rmb to use Podman!)
     - [ ] Build Models in API
     - [ ] Mock Data
     - [ ] Seed Script
