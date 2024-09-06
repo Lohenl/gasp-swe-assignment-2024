@@ -7,6 +7,12 @@ const swaggerDefinition = {
         version: '1.0.0',
         description: 'My API Description',
     },
+    servers: [
+        {
+            url: 'http://localhost:7071/api',
+            description: 'Development server (local)',
+        },
+    ],
 };
 
 const options = {

@@ -8,7 +8,7 @@
     "watch": "tsc -w",
     "clean": "rimraf dist",
     "prestart": "npm run clean && npm run build",
-    "start": "func start",
+    "start": "func start --cors http://localhost:3000",
     "swagger": "node swagger-main.js",
     "test": "echo \"No tests yet...\""
   },
