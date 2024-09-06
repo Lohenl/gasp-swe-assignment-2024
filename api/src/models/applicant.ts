@@ -1,0 +1,9 @@
+import { Sequelize, DataTypes } from 'sequelize';
+
+const sequelize = new Sequelize('sqlite::memory:');
+const Applicant = sequelize.define('User', {
+    username: DataTypes.STRING,
+    birthday: DataTypes.DATE,
+});
+
+module.exports = (Sequelize, DataTypes) => Applicant

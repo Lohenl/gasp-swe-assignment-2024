@@ -1,4 +1,5 @@
 import { app, HttpRequest, HttpResponseInit, InvocationContext } from "@azure/functions";
+const { Sequelize } = require('sequelize');
 
 /**
 * @swagger
@@ -18,6 +19,20 @@ import { app, HttpRequest, HttpResponseInit, InvocationContext } from "@azure/fu
 *               description: Successful response
 */
 export async function applicants(request: HttpRequest, context: InvocationContext): Promise<HttpResponseInit> {
+
+    // TODO: testing singleton, to turn into a module
+    const sequelize = new Sequelize(process.env['PGDATABASE'], process.env['PGUSER'], process.env['PGPASSWORD'], {
+        host: process.env['PGHOST'],
+        dialect: 'postgres'
+    });
+
+    try {
+        await sequelize.authenticate();
+        context.log('Connection has been established successfully.');
+    } catch (error) {
+        context.error('Unable to connect to the database:', error);
+    }
+
     context.log(`Http function processed request for url "${request.url}"`);
 
     const name = request.query.get('name') || await request.text() || 'applicant';

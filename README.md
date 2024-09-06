@@ -14,6 +14,7 @@ Coding Assignment for SWE role in GovTech GASP
     - [x] PostgreSQL Local Setup
     - [x] Swagger to Functions Integration
     - [ ] ORM/ODM Integration (sequelize)
+    - [ ] Local E2E shakedown
     - [ ] Build Models in API
     - [ ] Mock Data
     - [ ] Seed Script
