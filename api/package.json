@@ -9,11 +9,14 @@
     "clean": "rimraf dist",
     "prestart": "npm run clean && npm run build",
     "start": "func start",
+    "swagger": "node swagger-main.js",
     "test": "echo \"No tests yet...\""
   },
   "dependencies": {
     "@azure/functions": "^4.0.0",
-    "gasp-swe-assignment-2024-api": "file:"
+    "gasp-swe-assignment-2024-api": "file:",
+    "swagger-jsdoc": "^6.2.8",
+    "swagger-ui-express": "^5.0.1"
   },
   "devDependencies": {
     "@types/node": "18.x",

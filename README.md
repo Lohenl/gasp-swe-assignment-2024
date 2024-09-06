@@ -11,8 +11,9 @@ Coding Assignment for SWE role in GovTech GASP
     - [x] Swagger Workflow
 - [ ] DB Design
     - [x] Schema Design
+    - [x] PostgreSQL Local Setup
+    - [ ] Swagger to Functions Integration
     - [ ] ORM/ODM Integration (sequelize)
-    - [x] PostgreSQL Local Setup (  Rmb to use Podman!)
     - [ ] Build Models in API
     - [ ] Mock Data
     - [ ] Seed Script
