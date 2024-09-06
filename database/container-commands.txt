@@ -1,0 +1,8 @@
+Reference commands
+==================
+docker build -t local-postgres-db ./
+docker images -a
+docker run -d --name local-postgresdb-container -p 5432:5432 local-postgres-db
+docker image rm 'nameOfTheImage'
+docker container ls -a
+docker container rm <sha>

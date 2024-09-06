@@ -1,11 +1,11 @@
 -- Seeing as we will be testing out this script alot we can destroy the db before creating everything again
-DROP DATABASE IF EXISTS translationsdb;
+-- DROP DATABASE IF EXISTS gaspsweassignment2024db;
 
 -- Create the db
-CREATE DATABASE translationsdb;
+-- CREATE DATABASE gaspsweassignment2024db;
 
 -- Move into the db
-\c translationsdb
+\c gaspsweassignment2024db
 
 -- Create our table if it doesn't already exist
 CREATE TABLE IF NOT EXISTS Translations
