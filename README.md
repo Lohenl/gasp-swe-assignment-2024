@@ -2,10 +2,10 @@
 Coding Assignment for SWE role in GovTech GASP
 
 # Assignment Checklist
-- [ ] Scaffold project
+- [x] Scaffold project
     - [x] API
     - [x] Database
-    - [ ] Docs
+    - [x] Docs (Note: Might need to bake into /api instead, later)
 - [ ] Readings
     - [ ] Recap on DB best practices
     - [ ] Swagger Workflow
@@ -41,5 +41,6 @@ Coding Assignment for SWE role in GovTech GASP
 - [PostgreSQL Seeding](https://dev.to/studio_hungry/how-to-seed-a-postgres-database-with-node-384i)
 - [Reference Repo for DB Seeding](https://github.com/molebox/seed-postgres-database-tutorial/blob/main/src/config.js)
 - [(Education) Azure Functions](https://learn.microsoft.com/en-us/azure/developer/javascript/how-to/develop-serverless-apps?tabs=v4-ts)
+- [Swagger Getting Started](https://swagger.io/tools/open-source/getting-started/)
 - [(Education) Swagger Overview](https://medium.com/@samuelnoye35/simplifying-api-development-in-node-js-with-swagger-a5021ac45742)
 - [Swagger UI Dev Setup](https://swagger.io/docs/open-source-tools/swagger-ui/development/setting-up/)
