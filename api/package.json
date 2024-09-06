@@ -1,7 +1,7 @@
 {
   "name": "gasp-swe-assignment-2024-api",
-  "version": "1.0.0",
-  "description": "",
+  "version": "0.0.0",
+  "description": "API platform for gasp-swe-assignment-2024",
   "main": "dist/src/functions/*.js",
   "scripts": {
     "build": "tsc",
