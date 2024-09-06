@@ -43,6 +43,7 @@ Coding Assignment for SWE role in GovTech GASP
 - [Azure Function Typescript Local Dev](https://learn.microsoft.com/en-us/azure/azure-functions/functions-run-local?tabs=windows%2Cisolated-process%2Cnode-v4%2Cpython-v2%2Chttp-trigger%2Ccontainer-apps&pivots=programming-language-typescript)
 - [DB Normalization](https://www.youtube.com/watch?v=GFQaEYEc8_8)
 - [PostgreSQL Container Setup](https://dev.to/andre347/how-to-easily-create-a-postgres-database-in-docker-4moj)
+- [Sequelize Start Guide](https://sequelize.org/docs/v6/getting-started/)
 - [PostgreSQL Seeding](https://dev.to/studio_hungry/how-to-seed-a-postgres-database-with-node-384i)
 - [Reference Repo for DB Seeding](https://github.com/molebox/seed-postgres-database-tutorial/blob/main/src/config.js)
 - [(Education) Azure Functions](https://learn.microsoft.com/en-us/azure/developer/javascript/how-to/develop-serverless-apps?tabs=v4-ts)
