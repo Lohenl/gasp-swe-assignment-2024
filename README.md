@@ -23,6 +23,7 @@ Coding Assignment for SWE role in GovTech GASP
 - [ ] Backend Logic
     - [ ] Implement
         - [ ] Eslint (airbnb base)
+    - [ ] Build validators with joi
 - [ ] Code Quality
     - [ ] Eslint cleanup
     - [ ] SAST (Likely Synk again lol)

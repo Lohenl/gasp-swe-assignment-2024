@@ -16,7 +16,7 @@ const sequelize = new Sequelize(process.env['PGDATABASE'], process.env['PGUSER']
 *       summary: Get all applicant details / Get applicant details by ID
 *       description: Get a specific applicant's details by ID. Omit ID to get all applicants' details registered in system.
 *       parameters:
-*           - in: path
+*           - in: query
 *             name: id
 *             description: ID of a specific applicant to retrieve.
 *             schema:
@@ -52,7 +52,7 @@ const sequelize = new Sequelize(process.env['PGDATABASE'], process.env['PGUSER']
 *       summary: Updates an applicant
 *       description: Updates an applicant
 *       parameters:
-*           - in: path
+*           - in: query
 *             name: id
 *             required: true
 *             description: ID of the applicant to update.
@@ -81,7 +81,7 @@ const sequelize = new Sequelize(process.env['PGDATABASE'], process.env['PGUSER']
 *       summary: Delete applicant by ID
 *       description: Delete an applicant from the system by ID.
 *       parameters:
-*           - in: path
+*           - in: query
 *             name: id
 *             required: true
 *             description: ID of the applicant to delete.
@@ -93,12 +93,37 @@ const sequelize = new Sequelize(process.env['PGDATABASE'], process.env['PGUSER']
 */
 export async function applicants(request: HttpRequest, context: InvocationContext): Promise<HttpResponseInit> {
     try {
+
         await sequelize.authenticate();
         ApplicantModel(sequelize, DataTypes); // interesting how this works
         const Applicant = sequelize.models.Applicant;
+        await Applicant.sync();
 
-        const applicant = Applicant.build({ name: 'Jane Kwok', email: 'janekwok88@gmail.com', mobile_no: '+6512345678', birth_date: DateTime.fromISO('1988-05-02').toJSDate() });
-        return { jsonBody: applicant.dataValues }
+        if (request.method === 'GET') {
+
+            context.log('request.query', request.query);
+            context.log('request.query.get("id")', request.query.get('id'));
+
+            if (!request.query.get('id')) {
+                const applicants = await Applicant.findAll({});
+                return { jsonBody: applicants }
+            } else {
+                const applicant = await Applicant.findByPk(request.query.get('id'));
+                return { jsonBody: applicant }
+            }
+
+        } else if (request.method === 'POST') {
+            const applicant = Applicant.build({ name: 'Jane Kwok', email: 'janekwok88@gmail.com', mobile_no: '+6512345678', birth_date: DateTime.fromISO('1988-05-02').toJSDate() });
+            await applicant.save();
+            return { jsonBody: applicant.dataValues }
+
+        } else if (request.method === 'PATCH') {
+
+
+        } else if (request.method === 'DELETE') {
+
+
+        }
 
     } catch (error) {
         context.error('applicants: error encountered:', error);
@@ -107,7 +132,7 @@ export async function applicants(request: HttpRequest, context: InvocationContex
 };
 
 app.http('applicants', {
-    methods: ['GET', 'POST'],
+    methods: ['GET', 'POST', 'PATCH', 'DELETE'],
     authLevel: 'anonymous',
     handler: applicants
 });
