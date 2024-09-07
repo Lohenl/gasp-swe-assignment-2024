@@ -3,16 +3,32 @@ import { app, HttpRequest, HttpResponseInit, InvocationContext } from "@azure/fu
 /**
 * @swagger
 * /applications:
+* 
 *   get:
-*       summary: Get a resource
-*       description: Get a specific resource by ID. (Placeholder description)
+*       summary: Get all applications
+*       description: Get all applications registered in the system
+*       responses:
+*           200:
+*               description: Successful response
+* 
+*   post:
+*       summary: Creates an application
+*       description: Creates an application
 *       parameters:
-*           - in: path
-*             name: id
-*             required: true
-*             description: ID of the resource to retrieve.
+*           - in: body
+*             name: application
+*             description: JSON details of application
 *             schema:
-*               type: string
+*               type: object
+*               required:
+*                   - name
+*               properties:
+*                   applicant_id:
+*                       type: string
+*                       required: true
+*                   scheme_id:
+*                       type: string
+*                       required: true 
 *       responses:
 *           200:
 *               description: Successful response

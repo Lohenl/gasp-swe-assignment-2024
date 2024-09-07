@@ -16,10 +16,10 @@ Coding Assignment for SWE role in GovTech GASP
     - [x] ORM/ODM Integration (sequelize)
     - [x] Local E2E shakedown
     - [x] Build Models in API (Note: all FKs and Pure RTables are made in Function for now - no time)
-- [ ] API Design
-    - [ ] Requirements recap
-    - [ ] Swagger Specs
-    - [ ] Scaffold
+- [x] API Design
+    - [x] Requirements recap
+    - [x] Swagger Specs
+    - [x] Scaffold
 - [ ] Backend Logic
     - [ ] Implement
         - [ ] Eslint (airbnb base)
@@ -29,6 +29,10 @@ Coding Assignment for SWE role in GovTech GASP
 - [ ] Documentation
     - [ ] README
     - [ ] Swagger
+- [ ] AuthN and AuthZ Integration (hard pressed for time)
+    - [ ] Design
+    - [ ] Implement APIs
+    - [ ] Integrate with codebase
 - [ ] Demonstration / Open House
     - [ ] Mock Data
     - [ ] Seed Script

@@ -10,15 +10,15 @@ const sequelize = new Sequelize(process.env['PGDATABASE'], process.env['PGUSER']
 
 /**
 * @swagger
-* /applicants:
+* /administrators:
 * 
 *   get:
-*       summary: Get all applicant details / Get applicant details by ID
-*       description: Get a specific applicant's details by ID. Omit ID to get all applicants' details registered in system.
+*       summary: Get all administrator details / Get administrator details by ID
+*       description: Get a specific administrator's details by ID. Omit ID to get all administrators' details registered in system.
 *       parameters:
 *           - in: path
 *             name: id
-*             description: ID of a specific applicant to retrieve.
+*             description: ID of a specific administrator to retrieve.
 *             schema:
 *               type: string
 *       responses:
@@ -26,12 +26,12 @@ const sequelize = new Sequelize(process.env['PGDATABASE'], process.env['PGUSER']
 *               description: Successful response
 * 
 *   post:
-*       summary: Creates an applicant
-*       description: Creates an applicant
+*       summary: Creates an administrator
+*       description: Creates an administrator
 *       parameters:
 *           - in: body
-*             name: applicant
-*             description: JSON details of applicant to be created
+*             name: administrator
+*             description: JSON details of administrator to be created
 *             schema:
 *               type: object
 *               required:
@@ -41,26 +41,20 @@ const sequelize = new Sequelize(process.env['PGDATABASE'], process.env['PGUSER']
 *                       type: string
 *                   email:
 *                       type: string
-*                   mobile_no:
-*                       type: string
-*                   birthdate:
-*                       type: date
-*                       pattern: /([0-9]{4})-(?:[0-9]{2})-([0-9]{2})/
-*                       example: "1988-05-02"
 * 
 *   patch:
-*       summary: Updates an applicant
-*       description: Updates an applicant
+*       summary: Updates an adminstrator
+*       description: Updates an adminstrator
 *       parameters:
 *           - in: path
 *             name: id
 *             required: true
-*             description: ID of the applicant to update.
+*             description: ID of the adminstrator to update.
 *             schema:
 *               type: string
 *           - in: body
-*             name: applicant
-*             description: JSON details of applicant to update with
+*             name: adminstrator
+*             description: JSON details of adminstrator to update with
 *             schema:
 *               type: object
 *               required:
@@ -70,28 +64,51 @@ const sequelize = new Sequelize(process.env['PGDATABASE'], process.env['PGUSER']
 *                       type: string
 *                   email:
 *                       type: string
-*                   mobile_no:
-*                       type: string
-*                   birthdate:
-*                       type: date
-*                       pattern: /([0-9]{4})-(?:[0-9]{2})-([0-9]{2})/
-*                       example: "1988-05-02"
 * 
 *   delete:
-*       summary: Delete applicant by ID
-*       description: Delete an applicant from the system by ID.
+*       summary: Delete adminstrator by ID
+*       description: Delete an adminstrator from the system by ID.
 *       parameters:
 *           - in: path
 *             name: id
 *             required: true
-*             description: ID of the applicant to delete.
+*             description: ID of the adminstrator to delete.
 *             schema:
 *               type: string
 *       responses:
 *           200:
 *               description: Successful response
+* 
+* /administrators/permissions:
+* 
+*   get:
+*       summary: Get permission details of all administrators / Get permission details of administrator by ID
+*       description: Get a specific adminstrator's permission details by ID. Omit ID to get all administrators' permission details registered in system.
+*       parameters:
+*           - in: path
+*             name: id
+*             description: ID of the applicant to retrieve.
+*             schema:
+*               type: string
+*       responses:
+*           200:
+*               description: Successful response
+* 
+*   post:
+*       summary: Adds permissions to an administrator (Needs refinement)
+*       description: Adds permissions to an administrator, pass an empty object to clear permissions
+*       parameters:
+*           - in: body
+*             name: administrator
+*             description: JSON details of administrator to be created
+*             schema:
+*               type: array
+*               items:
+*                   name:
+*                       type: object
+* 
 */
-export async function applicants(request: HttpRequest, context: InvocationContext): Promise<HttpResponseInit> {
+export async function administrators(request: HttpRequest, context: InvocationContext): Promise<HttpResponseInit> {
     try {
         await sequelize.authenticate();
         ApplicantModel(sequelize, DataTypes); // interesting how this works
@@ -106,8 +123,8 @@ export async function applicants(request: HttpRequest, context: InvocationContex
     }
 };
 
-app.http('applicants', {
+app.http('administrators', {
     methods: ['GET', 'POST'],
     authLevel: 'anonymous',
-    handler: applicants
+    handler: administrators
 });
