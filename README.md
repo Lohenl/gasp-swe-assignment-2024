@@ -22,8 +22,17 @@ Coding Assignment for SWE role in GovTech GASP
     - [x] Scaffold
 - [ ] Backend Logic
     - [ ] Implement
+        - [x] applicants
+        - [ ] codetables
+        - [ ] users
+        - [ ] permissions (the first FKs to make)
+        - [ ] households
+        - [ ] schemes + benefits
         - [ ] Eslint (airbnb base)
     - [ ] Build validators with joi
+    - [ ] Integrate Rules Engine
+        - [ ] Update /schemes/eligible API
+        - [ ] make use of eligibility_criteria to Schemes model
 - [ ] Code Quality
     - [ ] Eslint cleanup
     - [ ] SAST (Likely Synk again lol)
