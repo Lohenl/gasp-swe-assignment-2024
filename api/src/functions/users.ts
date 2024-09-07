@@ -93,34 +93,6 @@ const sequelize = new Sequelize(process.env['PGDATABASE'], process.env['PGUSER']
 *           200:
 *               description: Successful response
 * 
-* /users/permissions:
-* 
-*   get:
-*       summary: Get permission details of all users / Get permission details of user by ID
-*       description: Get a specific user's permission details by ID. Omit ID to get all users' permission details registered in system.
-*       parameters:
-*           - in: query
-*             name: id
-*             description: ID of the applicant to retrieve.
-*             schema:
-*               type: string
-*       responses:
-*           200:
-*               description: Successful response
-* 
-*   post:
-*       summary: Adds permissions to a user (Needs refinement)
-*       description: Adds permissions to a user, pass an empty object to clear permissions
-*       parameters:
-*           - in: body
-*             name: user
-*             description: JSON details of user to be created
-*             schema:
-*               type: array
-*               items:
-*                   name:
-*                       type: object
-* 
 */
 export async function users(request: HttpRequest, context: InvocationContext): Promise<HttpResponseInit> {
     try {
