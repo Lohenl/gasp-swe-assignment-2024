@@ -50,3 +50,4 @@ Coding Assignment for SWE role in GovTech GASP
 - [Swagger Getting Started](https://swagger.io/tools/open-source/getting-started/)
 - [(Education) Swagger Overview](https://medium.com/@samuelnoye35/simplifying-api-development-in-node-js-with-swagger-a5021ac45742)
 - [Swagger UI Dev Setup](https://swagger.io/docs/open-source-tools/swagger-ui/development/setting-up/)
+- [Azure Functions v4 TypeScript](https://johnnyreilly.com/migrating-azure-functions-node-js-v4-typescript)

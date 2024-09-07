@@ -1,6 +1,7 @@
 import { app, HttpRequest, HttpResponseInit, InvocationContext } from "@azure/functions";
 import { Sequelize, DataTypes } from 'sequelize';
 import ApplicantModel from '../models/applicant';
+const { DateTime } = require("luxon");
 
 const sequelize = new Sequelize(process.env['PGDATABASE'], process.env['PGUSER'], process.env['PGPASSWORD'], {
     host: process.env['PGHOST'],
@@ -25,14 +26,13 @@ const sequelize = new Sequelize(process.env['PGDATABASE'], process.env['PGUSER']
 *               description: Successful response
 */
 export async function applicants(request: HttpRequest, context: InvocationContext): Promise<HttpResponseInit> {
-
     try {
         await sequelize.authenticate();
         ApplicantModel(sequelize, DataTypes); // interesting how this works
         const Applicant = sequelize.models.Applicant;
 
-        const applicant = Applicant.build({ name: 'Jane', age: 45, cash: 500 });
-        return { body: applicant.dataValues }
+        const applicant = Applicant.build({ name: 'Jane Kwok', email: 'janekwok88@gmail.com', mobile_no: '+6512345678', birth_date: DateTime.fromISO('1988-05-02').toJSDate() });
+        return { jsonBody: applicant.dataValues }
 
     } catch (error) {
         context.error('applicants: error encountered:', error);
