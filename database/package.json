@@ -1,0 +1,21 @@
+{
+  "name": "gasp-swe-assignment-2024-database",
+  "version": "0.0.0",
+  "description": "Database platform for gasp-swe-assignment-2024",
+  "main": "src/main.js",
+  "scripts": {
+    "create-db": "psql -U postgres < schema.sql",
+    "seed": "npm create-db && node src/main.js"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "dotenv": "^16.4.5",
+    "faker": "^6.6.6",
+    "fast-csv": "^5.0.1",
+    "gasp-swe-assignment-2024-database": "file:",
+    "minimist": "^1.2.8",
+    "pg": "^8.12.0",
+    "validator": "^13.12.0"
+  }
+}

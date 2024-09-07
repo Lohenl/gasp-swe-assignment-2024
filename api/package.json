@@ -1,0 +1,31 @@
+{
+  "name": "gasp-swe-assignment-2024-api",
+  "version": "0.0.0",
+  "description": "API platform for gasp-swe-assignment-2024",
+  "main": "dist/src/functions/*.js",
+  "scripts": {
+    "build": "tsc",
+    "watch": "tsc -w",
+    "clean": "rimraf dist",
+    "prestart": "npm run clean && npm run build",
+    "start": "func start --cors http://localhost:3000",
+    "swagger": "node swagger-main.js",
+    "test": "echo \"No tests yet...\""
+  },
+  "dependencies": {
+    "@azure/functions": "^4.0.0",
+    "gasp-swe-assignment-2024-api": "file:",
+    "luxon": "^3.5.0",
+    "pg": "^8.12.0",
+    "pg-hstore": "^2.3.4",
+    "sequelize": "^6.37.3",
+    "swagger-jsdoc": "^6.2.8",
+    "swagger-ui-express": "^5.0.1"
+  },
+  "devDependencies": {
+    "@types/node": "18.x",
+    "azure-functions-core-tools": "^4.x",
+    "rimraf": "^5.0.0",
+    "typescript": "^4.0.0"
+  }
+}
