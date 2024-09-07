@@ -28,6 +28,7 @@ Coding Assignment for SWE role in GovTech GASP
         - [x] permissions (the first FKs to make)
         - [ ] households
         - [ ] schemes + benefits
+        - [ ] applications
         - [ ] Eslint (airbnb base)
     - [ ] Build validators with joi
     - [ ] Integrate Rules Engine
