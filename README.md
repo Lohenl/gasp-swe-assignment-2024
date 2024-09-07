@@ -9,15 +9,13 @@ Coding Assignment for SWE role in GovTech GASP
 - [x] Readings
     - [x] Recap on DB best practices
     - [x] Swagger Workflow
-- [ ] DB Design
+- [x] DB Design
     - [x] Schema Design
     - [x] PostgreSQL Local Setup
     - [x] Swagger to Functions Integration
-    - [ ] ORM/ODM Integration (sequelize)
-    - [ ] Local E2E shakedown
-    - [ ] Build Models in API
-    - [ ] Mock Data
-    - [ ] Seed Script
+    - [x] ORM/ODM Integration (sequelize)
+    - [x] Local E2E shakedown
+    - [x] Build Models in API (Note: all FKs and Pure RTables are made in Function for now - no time)
 - [ ] API Design
     - [ ] Requirements recap
     - [ ] Swagger Specs
@@ -31,6 +29,10 @@ Coding Assignment for SWE role in GovTech GASP
 - [ ] Documentation
     - [ ] README
     - [ ] Swagger
+- [ ] Demonstration / Open House
+    - [ ] Mock Data
+    - [ ] Seed Script
+    - [ ] Set Repo to Public
 
 # Local Ports
 - 7071: Azure Functions
