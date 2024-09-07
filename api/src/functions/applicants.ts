@@ -28,25 +28,34 @@ const sequelize = new Sequelize(process.env['PGDATABASE'], process.env['PGUSER']
 *   post:
 *       summary: Creates an applicant
 *       description: Creates an applicant
-*       parameters:
-*           - in: body
-*             name: applicant
-*             description: JSON details of applicant to be created
-*             schema:
-*               type: object
-*               required:
-*                   - name
-*               properties:
-*                   name:
-*                       type: string
-*                   email:
-*                       type: string
-*                   mobile_no:
-*                       type: string
-*                   birthdate:
-*                       type: date
-*                       pattern: /([0-9]{4})-(?:[0-9]{2})-([0-9]{2})/
-*                       example: "1988-05-02"
+*       requestBody:
+*           description: JSON details of applicant to be created
+*           required: true
+*           content:
+*               application/json:
+*                   schema:
+*                       applicants:
+*                           type: object
+*                       required:
+*                           - name
+*                       properties:
+*                           name:
+*                               type: string
+*                           email:
+*                               type: string
+*                           mobile_no:
+*                               type: string
+*                           birth_date:
+*                               type: date
+*                               example: "1988-05-02"
+*                   example:
+*                       name: "Jane Kwok"
+*                       email: "janekwok88@gmail.com"
+*                       mobile_no: "+6512345678"
+*                       birth_date: "1988-05-02"
+*       responses:
+*           200:
+*               description: Successful response
 * 
 *   patch:
 *       summary: Updates an applicant
@@ -58,24 +67,32 @@ const sequelize = new Sequelize(process.env['PGDATABASE'], process.env['PGUSER']
 *             description: ID of the applicant to update.
 *             schema:
 *               type: string
-*           - in: body
-*             name: applicant
-*             description: JSON details of applicant to update with
-*             schema:
-*               type: object
-*               required:
-*                   - name
-*               properties:
-*                   name:
-*                       type: string
-*                   email:
-*                       type: string
-*                   mobile_no:
-*                       type: string
-*                   birthdate:
-*                       type: date
-*                       pattern: /([0-9]{4})-(?:[0-9]{2})-([0-9]{2})/
-*                       example: "1988-05-02"
+*       requestBody:
+*           description: JSON details of applicant to be updated
+*           required: true
+*           content:
+*               application/json:
+*                   schema:
+*                       applicants:
+*                           type: object
+*                       properties:
+*                           name:
+*                               type: string
+*                           email:
+*                               type: string
+*                           mobile_no:
+*                               type: string
+*                           birth_date:
+*                               type: date
+*                               example: "1988-05-02"
+*                   example:
+*                       name: "Jon Tan"
+*                       email: "jontanwenghou@gmail.com"
+*                       mobile_no: "+6587654321"
+*                       birth_date: "2003-08-08"
+*       responses:
+*           200:
+*               description: Successful response
 * 
 *   delete:
 *       summary: Delete applicant by ID
@@ -100,29 +117,40 @@ export async function applicants(request: HttpRequest, context: InvocationContex
         await Applicant.sync();
 
         if (request.method === 'GET') {
-
-            context.log('request.query', request.query);
-            context.log('request.query.get("id")', request.query.get('id'));
-
             if (!request.query.get('id')) {
                 const applicants = await Applicant.findAll({});
                 return { jsonBody: applicants }
             } else {
+                // validation happens here, dont forget joi
                 const applicant = await Applicant.findByPk(request.query.get('id'));
                 return { jsonBody: applicant }
             }
 
         } else if (request.method === 'POST') {
-            const applicant = Applicant.build({ name: 'Jane Kwok', email: 'janekwok88@gmail.com', mobile_no: '+6512345678', birth_date: DateTime.fromISO('1988-05-02').toJSDate() });
+            const reqBody = await request.json();
+            // validation happens here, dont forget joi
+            const applicant = Applicant.build({
+                name: reqBody['name'],
+                email: reqBody['email'],
+                mobile_no: reqBody['mobile_no'],
+                birth_date: DateTime.fromISO(reqBody['birth_date']).toJSDate()
+            });
             await applicant.save();
             return { jsonBody: applicant.dataValues }
 
         } else if (request.method === 'PATCH') {
-
+            const updateFields = await request.json();
+            // validation happens here, dont forget joi
+            const applicant = await Applicant.findByPk(request.query.get('id'));
+            applicant.update(updateFields);
+            await applicant.save();
+            return { jsonBody: applicant.dataValues }
 
         } else if (request.method === 'DELETE') {
-
-
+            // validation happens here, dont forget joi
+            const applicant = await Applicant.findByPk(request.query.get('id'));
+            await applicant.destroy();
+            return { body: request.query.get('id') }
         }
 
     } catch (error) {
