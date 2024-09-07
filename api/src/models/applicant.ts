@@ -7,6 +7,9 @@ export default (sequelize, DataTypes) => sequelize.define(
             allowNull: false,
             primaryKey: true,
         },
+        HouseholdId: {
+            type: DataTypes.UUID,
+        },
         name: {
             type: DataTypes.STRING(50),
             allowNull: false,

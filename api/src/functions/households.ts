@@ -26,16 +26,19 @@ const sequelize = new Sequelize(process.env['PGDATABASE'], process.env['PGUSER']
 *   post:
 *       summary: Creates a household
 *       description: Creates a household
-*       parameters:
-*           - in: body
-*             name: household
-*             description: Array of member IDs to be created
-*             required: true
-*             schema:
-*               type: array
-*               items:
-*                   type: string
-*               example: ["str1", "str2", "str3"]
+*       requestBody:
+*           description: Array of member IDs to be included in household
+*           required: true
+*           content:
+*               application/json:
+*                   schema:
+*                       type: array
+*                       items:
+*                           type: string* 
+*                   example: ["2d055c48-912c-41e1-a831-3fc3c066f9ea","8943bca7-d676-42ab-b173-d139aba8a0bf"]
+*       responses:
+*           200:
+*               description: Successful response
 * 
 *   patch:
 *       summary: Updates a household
@@ -54,7 +57,10 @@ const sequelize = new Sequelize(process.env['PGDATABASE'], process.env['PGUSER']
 *               type: array
 *               items:
 *                   type: string
-*               example: ["str1", "str2", "str3"]
+*               example: ["2d055c48-912c-41e1-a831-3fc3c066f9ea","8943bca7-d676-42ab-b173-d139aba8a0bf"]
+*       responses:
+*           200:
+*               description: Successful response
 * 
 *   delete:
 *       summary: Delete household by ID
@@ -101,12 +107,57 @@ export async function households(request: HttpRequest, context: InvocationContex
         if (request.method === 'GET') {
             // validation happens here, dont forget joi
             context.log(request.query.get('id'));
-            return { jsonBody: {} }
+            if (!request.query.get('id')) {
+                const households = await Household.findAll({});
+                return { jsonBody: households }
+            } else {
+                const household = await Household.findByPk(request.query.get('id'));
+                return { jsonBody: household }
+            }
 
         } else if (request.method === 'POST') {
             // validation happens here, dont forget joi
             const memberIdArray = await request.json();
-            return { jsonBody: {} }
+            context.log('memberIdArray:', memberIdArray);
+
+            // validate that all ids exist
+            // find each applicant by PK
+            // having any null values show up means that there are invalid IDs
+            let findPromises = [];
+            (memberIdArray as any).forEach(memberId => {
+                findPromises.push(Applicant.findByPk(memberId));
+            });
+            const results = await Promise.allSettled(findPromises);
+            // context.log('results:', results);
+            let householdMembers = [];
+            results.forEach((result) => {
+                householdMembers.push((result as any).value);
+            })
+            // context.log('householdMembers:', householdMembers);
+            // context.log('householdMembers.includes(null)', householdMembers.includes(null));
+            let isValid = !householdMembers.includes(null);
+
+            // once all validated, save to DB
+            if (isValid) {
+                // time for a sequelize transaction
+                const result = await sequelize.transaction(async t => {
+                    const household = await Household.create({}, { transaction: t });
+                    // TODO: I'm stuck here
+                    // let updatePromises = [];
+                    // householdMembers.forEach(member => {
+                    //     updatePromises.push(member.update({ HouseholdId: household.dataValues.id }, { transaction: t }));
+                    //     updatePromises.push(member.save());
+                    // });
+                    // await Promise.allSettled(updatePromises);
+                    return household;
+                });
+                return { jsonBody: result }
+
+            } else {
+                return { body: 'invalid applicant ID(s) provided' }
+
+            }
+
 
         } else if (request.method === 'PATCH') {
             // validation happens here, dont forget joi
