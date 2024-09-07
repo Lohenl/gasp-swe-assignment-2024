@@ -142,13 +142,11 @@ export async function households(request: HttpRequest, context: InvocationContex
                 // time for a sequelize transaction
                 const result = await sequelize.transaction(async t => {
                     const household = await Household.create({}, { transaction: t });
-                    // TODO: I'm stuck here
-                    // let updatePromises = [];
-                    // householdMembers.forEach(member => {
-                    //     updatePromises.push(member.update({ HouseholdId: household.dataValues.id }, { transaction: t }));
-                    //     updatePromises.push(member.save());
-                    // });
-                    // await Promise.allSettled(updatePromises);
+                    let updatePromises = [];
+                    householdMembers.forEach(member => {
+                        updatePromises.push(member.update({ HouseholdId: household.dataValues.id }, { transaction: t }));
+                    });
+                    await Promise.allSettled(updatePromises);
                     return household;
                 });
                 return { jsonBody: result }
