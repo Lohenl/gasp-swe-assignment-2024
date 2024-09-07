@@ -1,4 +1,11 @@
 import { app, HttpRequest, HttpResponseInit, InvocationContext } from "@azure/functions";
+import { Sequelize, DataTypes } from 'sequelize';
+import ApplicantModel from "../models/applicant";
+
+const sequelize = new Sequelize(process.env['PGDATABASE'], process.env['PGUSER'], process.env['PGPASSWORD'], {
+    host: process.env['PGHOST'],
+    dialect: 'postgres'
+});
 
 /**
 * @swagger
@@ -64,11 +71,41 @@ import { app, HttpRequest, HttpResponseInit, InvocationContext } from "@azure/fu
 *               description: Successful response
 */
 export async function households(request: HttpRequest, context: InvocationContext): Promise<HttpResponseInit> {
-    context.log(`Http function processed request for url "${request.url}"`);
+    try {
 
-    const name = request.query.get('name') || await request.text() || 'scheme finder';
+        await sequelize.authenticate();
+        ApplicantModel(sequelize, DataTypes);
+        const Applicant = sequelize.models.Applicant;
+        await Applicant.sync();
 
-    return { body: `Hello, ${name}!` };
+        if (request.method === 'GET') {
+            // validation happens here, dont forget joi
+            context.log(request.query.get('id'));
+            return { jsonBody: {} }
+
+        } else if (request.method === 'POST') {
+            // validation happens here, dont forget joi
+            const memberIdArray = await request.json();
+            return { jsonBody: {} }
+
+        } else if (request.method === 'PATCH') {
+            // validation happens here, dont forget joi
+            context.log(request.query.get('id'));
+            const memberIdArray = await request.json();
+            return { jsonBody: {} }
+
+        } else if (request.method === 'DELETE') {
+            // validation happens here, dont forget joi
+            context.log(request.query.get('id'));
+            return { jsonBody: {} }
+
+        }
+
+    } catch (error) {
+        context.error('households: error encountered:', error);
+        return { status: 500, body: `Unexpected error occured: ${error}` }
+
+    }
 };
 
 app.http('households', {
