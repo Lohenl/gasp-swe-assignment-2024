@@ -76,7 +76,27 @@ export async function households(request: HttpRequest, context: InvocationContex
         await sequelize.authenticate();
         ApplicantModel(sequelize, DataTypes);
         const Applicant = sequelize.models.Applicant;
-        await Applicant.sync();
+
+        // declare 1:N Relationship
+        // reference: https://sequelize.org/docs/v6/core-concepts/assocs/#one-to-many-relationships
+        const Household = sequelize.define('Household',
+            {
+                id: {
+                    type: DataTypes.UUID,
+                    defaultValue: DataTypes.UUIDV4,
+                    allowNull: false,
+                    primaryKey: true,
+                }
+            }
+        );
+        Household.hasMany(Applicant);
+        Applicant.belongsTo(Household);
+
+        // wait for all model syncs to finish
+        let syncPromises = [];
+        syncPromises.push(Household.sync());
+        syncPromises.push(Applicant.sync());
+        await Promise.allSettled(syncPromises);
 
         if (request.method === 'GET') {
             // validation happens here, dont forget joi
