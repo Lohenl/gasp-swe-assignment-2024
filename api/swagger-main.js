@@ -5,7 +5,7 @@ const swaggerSpec = require('./swagger');
 const app = express();
 
 // Serve Swagger documentation
-app.use('/api-docs', swaggerUI.serve, swaggerUI.setup(swaggerSpec));
+app.use('/', swaggerUI.serve, swaggerUI.setup(swaggerSpec));
 
 // Your API routes go here
 
