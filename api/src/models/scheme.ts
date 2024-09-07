@@ -1,12 +1,11 @@
 export default (sequelize, DataTypes) => sequelize.define(
-    'Applicant',
+    'Scheme',
     {
         name: {
             type: DataTypes.STRING(50),
             allowNull: false,
         },
-        email: DataTypes.STRING(50),
-        mobile_no: DataTypes.STRING(31),
-        birth_date: DataTypes.DATEONLY,
+        eligibility_criteria: DataTypes.TEXT,
+        description: DataTypes.STRING(1000),
     }
 );

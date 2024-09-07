@@ -1,12 +1,13 @@
 export default (sequelize, DataTypes) => sequelize.define(
-    'Applicant',
+    'Administrator',
     {
         name: {
             type: DataTypes.STRING(50),
             allowNull: false,
         },
-        email: DataTypes.STRING(50),
-        mobile_no: DataTypes.STRING(31),
-        birth_date: DataTypes.DATEONLY,
+        email: {
+            type: DataTypes.STRING(50),
+            allowNull: false,
+        },
     }
 );
