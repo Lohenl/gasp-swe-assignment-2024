@@ -1,5 +1,5 @@
 import { app, HttpRequest, HttpResponseInit, InvocationContext } from "@azure/functions";
-import { Sequelize, DataTypes } from 'sequelize';
+import { Sequelize, DataTypes, json } from 'sequelize';
 import AdminRoleModel from "../models/adminrole";
 import EmploymentStatusModel from "../models/employmentstatus";
 import GenderModel from "../models/gender";
@@ -163,7 +163,29 @@ export async function codetables(request: HttpRequest, context: InvocationContex
             // validation happens here, dont forget joi
             context.log(request.query.get('table_name'));
             context.log(request.query.get('code_entry_value'));
-            return { jsonBody: {} }
+            let jsonBody;
+            let CodeTable;
+            switch (request.query.get('table_name')) {
+                case 'AdminRole':
+                    CodeTable = AdminRole;
+                    break;
+                case 'EmploymentStatus':
+                    CodeTable = EmploymentStatus;
+                    break;
+                case 'Gender':
+                    CodeTable = Gender;
+                    break;
+                case 'MaritalStatus':
+                    CodeTable = MaritalStatus;
+                    break;
+                case 'PermissionScope':
+                    CodeTable = PermissionScope;
+                    break;
+            }
+            const codeValue = CodeTable.build({ name: request.query.get('code_entry_value') });
+            await codeValue.save();
+            jsonBody = codeValue.dataValues;
+            return { jsonBody }
 
         } else if (request.method === 'PATCH') {
             // validation happens here, dont forget joi
