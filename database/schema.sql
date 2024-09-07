@@ -8,7 +8,7 @@
 \c gaspsweassignment2024db
 
 -- Create our table if it doesn't already exist
-CREATE TABLE IF NOT EXISTS Translations
+CREATE TABLE IF NOT EXISTS Applicant
 (
     key character varying(100),
     lang character varying(5),
@@ -16,5 +16,5 @@ CREATE TABLE IF NOT EXISTS Translations
 );
 
 -- Changes the owner of the table to postgres which is the default when installing postgres
-ALTER TABLE Translations
+ALTER TABLE Applicant
     OWNER to postgres;

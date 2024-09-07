@@ -10,15 +10,15 @@ const sequelize = new Sequelize(process.env['PGDATABASE'], process.env['PGUSER']
 
 /**
 * @swagger
-* /administrators:
+* /users:
 * 
 *   get:
-*       summary: Get all administrator details / Get administrator details by ID
-*       description: Get a specific administrator's details by ID. Omit ID to get all administrators' details registered in system.
+*       summary: Get all user details / Get user details by ID
+*       description: Get a specific user's details by ID. Omit ID to get all users' details registered in system.
 *       parameters:
 *           - in: path
 *             name: id
-*             description: ID of a specific administrator to retrieve.
+*             description: ID of a specific user to retrieve.
 *             schema:
 *               type: string
 *       responses:
@@ -26,12 +26,12 @@ const sequelize = new Sequelize(process.env['PGDATABASE'], process.env['PGUSER']
 *               description: Successful response
 * 
 *   post:
-*       summary: Creates an administrator
-*       description: Creates an administrator
+*       summary: Creates a user
+*       description: Creates a user
 *       parameters:
 *           - in: body
-*             name: administrator
-*             description: JSON details of administrator to be created
+*             name: user
+*             description: JSON details of user to be created
 *             schema:
 *               type: object
 *               required:
@@ -79,11 +79,11 @@ const sequelize = new Sequelize(process.env['PGDATABASE'], process.env['PGUSER']
 *           200:
 *               description: Successful response
 * 
-* /administrators/permissions:
+* /users/permissions:
 * 
 *   get:
-*       summary: Get permission details of all administrators / Get permission details of administrator by ID
-*       description: Get a specific adminstrator's permission details by ID. Omit ID to get all administrators' permission details registered in system.
+*       summary: Get permission details of all users / Get permission details of user by ID
+*       description: Get a specific adminstrator's permission details by ID. Omit ID to get all users' permission details registered in system.
 *       parameters:
 *           - in: path
 *             name: id
@@ -95,12 +95,12 @@ const sequelize = new Sequelize(process.env['PGDATABASE'], process.env['PGUSER']
 *               description: Successful response
 * 
 *   post:
-*       summary: Adds permissions to an administrator (Needs refinement)
-*       description: Adds permissions to an administrator, pass an empty object to clear permissions
+*       summary: Adds permissions to a user (Needs refinement)
+*       description: Adds permissions to a user, pass an empty object to clear permissions
 *       parameters:
 *           - in: body
-*             name: administrator
-*             description: JSON details of administrator to be created
+*             name: user
+*             description: JSON details of user to be created
 *             schema:
 *               type: array
 *               items:
@@ -108,7 +108,7 @@ const sequelize = new Sequelize(process.env['PGDATABASE'], process.env['PGUSER']
 *                       type: object
 * 
 */
-export async function administrators(request: HttpRequest, context: InvocationContext): Promise<HttpResponseInit> {
+export async function users(request: HttpRequest, context: InvocationContext): Promise<HttpResponseInit> {
     try {
         await sequelize.authenticate();
         ApplicantModel(sequelize, DataTypes); // interesting how this works
@@ -123,8 +123,8 @@ export async function administrators(request: HttpRequest, context: InvocationCo
     }
 };
 
-app.http('administrators', {
+app.http('users', {
     methods: ['GET', 'POST'],
     authLevel: 'anonymous',
-    handler: administrators
+    handler: users
 });

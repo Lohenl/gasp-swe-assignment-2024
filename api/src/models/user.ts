@@ -1,5 +1,5 @@
 export default (sequelize, DataTypes) => sequelize.define(
-    'Administrator',
+    'User',
     {
         name: {
             type: DataTypes.STRING(50),
