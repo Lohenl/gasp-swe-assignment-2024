@@ -1,6 +1,10 @@
 import { app, HttpRequest, HttpResponseInit, InvocationContext } from "@azure/functions";
 import { Sequelize, DataTypes } from 'sequelize';
-import ApplicantModel from '../models/applicant';
+import AdminRoleModel from "../models/adminrole";
+import EmploymentStatusModel from "../models/employmentstatus";
+import GenderModel from "../models/gender";
+import MaritalStatusModel from "../models/maritalstatus";
+import PermissionScopeModel from "../models/permissionscope";
 const { DateTime } = require("luxon");
 
 const sequelize = new Sequelize(process.env['PGDATABASE'], process.env['PGUSER'], process.env['PGPASSWORD'], {
@@ -94,11 +98,51 @@ const sequelize = new Sequelize(process.env['PGDATABASE'], process.env['PGUSER']
 export async function codetables(request: HttpRequest, context: InvocationContext): Promise<HttpResponseInit> {
     try {
         await sequelize.authenticate();
-        ApplicantModel(sequelize, DataTypes); // interesting how this works
-        const Applicant = sequelize.models.Applicant;
+        AdminRoleModel(sequelize, DataTypes);
+        EmploymentStatusModel(sequelize, DataTypes);
+        GenderModel(sequelize, DataTypes);
+        MaritalStatusModel(sequelize, DataTypes);
+        PermissionScopeModel(sequelize, DataTypes);
+        const AdminRole = sequelize.models.AdminRole;
+        const EmploymentStatus = sequelize.models.EmploymentStatus;
+        const Gender = sequelize.models.Gender;
+        const MaritalStatus = sequelize.models.MaritalStatus;
+        const PermissionScope = sequelize.models.PermissionScope;
 
-        const applicant = Applicant.build({ name: 'Jane Kwok', email: 'janekwok88@gmail.com', mobile_no: '+6512345678', birth_date: DateTime.fromISO('1988-05-02').toJSDate() });
-        return { jsonBody: applicant.dataValues }
+        // wait for all model syncs to finish
+        let syncPromises = [];
+        syncPromises.push(AdminRole.sync());
+        syncPromises.push(EmploymentStatus.sync());
+        syncPromises.push(Gender.sync());
+        syncPromises.push(MaritalStatus.sync());
+        syncPromises.push(PermissionScope.sync());
+        await (syncPromises as any).allSettled();
+
+        if (request.method === 'GET') {
+            // validation happens here, dont forget joi
+            context.log(request.query.get('table_name'));
+            return { jsonBody: {} }
+
+        } else if (request.method === 'POST') {
+            // validation happens here, dont forget joi
+            context.log(request.query.get('table_name'));
+            context.log(request.query.get('code_entry_value'));
+            return { jsonBody: {} }
+
+        } else if (request.method === 'PATCH') {
+            // validation happens here, dont forget joi
+            context.log(request.query.get('table_name'));
+            context.log(request.query.get('code_entry_id'));
+            context.log(request.query.get('code_entry_value'));
+            return { jsonBody: {} }
+            
+        } else if (request.method === 'DELETE') {
+            // validation happens here, dont forget joi
+            context.log(request.query.get('table_name'));
+            context.log(request.query.get('code_entry_id'));
+            return { jsonBody: {} }
+            
+        }
 
     } catch (error) {
         context.error('applicants: error encountered:', error);
