@@ -23,7 +23,7 @@ Coding Assignment for SWE role in GovTech GASP
 - [ ] Backend Logic
     - [ ] Implement
         - [x] applicants
-        - [ ] codetables
+        - [x] codetables
         - [x] users
         - [ ] permissions (the first FKs to make)
         - [ ] households
