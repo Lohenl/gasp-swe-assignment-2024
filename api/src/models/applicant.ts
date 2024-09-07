@@ -1,14 +1,5 @@
-import { Sequelize, DataTypes, Model } from 'sequelize';
-
-// TODO: testing singleton, to turn into a module for DRY
-const sequelize = new Sequelize(process.env['PGDATABASE'], process.env['PGUSER'], process.env['PGPASSWORD'], {
-    host: process.env['PGHOST'],
-    dialect: 'postgres'
-});
-
-class Applicant extends Model { }
-
-Applicant.init(
+export default (sequelize, DataTypes) => sequelize.define(
+    'Applicant',
     {
         name: DataTypes.TEXT,
         favoriteColor: {
@@ -17,12 +8,5 @@ Applicant.init(
         },
         age: DataTypes.INTEGER,
         cash: DataTypes.INTEGER,
-    },
-    {
-        // Other model options go here
-        sequelize, // We need to pass the connection instance
-        modelName: 'Applicant', // We need to choose the model name
-    },
+    }
 );
-
-console.log('Applicant === sequelize.models.Applicant:', Applicant === sequelize.models.Applicant);
