@@ -61,8 +61,8 @@ const sequelize = new Sequelize(process.env['PGDATABASE'], process.env['PGUSER']
 *             description: ID of code entry to update.
 *             schema:
 *               type: string
-*           - in: code_entry_value
-*             name: value
+*           - in: query
+*             name: code_entry_value
 *             description: New value of code entry
 *             required: true
 *             schema:
