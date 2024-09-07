@@ -163,7 +163,6 @@ export async function codetables(request: HttpRequest, context: InvocationContex
             // validation happens here, dont forget joi
             context.log(request.query.get('table_name'));
             context.log(request.query.get('code_entry_value'));
-            let jsonBody;
             let CodeTable;
             switch (request.query.get('table_name')) {
                 case 'AdminRole':
@@ -184,26 +183,66 @@ export async function codetables(request: HttpRequest, context: InvocationContex
             }
             const codeValue = CodeTable.build({ name: request.query.get('code_entry_value') });
             await codeValue.save();
-            jsonBody = codeValue.dataValues;
-            return { jsonBody }
+            return { jsonBody: codeValue.dataValues }
 
         } else if (request.method === 'PATCH') {
             // validation happens here, dont forget joi
             context.log(request.query.get('table_name'));
             context.log(request.query.get('code_entry_id'));
             context.log(request.query.get('code_entry_value'));
-            return { jsonBody: {} }
+            let CodeTable;
+            switch (request.query.get('table_name')) {
+                case 'AdminRole':
+                    CodeTable = AdminRole;
+                    break;
+                case 'EmploymentStatus':
+                    CodeTable = EmploymentStatus;
+                    break;
+                case 'Gender':
+                    CodeTable = Gender;
+                    break;
+                case 'MaritalStatus':
+                    CodeTable = MaritalStatus;
+                    break;
+                case 'PermissionScope':
+                    CodeTable = PermissionScope;
+                    break;
+            }
+            const codeValue = await CodeTable.findByPk(request.query.get('code_entry_id'));
+            codeValue.update({ value: request.query.get('code_entry_value') });
+            await codeValue.save();
+            return { jsonBody: codeValue.dataValues }
 
         } else if (request.method === 'DELETE') {
             // validation happens here, dont forget joi
             context.log(request.query.get('table_name'));
             context.log(request.query.get('code_entry_id'));
-            return { jsonBody: {} }
+            let CodeTable;
+            switch (request.query.get('table_name')) {
+                case 'AdminRole':
+                    CodeTable = AdminRole;
+                    break;
+                case 'EmploymentStatus':
+                    CodeTable = EmploymentStatus;
+                    break;
+                case 'Gender':
+                    CodeTable = Gender;
+                    break;
+                case 'MaritalStatus':
+                    CodeTable = MaritalStatus;
+                    break;
+                case 'PermissionScope':
+                    CodeTable = PermissionScope;
+                    break;
+            }
+            const codeValue = await AdminRole.findByPk(request.query.get('code_entry_id'));
+            await codeValue.destroy();
+            return { body: request.query.get('code_entry_id') }
 
         }
 
     } catch (error) {
-        context.error('applicants: error encountered:', error);
+        context.error('codetables: error encountered:', error);
         return { status: 500, body: `Unexpected error occured: ${error}` }
     }
 };
