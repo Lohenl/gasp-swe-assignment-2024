@@ -24,7 +24,7 @@ Coding Assignment for SWE role in GovTech GASP
     - [ ] Implement
         - [x] applicants
         - [ ] codetables
-        - [ ] users
+        - [x] users
         - [ ] permissions (the first FKs to make)
         - [ ] households
         - [ ] schemes + benefits
