@@ -80,7 +80,7 @@ const sequelize = new Sequelize(process.env['PGDATABASE'], process.env['PGUSER']
 *       description: Delete code table entry by code table name and ID
 *       parameters:
 *           - in: query
-*             name: code_table_name
+*             name: table_name
 *             required: true
 *             description: Table name of code to be deleted from.
 *             schema:
@@ -209,7 +209,7 @@ export async function codetables(request: HttpRequest, context: InvocationContex
                     break;
             }
             const codeValue = await CodeTable.findByPk(request.query.get('code_entry_id'));
-            codeValue.update({ value: request.query.get('code_entry_value') });
+            codeValue.update({ name: request.query.get('code_entry_value') });
             await codeValue.save();
             return { jsonBody: codeValue.dataValues }
 
@@ -235,7 +235,7 @@ export async function codetables(request: HttpRequest, context: InvocationContex
                     CodeTable = PermissionScope;
                     break;
             }
-            const codeValue = await AdminRole.findByPk(request.query.get('code_entry_id'));
+            const codeValue = await CodeTable.findByPk(request.query.get('code_entry_id'));
             await codeValue.destroy();
             return { body: request.query.get('code_entry_id') }
 
