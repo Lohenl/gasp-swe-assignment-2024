@@ -116,12 +116,48 @@ export async function codetables(request: HttpRequest, context: InvocationContex
         syncPromises.push(Gender.sync());
         syncPromises.push(MaritalStatus.sync());
         syncPromises.push(PermissionScope.sync());
-        await (syncPromises as any).allSettled();
+        await Promise.allSettled(syncPromises);
 
         if (request.method === 'GET') {
             // validation happens here, dont forget joi
             context.log(request.query.get('table_name'));
-            return { jsonBody: {} }
+            if (!request.query.get('table_name')) {
+                let findallPromises = [];
+                findallPromises.push(AdminRole.findAll({}));
+                findallPromises.push(EmploymentStatus.findAll({}));
+                findallPromises.push(Gender.findAll({}));
+                findallPromises.push(MaritalStatus.findAll({}));
+                findallPromises.push(PermissionScope.findAll({}));
+                const allResults = await Promise.allSettled(findallPromises);
+                let jsonBody = {
+                    AdminRole: (allResults[0] as any).value,
+                    EmploymentStatus: (allResults[1] as any).value,
+                    Gender: (allResults[2] as any).value,
+                    MaritalStatus: (allResults[3] as any).value,
+                    PermissionScope: (allResults[4] as any).value,
+                };
+                return { jsonBody }
+            } else {
+                let jsonBody;
+                switch (request.query.get('table_name')) {
+                    case 'AdminRole':
+                        jsonBody = await AdminRole.findAll({});
+                        break;
+                    case 'EmploymentStatus':
+                        jsonBody = await EmploymentStatus.findAll({});
+                        break;
+                    case 'Gender':
+                        jsonBody = await Gender.findAll({});
+                        break;
+                    case 'MaritalStatus':
+                        jsonBody = await MaritalStatus.findAll({});
+                        break;
+                    case 'PermissionScope':
+                        jsonBody = await PermissionScope.findAll({});
+                        break;
+                }
+                return { jsonBody }
+            }
 
         } else if (request.method === 'POST') {
             // validation happens here, dont forget joi
@@ -135,13 +171,13 @@ export async function codetables(request: HttpRequest, context: InvocationContex
             context.log(request.query.get('code_entry_id'));
             context.log(request.query.get('code_entry_value'));
             return { jsonBody: {} }
-            
+
         } else if (request.method === 'DELETE') {
             // validation happens here, dont forget joi
             context.log(request.query.get('table_name'));
             context.log(request.query.get('code_entry_id'));
             return { jsonBody: {} }
-            
+
         }
 
     } catch (error) {
