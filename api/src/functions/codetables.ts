@@ -16,9 +16,29 @@ const sequelize = new Sequelize(process.env['PGDATABASE'], process.env['PGUSER']
 *       summary: Get all code tables / Get code table by name
 *       description: Get a specific code table's details by name. Omit ID to get all code table' details registered in system.
 *       parameters:
-*           - in: path
-*             name: name
+*           - in: query
+*             name: table_name
 *             description: Name of a specific code table to retrieve.
+*             schema:
+*               type: string
+*       responses:
+*           200:
+*               description: Successful response
+* 
+*   post:
+*       summary: Adds a codetable entry
+*       description: Adds a codetable entry
+*       parameters:
+*           - in: query
+*             name: table_name
+*             description: Name of code table to add an entry to.
+*             required: true
+*             schema:
+*               type: string
+*           - in: query
+*             name: code_entry_value
+*             description: Value of code entry to be added to code table
+*             required: true
 *             schema:
 *               type: string
 *       responses:
@@ -29,40 +49,42 @@ const sequelize = new Sequelize(process.env['PGDATABASE'], process.env['PGUSER']
 *       summary: Updates a code table
 *       description: Updates a code table
 *       parameters:
-*           - in: path
-*             name: name
+*           - in: query
+*             name: table_name
 *             required: true
 *             description: Name of the code table to update.
 *             schema:
 *               type: string
-*           - in: body
-*             name: codetable
-*             description: JSON details of code table to update with
+*           - in: query
+*             name: code_entry_id
+*             required: true
+*             description: ID of code entry to update.
 *             schema:
-*               type: object
-*               required:
-*                   - name
-*                   - id
-*               properties:
-*                   name:
-*                       type: string
-*                   id:
-*                       type: string
+*               type: string
+*           - in: code_entry_value
+*             name: value
+*             description: New value of code entry
+*             required: true
+*             schema:
+*               type: string
+*       responses:
+*           200:
+*               description: Successful response
 * 
 *   delete:
 *       summary: Delete code table entry by code table name and ID
 *       description: Delete code table entry by code table name and ID
 *       parameters:
-*           - in: path
-*             name: table_name
+*           - in: query
+*             name: code_table_name
 *             required: true
 *             description: Table name of code to be deleted from.
 *             schema:
 *                 type: string
-*           - in: path
-*             name: id
+*           - in: query
+*             name: code_entry_id
 *             required: true
-*             description: ID of code to delete.
+*             description: ID of code table entry to delete.
 *             schema:
 *                 type: string
 *       responses:
@@ -85,7 +107,7 @@ export async function codetables(request: HttpRequest, context: InvocationContex
 };
 
 app.http('codetables', {
-    methods: ['GET', 'POST'],
+    methods: ['GET', 'POST', 'PATCH', 'DELETE'],
     authLevel: 'anonymous',
     handler: codetables
 });
