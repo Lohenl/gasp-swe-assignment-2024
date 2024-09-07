@@ -1,7 +1,6 @@
 import { app, HttpRequest, HttpResponseInit, InvocationContext } from "@azure/functions";
 import { Sequelize, DataTypes } from 'sequelize';
-import ApplicantModel from '../models/applicant';
-const { DateTime } = require("luxon");
+import UserModel from '../models/user';
 
 const sequelize = new Sequelize(process.env['PGDATABASE'], process.env['PGUSER'], process.env['PGPASSWORD'], {
     host: process.env['PGHOST'],
@@ -16,7 +15,7 @@ const sequelize = new Sequelize(process.env['PGDATABASE'], process.env['PGUSER']
 *       summary: Get all user details / Get user details by ID
 *       description: Get a specific user's details by ID. Omit ID to get all users' details registered in system.
 *       parameters:
-*           - in: path
+*           - in: query
 *             name: id
 *             description: ID of a specific user to retrieve.
 *             schema:
@@ -28,51 +27,66 @@ const sequelize = new Sequelize(process.env['PGDATABASE'], process.env['PGUSER']
 *   post:
 *       summary: Creates a user
 *       description: Creates a user
-*       parameters:
-*           - in: body
-*             name: user
-*             description: JSON details of user to be created
-*             schema:
-*               type: object
-*               required:
-*                   - name
-*               properties:
-*                   name:
-*                       type: string
-*                   email:
-*                       type: string
+*       requestBody:
+*           description: JSON details of user to be created
+*           required: true
+*           content:
+*               application/json:
+*                   schema:
+*                       users:
+*                           type: object
+*                       required:
+*                           - name
+*                       properties:
+*                           name:
+*                               type: string
+*                           email:
+*                               type: string
+*                   example:
+*                       name: "Loh En Liang"
+*                       email: "loh_en_liang@tech.gov.sg"
+*       responses:
+*           200:
+*               description: Successful response
 * 
 *   patch:
-*       summary: Updates an adminstrator
-*       description: Updates an adminstrator
+*       summary: Updates a user
+*       description: Updates a user
 *       parameters:
-*           - in: path
+*           - in: query
 *             name: id
 *             required: true
-*             description: ID of the adminstrator to update.
+*             description: ID of the user to update.
 *             schema:
 *               type: string
-*           - in: body
-*             name: adminstrator
-*             description: JSON details of adminstrator to update with
-*             schema:
-*               type: object
-*               required:
-*                   - name
-*               properties:
-*                   name:
-*                       type: string
-*                   email:
-*                       type: string
+*       requestBody:
+*           description: JSON details of user to be updated
+*           required: true
+*           content:
+*               application/json:
+*                   schema:
+*                       applicants:
+*                           type: object
+*                       properties:
+*                           name:
+*                               type: string
+*                           email:
+*                               type: string
+*                   example:
+*                       name: "Loh En Liang"
+*                       email: "loh_en_liang@cpf.gov.sg"
+*       responses:
+*           200:
+*               description: Successful response
 * 
 *   delete:
-*       summary: Delete adminstrator by ID
-*       description: Delete an adminstrator from the system by ID.
+*       summary: Delete user by ID
+*       description: Delete a user from the system by ID.
 *       parameters:
-*           - in: path
+*           - in: query
 *             name: id
 *             required: true
-*             description: ID of the adminstrator to delete.
+*             description: ID of the user to delete.
 *             schema:
 *               type: string
 *       responses:
@@ -83,9 +97,9 @@ const sequelize = new Sequelize(process.env['PGDATABASE'], process.env['PGUSER']
 * 
 *   get:
 *       summary: Get permission details of all users / Get permission details of user by ID
-*       description: Get a specific adminstrator's permission details by ID. Omit ID to get all users' permission details registered in system.
+*       description: Get a specific user's permission details by ID. Omit ID to get all users' permission details registered in system.
 *       parameters:
-*           - in: path
+*           - in: query
 *             name: id
 *             description: ID of the applicant to retrieve.
 *             schema:
@@ -110,21 +124,55 @@ const sequelize = new Sequelize(process.env['PGDATABASE'], process.env['PGUSER']
 */
 export async function users(request: HttpRequest, context: InvocationContext): Promise<HttpResponseInit> {
     try {
-        await sequelize.authenticate();
-        ApplicantModel(sequelize, DataTypes); // interesting how this works
-        const Applicant = sequelize.models.Applicant;
 
-        const applicant = Applicant.build({ name: 'Jane Kwok', email: 'janekwok88@gmail.com', mobile_no: '+6512345678', birth_date: DateTime.fromISO('1988-05-02').toJSDate() });
-        return { jsonBody: applicant.dataValues }
+        await sequelize.authenticate();
+        UserModel(sequelize, DataTypes);
+        const User = sequelize.models.User;
+        await User.sync();
+
+        if (request.method === 'GET') {
+            if (!request.query.get('id')) {
+                const users = await User.findAll({});
+                return { jsonBody: users }
+            } else {
+                // validation happens here, dont forget joi
+                const user = await User.findByPk(request.query.get('id'));
+                return { jsonBody: user }
+            }
+
+        } else if (request.method === 'POST') {
+            const reqBody = await request.json();
+            // validation happens here, dont forget joi
+            const user = User.build({
+                name: reqBody['name'],
+                email: reqBody['email'],
+            });
+            await user.save();
+            return { jsonBody: user.dataValues }
+
+        } else if (request.method === 'PATCH') {
+            const updateFields = await request.json();
+            // validation happens here, dont forget joi
+            const user = await User.findByPk(request.query.get('id'));
+            user.update(updateFields);
+            await user.save();
+            return { jsonBody: user.dataValues }
+
+        } else if (request.method === 'DELETE') {
+            // validation happens here, dont forget joi
+            const user = await User.findByPk(request.query.get('id'));
+            await user.destroy();
+            return { body: request.query.get('id') }
+        }
 
     } catch (error) {
-        context.error('applicants: error encountered:', error);
+        context.error('users: error encountered:', error);
         return { status: 500, body: `Unexpected error occured: ${error}` }
     }
 };
 
 app.http('users', {
-    methods: ['GET', 'POST'],
+    methods: ['GET', 'POST', 'PATCH', 'DELETE'],
     authLevel: 'anonymous',
     handler: users
 });
