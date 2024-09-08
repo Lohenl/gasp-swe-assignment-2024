@@ -2,7 +2,7 @@ import Joi = require('joi');
 
 const schema = Joi.object({
     id: Joi.string().guid,
-    name: Joi.string().max(50),
+    name: Joi.string().max(50).required(),
     description: Joi.string().max(1000),
     amount: Joi.number(),
     updatedAt: Joi.string(),

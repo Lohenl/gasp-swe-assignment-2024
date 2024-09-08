@@ -1,10 +1,12 @@
 import { app, HttpRequest, HttpResponseInit, InvocationContext } from "@azure/functions";
 import { Sequelize, DataTypes } from 'sequelize';
+import Joi = require('joi');
 import ApplicantModel from '../models/applicant';
 import EmploymentstatusModel from "../models/employmentstatus";
 import MaritalStatusModel from "../models/maritalstatus";
 import GenderModel from "../models/gender";
 const { DateTime } = require("luxon");
+const validate = require('../validators/applicantsValidate');
 
 const sequelize = new Sequelize(process.env['PGDATABASE'], process.env['PGUSER'], process.env['PGPASSWORD'], {
     host: process.env['PGHOST'],
@@ -130,7 +132,6 @@ const sequelize = new Sequelize(process.env['PGDATABASE'], process.env['PGUSER']
 */
 export async function applicants(request: HttpRequest, context: InvocationContext): Promise<HttpResponseInit> {
     try {
-
         await sequelize.authenticate();
         ApplicantModel(sequelize, DataTypes); // interesting how this works
         EmploymentstatusModel(sequelize, DataTypes);
@@ -166,8 +167,9 @@ export async function applicants(request: HttpRequest, context: InvocationContex
             }
 
         } else if (request.method === 'POST') {
-            // validation happens here, dont forget joi
+            // validations
             const reqBody = await request.json();
+            validate(reqBody);
             context.log('reqBody', reqBody);
             // create transaction here (lots of FKs to make)
             const result = await sequelize.transaction(async t => {
@@ -191,6 +193,7 @@ export async function applicants(request: HttpRequest, context: InvocationContex
         } else if (request.method === 'PATCH') {
             // validation happens here, dont forget joi
             const updateFields = await request.json();
+            validate(updateFields);
             context.log('updateFields', updateFields);
             const applicant = await Applicant.findByPk(request.query.get('id'));
             if (!applicant) {
@@ -216,6 +219,7 @@ export async function applicants(request: HttpRequest, context: InvocationContex
 
     } catch (error) {
         context.error('applicants: error encountered:', error);
+        if (Joi.isError(error)) { return { status: 400, jsonBody: error } }
         return { status: 500, body: `Unexpected error occured: ${error}` }
     }
 };
