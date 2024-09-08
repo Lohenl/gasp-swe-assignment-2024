@@ -2,6 +2,8 @@ import { app, HttpRequest, HttpResponseInit, InvocationContext } from "@azure/fu
 import { Sequelize, DataTypes } from 'sequelize';
 import SchemeModel from "../models/scheme";
 import BenefitModel from "../models/benefit";
+import ApplicantModel from "../models/applicant";
+import { Engine } from 'json-rules-engine';
 
 const sequelize = new Sequelize(process.env['PGDATABASE'], process.env['PGUSER'], process.env['PGPASSWORD'], {
     host: process.env['PGHOST'],
@@ -16,7 +18,8 @@ const sequelize = new Sequelize(process.env['PGDATABASE'], process.env['PGUSER']
 *       description: Get all schemes that an applicant is eligible to apply for
 *       parameters:
 *           - in: query
-*             name: applicant
+*             name: id
+*             required: true
 *             description: ID of the applicant to retrieve.
 *             schema:
 *               type: string
@@ -32,8 +35,10 @@ export async function schemesEligibility(request: HttpRequest, context: Invocati
         await sequelize.authenticate();
         SchemeModel(sequelize, DataTypes);
         BenefitModel(sequelize, DataTypes);
+        ApplicantModel(sequelize, DataTypes);
         const Scheme = sequelize.models.Scheme;
         const Benefit = sequelize.models.Benefit;
+        const Applicant = sequelize.models.Applicant;
         Scheme.hasMany(Benefit, { onDelete: 'cascade' }); // deletes any benefits associated with this scheme when its deleted
         Benefit.belongsTo(Scheme);
 
@@ -41,20 +46,56 @@ export async function schemesEligibility(request: HttpRequest, context: Invocati
         let syncPromises = [];
         syncPromises.push(Scheme.sync());
         syncPromises.push(Benefit.sync());
+        syncPromises.push(Applicant.sync());
         await Promise.allSettled(syncPromises);
 
         // validation happens here, dont forget joi
-        // context.log(request.query.get('id'));
-        // if (!request.query.get('id')) {
-        //     const schemes = await Scheme.findAll({});
-        //     return { jsonBody: schemes }
-        // } else {
-        //     // validation happens here, dont forget joi
-        //     const scheme = await Scheme.findByPk(request.query.get('id'));
-        //     return { jsonBody: scheme }
-        // }
+        context.log(request.query.get('id'));
+        const applicant = await Applicant.findByPk(request.query.get('id'))
+        if (!applicant) {
+            return { status: 400, body: 'invalid ID provided' }
+        }
 
-        return { jsonBody: {} }
+        // get all schemes, also eagerly load associated benefits
+        const schemes = await Scheme.findAll({ include: Benefit });
+        if (!schemes) {
+            return { status: 500, body: 'no schemes loaded in system' }
+        }
+
+        let evaluatedSchemes = [];
+        let eligibleSchemes = [];
+
+        let engine = new Engine();
+
+        // load applicant details into rules engine as facts
+        engine.addFact('applicant-details', () => {
+            return applicant.dataValues;
+        });
+
+        // load all defined scheme conditions into the rules engine
+        schemes.forEach(scheme => {
+            let savedRule = scheme.dataValues.eligibility_criteria;
+            if (savedRule) {
+                evaluatedSchemes.push(scheme);
+                engine.addRule(JSON.parse(savedRule));
+            }
+        });
+
+        // run rules engine for result
+        let facts = { applicantId: request.query.get('id') }
+        let engineResults = await engine.run(facts);
+        engineResults.results.forEach((result, index) => {
+            // TODO: test assumption that rules are evaluated in the order of adding to engine
+            context.log('condition name:', result.name, ', result:', result.result);
+            // if rule engine determines eligible, add to list of eligible schemes
+            if (result.result) {
+                eligibleSchemes.push(evaluatedSchemes[index]);
+            }
+        });
+
+        // do json transformation here
+        let jsonBody = eligibleSchemes;
+        return { jsonBody }
 
     } catch (error) {
         context.error('schemes: error encountered:', error);
