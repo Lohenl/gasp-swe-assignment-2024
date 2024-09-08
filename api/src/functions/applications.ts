@@ -138,17 +138,11 @@ export async function applications(request: HttpRequest, context: InvocationCont
             const scheme = await Scheme.findByPk(request.query.get('scheme_id'));
             if (applicant && scheme) {
                 // create transaction here (lots of FKs to make)
-                const result = await sequelize.transaction(async t => {
-                    const application = await Application.create({
-                        AdminRoleId: request.query.get('admin_role_id'),
-                        PermissionScopeId: request.query.get('permission_scope_id'),
-                    }, {
-                        include: [Applicant, Scheme],
-                        transaction: t
-                    });
-                    return application;
+                const application = await Application.create({
+                    ApplicantId: request.query.get('applicant_id'),
+                    SchemeId: request.query.get('scheme_id'),
                 });
-                return { jsonBody: result.dataValues };
+                return { jsonBody: application.dataValues };
             } else {
                 return { status: 400, body: 'invalid ID(s) provided for applicant_id and/or scheme_id' }
             }
