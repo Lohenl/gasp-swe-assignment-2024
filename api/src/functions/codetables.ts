@@ -6,6 +6,7 @@ import EmploymentStatusModel from "../models/employmentstatus";
 import GenderModel from "../models/gender";
 import MaritalStatusModel from "../models/maritalstatus";
 import PermissionScopeModel from "../models/permissionscope";
+import RelationshipModel from "../models/relationship";
 
 const sequelize = new Sequelize(process.env['PGDATABASE'], process.env['PGUSER'], process.env['PGPASSWORD'], {
     host: process.env['PGHOST'],
@@ -104,11 +105,13 @@ export async function codetables(request: HttpRequest, context: InvocationContex
         GenderModel(sequelize, DataTypes);
         MaritalStatusModel(sequelize, DataTypes);
         PermissionScopeModel(sequelize, DataTypes);
+        RelationshipModel(sequelize, DataTypes);
         const AdminRole = sequelize.models.AdminRole;
         const EmploymentStatus = sequelize.models.EmploymentStatus;
         const Gender = sequelize.models.Gender;
         const MaritalStatus = sequelize.models.MaritalStatus;
         const PermissionScope = sequelize.models.PermissionScope;
+        const Relationship = sequelize.models.Relationship;
 
         // wait for all model syncs to finish
         const syncPromises = [];
@@ -117,6 +120,7 @@ export async function codetables(request: HttpRequest, context: InvocationContex
         syncPromises.push(Gender.sync());
         syncPromises.push(MaritalStatus.sync());
         syncPromises.push(PermissionScope.sync());
+        syncPromises.push(Relationship.sync());
         await Promise.allSettled(syncPromises);
 
         if (request.method === 'GET') {
@@ -128,6 +132,7 @@ export async function codetables(request: HttpRequest, context: InvocationContex
                 findallPromises.push(Gender.findAll({}));
                 findallPromises.push(MaritalStatus.findAll({}));
                 findallPromises.push(PermissionScope.findAll({}));
+                findallPromises.push(Relationship.findAll({}));
                 const allResults = await Promise.allSettled(findallPromises) as any[];
                 const jsonBody = {
                     AdminRole: allResults[0].value,
@@ -135,6 +140,7 @@ export async function codetables(request: HttpRequest, context: InvocationContex
                     Gender: allResults[2].value,
                     MaritalStatus: allResults[3].value,
                     PermissionScope: allResults[4].value,
+                    Relationship: allResults[5].value,
                 };
                 return { jsonBody }
             } else {
@@ -155,6 +161,9 @@ export async function codetables(request: HttpRequest, context: InvocationContex
                         break;
                     case 'PermissionScope':
                         jsonBody = await PermissionScope.findAll({});
+                        break;
+                    case 'Relationship':
+                        jsonBody = await Relationship.findAll({});
                         break;
                 }
                 return { jsonBody }
@@ -182,6 +191,9 @@ export async function codetables(request: HttpRequest, context: InvocationContex
                     break;
                 case 'PermissionScope':
                     CodeTable = PermissionScope;
+                    break;
+                case 'Relationship':
+                    CodeTable = Relationship;
                     break;
             }
             const codeValue = CodeTable.build({ name: request.query.get('code_entry_value') });
@@ -213,6 +225,9 @@ export async function codetables(request: HttpRequest, context: InvocationContex
                 case 'PermissionScope':
                     CodeTable = PermissionScope;
                     break;
+                case 'Relationship':
+                    CodeTable = Relationship;
+                    break;
             }
             const codeValue = await CodeTable.findByPk(request.query.get('code_entry_id'));
             if (!codeValue) {
@@ -243,6 +258,9 @@ export async function codetables(request: HttpRequest, context: InvocationContex
                     break;
                 case 'PermissionScope':
                     CodeTable = PermissionScope;
+                    break;
+                case 'Relationship':
+                    CodeTable = Relationship;
                     break;
             }
             const codeValue = await CodeTable.findByPk(request.query.get('code_entry_id'));
