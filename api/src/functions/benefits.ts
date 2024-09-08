@@ -133,7 +133,26 @@ export async function benefits(request: HttpRequest, context: InvocationContext)
             context.log(request.query.get('id'));
             context.log(request.query.get('scheme_id'));
 
-            return { jsonBody: {} }
+            if (request.query.get('id') && request.query.get('scheme_id')) {
+                return { status: 400, body: 'Provide either id or scheme_id, not both' }
+            } else if (!request.query.get('id') && !request.query.get('scheme_id')) {
+                return { status: 400, body: 'Provide either id or scheme_id' }
+            }
+
+            if (request.query.get('id')) {
+                const benefit = await Benefit.findByPk(request.query.get('id'));
+                return { jsonBody: benefit }
+
+            } else if (request.query.get('scheme_id')) {
+                const benefits = await Benefit.findAll({ where: { SchemeId: request.query.get('scheme_id') } });
+                context.log('benefits', benefits);
+                let jsonBody = [];
+                benefits.forEach(benefit => {
+                    jsonBody.push(benefit.dataValues);
+                })
+                return { jsonBody }
+
+            }
 
         } else if (request.method === 'POST') {
             // validation happens here, dont forget joi
