@@ -1,6 +1,8 @@
 import { app, HttpRequest, HttpResponseInit, InvocationContext } from "@azure/functions";
 import { Sequelize, DataTypes } from 'sequelize';
+import Joi = require('joi');
 import UserModel from '../models/user';
+const validateJSON = require('../validators/usersValidate');
 
 const sequelize = new Sequelize(process.env['PGDATABASE'], process.env['PGUSER'], process.env['PGPASSWORD'], {
     host: process.env['PGHOST'],
@@ -103,17 +105,20 @@ export async function users(request: HttpRequest, context: InvocationContext): P
         await User.sync();
 
         if (request.method === 'GET') {
+            context.debug('id:', request.query.get('id'));
             if (!request.query.get('id')) {
                 const users = await User.findAll({});
                 return { jsonBody: users }
             } else {
-                // validation happens here, dont forget joi
+                Joi.assert(request.query.get('id'), Joi.string().guid());
                 const user = await User.findByPk(request.query.get('id'));
                 return { jsonBody: user }
             }
 
         } else if (request.method === 'POST') {
             const reqBody = await request.json();
+            context.debug('reqBody:', reqBody);
+            validateJSON(reqBody);
             // validation happens here, dont forget joi
             const user = User.build({
                 name: reqBody['name'],
@@ -123,8 +128,11 @@ export async function users(request: HttpRequest, context: InvocationContext): P
             return { jsonBody: user.dataValues }
 
         } else if (request.method === 'PATCH') {
+            context.debug('id:', request.query.get('id'));
             const updateFields = await request.json();
-            // validation happens here, dont forget joi
+            context.debug('updateFields:', updateFields);
+            Joi.assert(request.query.get('id'), Joi.string().guid().required());
+            validateJSON(updateFields);
             const user = await User.findByPk(request.query.get('id'));
             if (!user) {
                 return { status: 400, body: 'invalid id provided' }
@@ -134,17 +142,18 @@ export async function users(request: HttpRequest, context: InvocationContext): P
             return { jsonBody: user.dataValues }
 
         } else if (request.method === 'DELETE') {
-            // validation happens here, dont forget joi
+            context.debug('id:', request.query.get('id'));
             const user = await User.findByPk(request.query.get('id'));
+            Joi.assert(request.query.get('id'), Joi.string().guid().required());
             if (!user) {
                 return { status: 400, body: 'invalid id provided' }
             }
             await user.destroy();
             return { body: request.query.get('id') }
         }
-
     } catch (error) {
         context.error('users: error encountered:', error);
+        if (Joi.isError(error)) { return { status: 400, jsonBody: error } }
         return { status: 500, body: `Unexpected error occured: ${error}` }
     }
 };
