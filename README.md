@@ -45,7 +45,7 @@ Coding Assignment for SWE role in GovTech GASP
 - [ ] Code Quality
     - [x] Eslint cleanup
     - [ ] Testing
-    - [ ] SAST (Likely Synk again lol)
+    - [x] SAST (Synk again lol)
 - [ ] Documentation
     - [ ] README
     - [ ] Swagger
