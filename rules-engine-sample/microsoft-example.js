@@ -52,6 +52,16 @@ engine.addFact('account-information', function (params, almanac) {
     console.log('loading account information...')
     return almanac.factValue('accountId')
         .then((accountId) => {
+            console.log('accountId:', accountId);
+            apiClient.getAccountInformation(accountId).then(info => {
+                console.log('info:', info);
+            })
+            // info: {
+            //     company: 'microsoft',
+            //     status: 'active',
+            //     ptoDaysTaken: ['2016-02-21', '2016-12-25', '2016-03-28'],
+            //     createdAt: '2015-06-26'
+            // }
             return apiClient.getAccountInformation(accountId)
         })
 })
