@@ -119,20 +119,65 @@ export async function applications(request: HttpRequest, context: InvocationCont
             // validation happens here, dont forget joi
             context.log(request.query.get('applicant_id'));
             context.log(request.query.get('scheme_id'));
-            return { jsonBody: {} };
+            if (!request.query.get('id')) {
+                const applications = await Application.findAll({});
+                return { jsonBody: applications }
+            } else {
+                const application = await Application.findByPk(request.query.get('id'));
+                return { jsonBody: application }
+            }
 
         } else if (request.method === 'POST') {
             // validation happens here, dont forget joi
             context.log(request.query.get('applicant_id'));
             context.log(request.query.get('scheme_id'));
-            return { jsonBody: {} };
+
+            // practically speaking a UI would directly feed the respective IDs to this join table
+            // so at best you would only need to check if the IDs exist in the respective tables
+            const applicant = await Applicant.findByPk(request.query.get('applicant_id'));
+            const scheme = await Scheme.findByPk(request.query.get('scheme_id'));
+            if (applicant && scheme) {
+                // create transaction here (lots of FKs to make)
+                const result = await sequelize.transaction(async t => {
+                    const application = await Application.create({
+                        AdminRoleId: request.query.get('admin_role_id'),
+                        PermissionScopeId: request.query.get('permission_scope_id'),
+                    }, {
+                        include: [Applicant, Scheme],
+                        transaction: t
+                    });
+                    return application;
+                });
+                return { jsonBody: result.dataValues };
+            } else {
+                return { status: 400, body: 'invalid ID(s) provided for applicant_id and/or scheme_id' }
+            }
 
         } else if (request.method === 'PATCH') {
             // validation happens here, dont forget joi
             context.log(request.query.get('application_id'));
             context.log(request.query.get('applicant_id'));
             context.log(request.query.get('scheme_id'));
-            return { jsonBody: {} };
+
+            const application = await Application.findByPk(request.query.get('application_id'));
+            if (!application) {
+                return { status: 400, body: 'invalid id provided' }
+            }
+            const applicant = await Applicant.findByPk(request.query.get('applicant_id'));
+            const scheme = await Scheme.findByPk(request.query.get('scheme_id'));
+            if (applicant && scheme) {
+                const result = await sequelize.transaction(async t => {
+                    application.update({
+                        ApplicantId: request.query.get('applicant_id'),
+                        SchemeId: request.query.get('scheme_id'),
+                    });
+                    return application;
+                })
+
+                return { jsonBody: result.dataValues };
+            } else {
+                return { status: 400, body: 'invalid ID(s) provided for admin_role_id and/or permission_scope_id' }
+            }
 
         } else if (request.method === 'DELETE') {
             // validation happens here, dont forget joi
