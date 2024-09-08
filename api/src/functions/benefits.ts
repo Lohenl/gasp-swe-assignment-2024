@@ -88,9 +88,9 @@ const sequelize = new Sequelize(process.env['PGDATABASE'], process.env['PGUSER']
 *                           amount:
 *                               type: number
 *                   example:
-*                       name: "CPF Medisave Account Top Up"
-*                       description: "Top up to citizen's CPF Medisave Account"
-*                       amount: 600.00
+*                       name: "CPF Ordinary Account Top Up"
+*                       description: "Top up to citizen's CPF Ordinary Account"
+*                       amount: 500.00
 *       responses:
 *           200:
 *               description: Successful response
@@ -166,23 +166,32 @@ export async function benefits(request: HttpRequest, context: InvocationContext)
             if (!scheme) {
                 return { status: 400, body: 'invalid scheme_id provided' }
             }
-            
+
             // do creation
             const benefit = await Benefit.create({ ...benefitToCreate, SchemeId: request.query.get('scheme_id') });
             return { jsonBody: benefit.dataValues }
 
         } else if (request.method === 'PATCH') {
             // validation happens here, dont forget joi
-            context.log(request.query.get('scheme_id'));
-            const schemeToCreate = await request.json();
-            context.log('schemeToCreate:', schemeToCreate);
-            return { jsonBody: {} }
+            context.log(request.query.get('benefit_id'));
+            const benefitToUpdate = await request.json();
+            context.log('benefitToUpdate:', benefitToUpdate);
+
+            // check if benefit exists
+            const benefit = await Benefit.findByPk(request.query.get('benefit_id'));
+            if (!benefit) {
+                return { status: 400, body: 'invalid benefit_id provided' }
+            }
+            benefit.update(benefitToUpdate);
+            await benefit.save();
+            return { jsonBody: benefit.dataValues }
 
         } else if (request.method === 'DELETE') {
             // validation happens here, dont forget joi
             context.log(request.query.get('id'));
-            return { jsonBody: {} }
-
+            const benefit = await Benefit.findByPk(request.query.get('id'));
+            await benefit.destroy();
+            return { body: request.query.get('id') }
         }
 
     } catch (error) {
