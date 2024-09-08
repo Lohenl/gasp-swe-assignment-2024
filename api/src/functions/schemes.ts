@@ -194,7 +194,7 @@ export async function schemes(request: HttpRequest, context: InvocationContext):
 };
 
 app.http('schemes', {
-    methods: ['GET', 'POST'],
+    methods: ['GET', 'POST', 'PATCH', 'DELETE'],
     authLevel: 'anonymous',
     handler: schemes
 });
