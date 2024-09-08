@@ -21,7 +21,7 @@ Coding Assignment for SWE role in GovTech GASP
     - [x] Swagger Specs
     - [x] Scaffold
 - [ ] Backend Logic
-    - [ ] Implement
+    - [x] Implement
         - [x] applicants
         - [x] codetables
         - [x] users
@@ -37,7 +37,7 @@ Coding Assignment for SWE role in GovTech GASP
             - [x] develop 1 test case (male employed/self-employed)
             - [x] document test case (update swagger docs)
         - [x] applications (need to simplify the model, no time)
-        - [ ] Eslint (airbnb base)
+        - [x] Eslint (airbnb base)
     - [ ] Build validators with joi
     - [x] Integrate Rules Engine
         - [x] Update /schemes/eligible API
