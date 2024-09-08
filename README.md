@@ -48,7 +48,7 @@ Coding Assignment for SWE role in GovTech GASP
     - [x] SAST (Synk again lol)
 - [ ] Missed Out on First Pass
     - [ ] Applicant relationships in Households
-        - [ ] Revisit DB Diagram
+        - [x] Revisit DB Diagram
         - [ ] Build Models
         - [ ] Update Functions
         - [ ] Test Regression urgh
