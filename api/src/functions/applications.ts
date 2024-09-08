@@ -182,7 +182,12 @@ export async function applications(request: HttpRequest, context: InvocationCont
         } else if (request.method === 'DELETE') {
             // validation happens here, dont forget joi
             context.log(request.query.get('application_id'));
-            return { jsonBody: {} };
+            const application = await Application.findByPk(request.query.get('application_id'));
+            if (!application) {
+                return { status: 400, body: 'invalid id provided' }
+            }
+            await application.destroy();
+            return { body: request.query.get('application_id') }
 
         }
 
