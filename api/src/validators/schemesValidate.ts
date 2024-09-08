@@ -7,9 +7,12 @@ const benefitsScheme = Joi.object({
 });
 
 const schema = Joi.object({
+    id: Joi.string().guid,
     name: Joi.string().max(50),
     description: Joi.string().max(1000),
     benefits: Joi.array().items(benefitsScheme),
+    updatedAt: Joi.string(),
+    createdAt: Joi.string(),
 });
 
 module.exports = function (input) {

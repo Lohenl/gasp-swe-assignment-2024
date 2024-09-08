@@ -1,6 +1,7 @@
 import Joi = require('joi');
 
 const schema = Joi.object({
+    id: Joi.string().guid,
     name: Joi.string().max(50),
     email: Joi.string().max(90),
     mobile_no: Joi.string().max(31),
@@ -8,6 +9,8 @@ const schema = Joi.object({
     GenderId: Joi.number(),
     MaritalStatusId: Joi.number(),
     EmploymentStatusId: Joi.number(),
+    updatedAt: Joi.string(),
+    createdAt: Joi.string(),
 });
 
 module.exports = function (input) {
