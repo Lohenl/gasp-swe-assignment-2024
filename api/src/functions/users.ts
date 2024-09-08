@@ -3,6 +3,7 @@ import { Sequelize, DataTypes } from 'sequelize';
 import Joi = require('joi');
 import UserModel from '../models/user';
 const validateBody = require('../validators/usersValidate');
+const { checkAuthorization } = require('../services/authorizationService');
 
 const sequelize = new Sequelize(process.env['PGDATABASE'], process.env['PGUSER'], process.env['PGPASSWORD'], {
     host: process.env['PGHOST'],
@@ -106,6 +107,7 @@ export async function users(request: HttpRequest, context: InvocationContext): P
         await User.sync();
 
         if (request.method === 'GET') {
+            await checkAuthorization(request, context);
             context.debug('id:', request.query.get('id'));
             if (!request.query.get('id')) {
                 const users = await User.findAll({});
