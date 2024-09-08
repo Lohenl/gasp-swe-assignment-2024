@@ -52,7 +52,8 @@ engine.addFact('applicant-details', (params, almanac) => {
 })
 
 // define fact(s) known at runtime
-let facts = { applicantId: '1b44bfd4-265a-40d9-bacd-6659c6bbb9db' }
+// let facts = { applicantId: '1b44bfd4-265a-40d9-bacd-6659c6bbb9db' } // this user is not eligible
+let facts = { applicantId: 'e6b52c5e-b9d0-468c-9baf-533c1f2f2f80' } // this user is eligible
 
 // Run the engine to evaluate
 engine
