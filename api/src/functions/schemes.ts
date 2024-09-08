@@ -25,7 +25,7 @@ const sequelize = new Sequelize(process.env['PGDATABASE'], process.env['PGUSER']
 *               description: Successful response
 * 
 *   post:
-*       summary: Creates a scheme (Benefits needs fixing)
+*       summary: Creates a scheme
 *       description: Creates a scheme
 *       requestBody:
 *           description: Array of member IDs to be included in household
@@ -71,7 +71,7 @@ const sequelize = new Sequelize(process.env['PGDATABASE'], process.env['PGUSER']
 *               description: Successful response
 * 
 *   patch:
-*       summary: Updates a scheme (Benefits needs fixing)
+*       summary: Updates a scheme
 *       description: Updates a scheme
 *       parameters:
 *           - in: query
