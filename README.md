@@ -28,9 +28,10 @@ Coding Assignment for SWE role in GovTech GASP
         - [x] permissions (the first FKs to make)
         - [x] households
         - [ ] schemes basic CRUD
-        - [ ] benefits (1 schemes : N benefits, forget configuration)
-        - [ ] bake benefits into schemes
-        - [ ] applications 
+        - [ ] benefits CRUD 
+        - [ ] rules engine integration (the tedious and complex one)
+        - [ ] schemes eligible API
+        - [ ] applications (need to simplify the model, no time)
         - [ ] Eslint (airbnb base)
     - [ ] Build validators with joi
     - [ ] Integrate Rules Engine
