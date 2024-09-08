@@ -50,20 +50,20 @@ const sequelize = new Sequelize(process.env['PGDATABASE'], process.env['PGUSER']
 *                               type: string
 *                           birth_date:
 *                               type: date
-*                           employment_status_code:
+*                           EmploymentStatusId:
 *                               type: number
-*                           marital_status_code:
+*                           MaritalStatusId:
 *                               type: number
-*                           gender_code:
+*                           GenderId:
 *                               type: number
 *                   example:
 *                       name: "Jane Kwok"
 *                       email: "janekwok88@gmail.com"
 *                       mobile_no: "+6512345678"
 *                       birth_date: "1988-05-02"
-*                       employment_status_code: 3
-*                       marital_status_code: 2
-*                       gender_code: 2
+*                       EmploymentStatusId: 3
+*                       MaritalStatusId: 2
+*                       GenderId: 2
 *       responses:
 *           200:
 *               description: Successful response
@@ -96,20 +96,20 @@ const sequelize = new Sequelize(process.env['PGDATABASE'], process.env['PGUSER']
 *                           birth_date:
 *                               type: date
 *                               example: "1988-05-02"
-*                           employment_status_code:
+*                           EmploymentStatusId:
 *                               type: number
-*                           marital_status_code:
+*                           MaritalStatusId:
 *                               type: number
-*                           gender_code:
+*                           GenderId:
 *                               type: number
 *                   example:
 *                       name: "Jon Tan"
 *                       email: "jontanwenghou@gmail.com"
 *                       mobile_no: "+6587654321"
 *                       birth_date: "2003-08-08"
-*                       employment_status_code: 2
-*                       marital_status_code: 1
-*                       gender_code: 1
+*                       EmploymentStatusId: 2
+*                       MaritalStatusId: 1
+*                       GenderId: 1
 *       responses:
 *           200:
 *               description: Successful response
@@ -143,10 +143,10 @@ export async function applicants(request: HttpRequest, context: InvocationContex
         Applicant.hasOne(EmploymentStatus);
         Applicant.hasOne(MaritalStatus);
         Applicant.hasOne(Gender);
-        EmploymentStatus.belongsToMany(Applicant, {through: 'ApplicantEmploymentStatus'});
-        MaritalStatus.belongsToMany(Applicant, {through: 'ApplicantMaritalStatus'});
-        Gender.belongsToMany(Applicant, {through: 'ApplicantGender'});
-        
+        EmploymentStatus.belongsToMany(Applicant, { through: 'ApplicantEmploymentStatus' });
+        MaritalStatus.belongsToMany(Applicant, { through: 'ApplicantMaritalStatus' });
+        Gender.belongsToMany(Applicant, { through: 'ApplicantGender' });
+
         // wait for all model syncs to finish
         let syncPromises = [];
         syncPromises.push(Applicant.sync());
@@ -166,26 +166,39 @@ export async function applicants(request: HttpRequest, context: InvocationContex
             }
 
         } else if (request.method === 'POST') {
-            const reqBody = await request.json();
             // validation happens here, dont forget joi
-            // create transaction here
-            const applicant = await Applicant.create({
-                name: reqBody['name'],
-                email: reqBody['email'],
-                mobile_no: reqBody['mobile_no'],
-                birth_date: DateTime.fromISO(reqBody['birth_date']).toJSDate()
-            },{
-                include: [EmploymentStatus, MaritalStatus, Gender]
-            });
-            return { jsonBody: applicant.dataValues }
+            const reqBody = await request.json();
+            context.log('reqBody', reqBody);
+            // create transaction here (lots of FKs to make)
+            const result = await sequelize.transaction(async t => {
+                const applicant = await Applicant.create({
+                    name: reqBody['name'],
+                    email: reqBody['email'],
+                    mobile_no: reqBody['mobile_no'],
+                    birth_date: DateTime.fromISO(reqBody['birth_date']).toJSDate(),
+                    EmploymentStatusId: reqBody['EmploymentStatusId'],
+                    MaritalStatusId: reqBody['MaritalStatusId'],
+                    GenderId: reqBody['GenderId'],
+                }, {
+                    include: [EmploymentStatus, MaritalStatus, Gender],
+                    transaction: t
+                });
+                return applicant;
+            })
+
+            return { jsonBody: result.dataValues }
 
         } else if (request.method === 'PATCH') {
-            const updateFields = await request.json();
             // validation happens here, dont forget joi
-            const applicant = await Applicant.findByPk(request.query.get('id'));
-            applicant.update(updateFields);
-            await applicant.save();
-            return { jsonBody: applicant.dataValues }
+            const updateFields = await request.json();
+            context.log('updateFields', updateFields);
+            // create transaction here (lots of FKs to make)
+            const result = await sequelize.transaction(async t => {
+                const applicant = await Applicant.findByPk(request.query.get('id'));
+                applicant.update(updateFields);
+                return applicant;
+            });
+            return { jsonBody: result.dataValues }
 
         } else if (request.method === 'DELETE') {
             // validation happens here, dont forget joi
