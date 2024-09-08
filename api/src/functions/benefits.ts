@@ -95,32 +95,19 @@ const sequelize = new Sequelize(process.env['PGDATABASE'], process.env['PGUSER']
 *               description: Successful response
 * 
 *   delete:
-*       summary: Delete scheme by ID
-*       description: Delete a scheme from the system by ID.
+*       summary: Delete benefit by ID
+*       description: Delete a benefit from the system by ID.
 *       parameters:
 *           - in: query
 *             name: id
 *             required: true
-*             description: ID of the scheme to delete.
+*             description: ID of the benefit to delete.
 *             schema:
 *               type: string
 *       responses:
 *           200:
 *               description: Successful response
 * 
-* /schemes/eligible:
-*   get:
-*       summary: Get all eligible schemes for given applicant
-*       description: Get all schemes that an applicant is eligible to apply for
-*       parameters:
-*           - in: query
-*             name: applicant
-*             description: ID of the applicant to retrieve.
-*             schema:
-*               type: string
-*       responses:
-*           200:
-*               description: Successful response
 */
 export async function benefits(request: HttpRequest, context: InvocationContext): Promise<HttpResponseInit> {
     try {
