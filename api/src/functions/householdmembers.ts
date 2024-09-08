@@ -2,6 +2,7 @@ import { app, HttpRequest, HttpResponseInit, InvocationContext } from "@azure/fu
 import { Sequelize, DataTypes } from 'sequelize';
 import Joi = require('joi');
 import ApplicantModel from "../models/applicant";
+import HouseholdMemberModel from "../models/householdmember";
 const validateBody = require('../validators/householdmembersValidate');
 
 const sequelize = new Sequelize(process.env['PGDATABASE'], process.env['PGUSER'], process.env['PGPASSWORD'], {
@@ -84,8 +85,9 @@ export async function householdMembers(request: HttpRequest, context: Invocation
     try {
         await sequelize.authenticate();
         ApplicantModel(sequelize, DataTypes);
+        HouseholdMemberModel(sequelize, DataTypes);
         const Applicant = sequelize.models.Applicant;
-
+        const HouseholdMember = sequelize.models.HouseholdMember;
         // declare 1:N Relationship
         // reference: https://sequelize.org/docs/v6/core-concepts/assocs/#one-to-many-relationships
         const Household = sequelize.define('Household',
@@ -108,143 +110,33 @@ export async function householdMembers(request: HttpRequest, context: Invocation
         await Promise.allSettled(syncPromises);
 
         if (request.method === 'GET') {
-            // validation happens here, dont forget joi
-            context.debug('id:', request.query.get('id'));
-            if (!request.query.get('id')) {
-                const households = await Household.findAll({});
-                return { jsonBody: households }
-            } else {
-                Joi.assert(request.query.get('id'), Joi.string().guid());
-                const household = await Household.findByPk(request.query.get('id'));
-                return { jsonBody: household }
-            }
+            context.debug('applicant_id:', request.query.get('applicant_id'));
+            Joi.assert(request.query.get('applicant_id'), Joi.string().guid());
+
+            return { jsonBody: {} }
 
         } else if (request.method === 'POST') {
-            // validation happens here, dont forget joi
-            const memberIdArray = await request.json();
-            context.debug('memberIdArray:', memberIdArray);
-            validateBody(memberIdArray);
+            const reqBody = await request.json();
+            context.debug('reqBody:', reqBody);
+            validateBody(reqBody);
 
-            // validate that all ids exist
-            // find each applicant by PK
-            // having any null values show up means that there are invalid IDs
-            const findPromises = [];
-            (memberIdArray as any).forEach(memberId => {
-                findPromises.push(Applicant.findByPk(memberId));
-            });
-            const results = await Promise.allSettled(findPromises);
-            context.debug('results:', results);
-            const householdMembers = [];
-            results.forEach((result) => {
-                householdMembers.push((result as any).value);
-            })
-            context.debug('householdMembers:', householdMembers);
-            context.debug('householdMembers.includes(null):', householdMembers.includes(null));
-            const isValid = !householdMembers.includes(null);
-
-            // once all validated, save to DB
-            if (isValid) {
-                // time for a sequelize transaction
-                const result = await sequelize.transaction(async t => {
-                    const household = await Household.create({}, { transaction: t });
-                    const updatePromises = [];
-                    householdMembers.forEach(member => {
-                        updatePromises.push(member.update({ HouseholdId: household.dataValues.id }, { transaction: t }));
-                    });
-                    await Promise.allSettled(updatePromises);
-                    return household;
-                });
-                return { jsonBody: result }
-            } else {
-                return { body: 'invalid applicant ID(s) provided' }
-            }
+            return { jsonBody: {} }
 
         } else if (request.method === 'PATCH') {
-            context.debug('id:', request.query.get('id'));
-            const memberIdArray = await request.json();
-            context.debug('memberIdArray:', memberIdArray);
-            Joi.assert(request.query.get('id'), Joi.string().guid().required());
-            validateBody(memberIdArray);
+            context.debug('household-member-id:', request.query.get('household-member-id'));
+            const reqBody = await request.json();
+            context.debug('reqBody:', reqBody);
+            Joi.assert(request.query.get('household'), Joi.string().guid().required());
+            validateBody(reqBody);
 
-            // check that household exists
-            const household = await Household.findByPk(request.query.get('id'));
-            if (!household) {
-                return { status: 400, body: 'invalid applicant ID(s) provided' }
-            }
-
-            // validate that all ids exist
-            // find each applicant by PK
-            // having any null values show up means that there are invalid IDs
-            const findPromises = [];
-            (memberIdArray as any).forEach(memberId => {
-                findPromises.push(Applicant.findByPk(memberId));
-            });
-            const results = await Promise.allSettled(findPromises);
-            context.debug('results:', results);
-            const householdMembers = [];
-            results.forEach((result) => {
-                householdMembers.push((result as any).value);
-            })
-            context.debug('householdMembers:', householdMembers);
-            context.debug('householdMembers.includes(null):', householdMembers.includes(null));
-            const isValid = !householdMembers.includes(null);
-
-            // once all validated, save to DB
-            if (isValid) {
-                // time for a sequelize transaction
-                const result = await sequelize.transaction(async t => {
-
-                    const household = await Household.findByPk(request.query.get('id'), { transaction: t });
-
-                    // find all applicants who have this existing id
-                    const existingHouseholdMembers = await Applicant.findAll({ where: { HouseholdId: household.dataValues.id }, transaction: t });
-
-                    const transactionPromises = [];
-                    // compare both existingHouseholdMembers and householdMembers
-                    // determine a list of members to be removed from household
-                    existingHouseholdMembers.forEach(existingMember => {
-                        // remove if existing member is not in the newer household members list
-                        // reference: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/some
-                        const isInUpdatedHousehold = householdMembers.some(householdMember => householdMember.dataValues.id === existingMember.dataValues.id);
-                        if (!isInUpdatedHousehold) {
-                            transactionPromises.push(existingMember.update({ HouseholdId: null }, { transaction: t }));
-                        }
-                    });
-
-                    // now we can update all the applicants without worrying about update errors
-                    householdMembers.forEach(member => {
-                        transactionPromises.push(member.update({ HouseholdId: request.query.get('id') }, { transaction: t }));
-                    })
-                    // perform the necessary updates in the transaction
-                    await Promise.allSettled(transactionPromises);
-                    return household;
-                });
-                return { jsonBody: result }
-            } else {
-                return { status: 400, body: 'invalid applicant ID(s) provided' }
-            }
-
+            return { jsonBody: {} }
 
         } else if (request.method === 'DELETE') {
-            context.debug('id:', request.query.get('id'));
-            Joi.assert(request.query.get('id'), Joi.string().guid());
+            context.debug('household_member_id:', request.query.get('household_member_id'));
+            Joi.assert(request.query.get('household_member_id'), Joi.string().guid());
 
-            const household = await Household.findByPk(request.query.get('id'));
-            if (!household) {
-                return { status: 400, body: 'invalid household ID' };
-            }
+            return { jsonBody: {} }
 
-            // make transaction
-            await sequelize.transaction(async t => {
-                // delete HouseholdId from all matching applicants
-                // delete household
-                const matchingApplicants = await Applicant.findAll({ where: { HouseholdId: request.query.get('id'), transaction: t } });
-                matchingApplicants.forEach(applicant => {
-                    applicant.update({ HouseholdId: null }, { transaction: t });
-                });
-
-            });
-            return { body: request.query.get('id') }
         }
 
     } catch (error) {
