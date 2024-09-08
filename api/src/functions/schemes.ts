@@ -1,7 +1,9 @@
 import { app, HttpRequest, HttpResponseInit, InvocationContext } from "@azure/functions";
 import { Sequelize, DataTypes } from 'sequelize';
+import Joi = require('joi');
 import SchemeModel from "../models/scheme";
 import BenefitModel from "../models/benefit";
+const validateJSON = require('../validators/schemesValidate');
 
 const sequelize = new Sequelize(process.env['PGDATABASE'], process.env['PGUSER'], process.env['PGPASSWORD'], {
     host: process.env['PGHOST'],
@@ -130,7 +132,6 @@ const sequelize = new Sequelize(process.env['PGDATABASE'], process.env['PGUSER']
 */
 export async function schemes(request: HttpRequest, context: InvocationContext): Promise<HttpResponseInit> {
     try {
-
         // declare 1:N Relationship
         // reference: https://sequelize.org/docs/v6/core-concepts/assocs/#one-to-many-relationships
         await sequelize.authenticate();
@@ -148,21 +149,20 @@ export async function schemes(request: HttpRequest, context: InvocationContext):
         await Promise.allSettled(syncPromises);
 
         if (request.method === 'GET') {
-            // validation happens here, dont forget joi
-            context.log(request.query.get('id'));
+            context.debug('id:', request.query.get('id'));
             if (!request.query.get('id')) {
                 const schemes = await Scheme.findAll({});
                 return { jsonBody: schemes }
             } else {
-                // validation happens here, dont forget joi
+                Joi.assert(request.query.get('id'), Joi.string().guid());
                 const scheme = await Scheme.findByPk(request.query.get('id'));
                 return { jsonBody: scheme }
             }
 
         } else if (request.method === 'POST') {
-            // validation happens here, dont forget joi
             const schemeToCreate = await request.json() as any;
-            context.log('schemeToCreate:', schemeToCreate);
+            context.debug('schemeToCreate:', schemeToCreate);
+            validateJSON(schemeToCreate);
             let benefitsToCreate = schemeToCreate.benefits as Array<any>;
 
             // this is a complex creation, so we will need to use transaction
@@ -181,7 +181,7 @@ export async function schemes(request: HttpRequest, context: InvocationContext):
 
                 // create assigned benefits
                 benefitsToCreate.forEach(benefit => {
-                    context.log('benefit:', benefit);
+                    context.debug('benefit:', benefit);
                     createPromises.push(Benefit.create({ ...benefit, SchemeId: scheme.dataValues.id }, { transaction: t }));
                 });
                 await Promise.allSettled(createPromises);
@@ -191,10 +191,11 @@ export async function schemes(request: HttpRequest, context: InvocationContext):
             return { jsonBody: result.dataValues }
 
         } else if (request.method === 'PATCH') {
-            // validation happens here, dont forget joi
-            context.log(request.query.get('id'));
+            context.debug('id:', request.query.get('id'));
             const schemeToUpdate = await request.json() as any;
-            context.log('schemeToUpdate:', schemeToUpdate);
+            context.debug('schemeToUpdate:', schemeToUpdate);
+            Joi.assert(request.query.get('id'), Joi.string().guid().required());
+            validateJSON(schemeToUpdate);
 
             // get base scheme class
             const scheme = await Scheme.findByPk(request.query.get('id'));
@@ -207,8 +208,8 @@ export async function schemes(request: HttpRequest, context: InvocationContext):
             return { jsonBody: scheme.dataValues }
 
         } else if (request.method === 'DELETE') {
-            // validation happens here, dont forget joi
-            context.log(request.query.get('id'));
+            context.debug('id:', request.query.get('id'));
+            Joi.assert(request.query.get('id'), Joi.string().guid().required());
             const scheme = await Scheme.findByPk(request.query.get('id'));
             if (!scheme) {
                 return { status: 400, body: 'invalid id provided' }
@@ -220,8 +221,8 @@ export async function schemes(request: HttpRequest, context: InvocationContext):
 
     } catch (error) {
         context.error('schemes: error encountered:', error);
+        if (Joi.isError(error)) { return { status: 400, jsonBody: error } }
         return { status: 500, body: `Unexpected error occured: ${error}` }
-
     }
 };
 
