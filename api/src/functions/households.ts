@@ -1,6 +1,8 @@
 import { app, HttpRequest, HttpResponseInit, InvocationContext } from "@azure/functions";
 import { Sequelize, DataTypes } from 'sequelize';
+import Joi = require('joi');
 import ApplicantModel from "../models/applicant";
+const validateJSON = require('../validators/householdsValidate');
 
 const sequelize = new Sequelize(process.env['PGDATABASE'], process.env['PGUSER'], process.env['PGPASSWORD'], {
     host: process.env['PGHOST'],
@@ -80,7 +82,6 @@ const sequelize = new Sequelize(process.env['PGDATABASE'], process.env['PGUSER']
 */
 export async function households(request: HttpRequest, context: InvocationContext): Promise<HttpResponseInit> {
     try {
-
         await sequelize.authenticate();
         ApplicantModel(sequelize, DataTypes);
         const Applicant = sequelize.models.Applicant;
@@ -108,11 +109,12 @@ export async function households(request: HttpRequest, context: InvocationContex
 
         if (request.method === 'GET') {
             // validation happens here, dont forget joi
-            context.log(request.query.get('id'));
+            context.debug('id:', request.query.get('id'));
             if (!request.query.get('id')) {
                 const households = await Household.findAll({});
                 return { jsonBody: households }
             } else {
+                Joi.assert(request.query.get('id'), Joi.string().guid());
                 const household = await Household.findByPk(request.query.get('id'));
                 return { jsonBody: household }
             }
@@ -120,7 +122,8 @@ export async function households(request: HttpRequest, context: InvocationContex
         } else if (request.method === 'POST') {
             // validation happens here, dont forget joi
             const memberIdArray = await request.json();
-            context.log('memberIdArray:', memberIdArray);
+            context.debug('memberIdArray:', memberIdArray);
+            validateJSON(memberIdArray);
 
             // validate that all ids exist
             // find each applicant by PK
@@ -130,13 +133,13 @@ export async function households(request: HttpRequest, context: InvocationContex
                 findPromises.push(Applicant.findByPk(memberId));
             });
             const results = await Promise.allSettled(findPromises);
-            // context.log('results:', results);
+            context.debug('results:', results);
             let householdMembers = [];
             results.forEach((result) => {
                 householdMembers.push((result as any).value);
             })
-            // context.log('householdMembers:', householdMembers);
-            // context.log('householdMembers.includes(null)', householdMembers.includes(null));
+            context.debug('householdMembers:', householdMembers);
+            context.debug('householdMembers.includes(null):', householdMembers.includes(null));
             let isValid = !householdMembers.includes(null);
 
             // once all validated, save to DB
@@ -157,10 +160,11 @@ export async function households(request: HttpRequest, context: InvocationContex
             }
 
         } else if (request.method === 'PATCH') {
-            // validation happens here, dont forget joi
-            context.log(request.query.get('id'));
+            context.debug('id:', request.query.get('id'));
             const memberIdArray = await request.json();
-            context.log('memberIdArray:', memberIdArray);
+            context.debug('memberIdArray:', memberIdArray);
+            Joi.assert(request.query.get('id'), Joi.string().guid().required());
+            validateJSON(memberIdArray);
 
             // check that household exists
             const household = await Household.findByPk(request.query.get('id'));
@@ -176,13 +180,13 @@ export async function households(request: HttpRequest, context: InvocationContex
                 findPromises.push(Applicant.findByPk(memberId));
             });
             const results = await Promise.allSettled(findPromises);
-            // context.log('results:', results);
+            context.debug('results:', results);
             let householdMembers = [];
             results.forEach((result) => {
                 householdMembers.push((result as any).value);
             })
-            // context.log('householdMembers:', householdMembers);
-            // context.log('householdMembers.includes(null)', householdMembers.includes(null));
+            context.debug('householdMembers:', householdMembers);
+            context.debug('householdMembers.includes(null):', householdMembers.includes(null));
             let isValid = !householdMembers.includes(null);
 
             // once all validated, save to DB
@@ -222,8 +226,8 @@ export async function households(request: HttpRequest, context: InvocationContex
 
 
         } else if (request.method === 'DELETE') {
-            // validation happens here, dont forget joi
-            context.log(request.query.get('id'));
+            context.debug('id:', request.query.get('id'));
+            Joi.assert(request.query.get('id'), Joi.string().guid());
 
             const household = await Household.findByPk(request.query.get('id'));
             if (!household) {
@@ -241,13 +245,12 @@ export async function households(request: HttpRequest, context: InvocationContex
 
             });
             return { body: request.query.get('id') }
-
         }
 
     } catch (error) {
         context.error('households: error encountered:', error);
+        if (Joi.isError(error)) { return { status: 400, jsonBody: error } }
         return { status: 500, body: `Unexpected error occured: ${error}` }
-
     }
 };
 
