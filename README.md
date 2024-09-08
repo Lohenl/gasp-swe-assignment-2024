@@ -33,8 +33,8 @@ Coding Assignment for SWE role in GovTech GASP
         - [x] rules engine integration (the tedious and complex one)
             - [x] schemes-rules API
             - [x] actually using json-rules-engine
-        - [ ] schemes eligible API
-            - [ ] develop 1 test case (male employed/self-employed)
+        - [x] schemes eligible API
+            - [x] develop 1 test case (male employed/self-employed)
             - [ ] document test case (update swagger docs)
         - [ ] applications (need to simplify the model, no time)
         - [ ] Eslint (airbnb base)
