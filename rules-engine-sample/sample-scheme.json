@@ -1,0 +1,28 @@
+{
+    "name": "employed-male-scheme",
+    "conditions": {
+        "all": [
+            {
+                "fact": "applicant-details",
+                "operator": "equal",
+                "value": 1,
+                "path": "$.GenderId"
+            },
+            {
+                "fact": "applicant-details",
+                "operator": "in",
+                "value": [
+                    2,
+                    3
+                ],
+                "path": "$.EmploymentStatusId"
+            }
+        ]
+    },
+    "event": {
+        "type": "eligible",
+        "params": {
+            "message": "Applicant is eilgible for the scheme"
+        }
+    }
+}

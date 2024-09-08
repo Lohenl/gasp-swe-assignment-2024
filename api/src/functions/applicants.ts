@@ -1,14 +1,17 @@
 import { app, HttpRequest, HttpResponseInit, InvocationContext } from "@azure/functions";
 import { Sequelize, DataTypes } from 'sequelize';
+import Joi = require('joi');
 import ApplicantModel from '../models/applicant';
 import EmploymentstatusModel from "../models/employmentstatus";
 import MaritalStatusModel from "../models/maritalstatus";
 import GenderModel from "../models/gender";
 const { DateTime } = require("luxon");
+const validateBody = require('../validators/applicantsValidate');
 
 const sequelize = new Sequelize(process.env['PGDATABASE'], process.env['PGUSER'], process.env['PGPASSWORD'], {
     host: process.env['PGHOST'],
-    dialect: 'postgres'
+    dialect: 'postgres',
+    logging: false,
 });
 
 /**
@@ -130,7 +133,6 @@ const sequelize = new Sequelize(process.env['PGDATABASE'], process.env['PGUSER']
 */
 export async function applicants(request: HttpRequest, context: InvocationContext): Promise<HttpResponseInit> {
     try {
-
         await sequelize.authenticate();
         ApplicantModel(sequelize, DataTypes); // interesting how this works
         EmploymentstatusModel(sequelize, DataTypes);
@@ -148,7 +150,7 @@ export async function applicants(request: HttpRequest, context: InvocationContex
         Gender.belongsToMany(Applicant, { through: 'ApplicantGender' });
 
         // wait for all model syncs to finish
-        let syncPromises = [];
+        const syncPromises = [];
         syncPromises.push(Applicant.sync());
         syncPromises.push(EmploymentStatus.sync());
         syncPromises.push(MaritalStatus.sync());
@@ -156,19 +158,20 @@ export async function applicants(request: HttpRequest, context: InvocationContex
         await Promise.allSettled(syncPromises);
 
         if (request.method === 'GET') {
+            context.debug('id:', request.query.get('id'));
             if (!request.query.get('id')) {
                 const applicants = await Applicant.findAll({});
                 return { jsonBody: applicants }
             } else {
-                // validation happens here, dont forget joi
+                Joi.assert(request.query.get('id'), Joi.string().guid());
                 const applicant = await Applicant.findByPk(request.query.get('id'));
                 return { jsonBody: applicant }
             }
 
         } else if (request.method === 'POST') {
-            // validation happens here, dont forget joi
             const reqBody = await request.json();
-            context.log('reqBody', reqBody);
+            context.debug('reqBody:', reqBody);
+            validateBody(reqBody);
             // create transaction here (lots of FKs to make)
             const result = await sequelize.transaction(async t => {
                 const applicant = await Applicant.create({
@@ -189,26 +192,37 @@ export async function applicants(request: HttpRequest, context: InvocationContex
             return { jsonBody: result.dataValues }
 
         } else if (request.method === 'PATCH') {
-            // validation happens here, dont forget joi
+            context.debug('id:', request.query.get('id'));
             const updateFields = await request.json();
-            context.log('updateFields', updateFields);
+            context.debug('updateFields:', updateFields);
+            Joi.assert(request.query.get('id'), Joi.string().guid().required());
+            validateBody(updateFields);
+            const applicant = await Applicant.findByPk(request.query.get('id'));
+            if (!applicant) {
+                return { status: 400, body: 'invalid id provided' }
+            }
             // create transaction here (lots of FKs to make)
             const result = await sequelize.transaction(async t => {
-                const applicant = await Applicant.findByPk(request.query.get('id'));
+                const applicant = await Applicant.findByPk(request.query.get('id'), { transaction: t });
                 applicant.update(updateFields);
                 return applicant;
             });
             return { jsonBody: result.dataValues }
 
         } else if (request.method === 'DELETE') {
-            // validation happens here, dont forget joi
+            context.debug('id:', request.query.get('id'));
+            Joi.assert(request.query.get('id'), Joi.string().guid());
             const applicant = await Applicant.findByPk(request.query.get('id'));
+            if (!applicant) {
+                return { status: 400, body: 'invalid id provided' }
+            }
             await applicant.destroy();
             return { body: request.query.get('id') }
         }
 
     } catch (error) {
         context.error('applicants: error encountered:', error);
+        if (Joi.isError(error)) { return { status: 400, jsonBody: error } }
         return { status: 500, body: `Unexpected error occured: ${error}` }
     }
 };

@@ -1,11 +1,14 @@
 import { app, HttpRequest, HttpResponseInit, InvocationContext } from "@azure/functions";
 import { Sequelize, DataTypes } from 'sequelize';
+import Joi = require('joi');
 import SchemeModel from "../models/scheme";
 import BenefitModel from "../models/benefit";
+const validateBody = require('../validators/benefitsValidate');
 
 const sequelize = new Sequelize(process.env['PGDATABASE'], process.env['PGUSER'], process.env['PGPASSWORD'], {
     host: process.env['PGHOST'],
-    dialect: 'postgres'
+    dialect: 'postgres',
+    logging: false,
 });
 
 /**
@@ -112,7 +115,6 @@ const sequelize = new Sequelize(process.env['PGDATABASE'], process.env['PGUSER']
 */
 export async function benefits(request: HttpRequest, context: InvocationContext): Promise<HttpResponseInit> {
     try {
-
         // declare 1:N Relationship
         // reference: https://sequelize.org/docs/v6/core-concepts/assocs/#one-to-many-relationships
         await sequelize.authenticate();
@@ -124,15 +126,16 @@ export async function benefits(request: HttpRequest, context: InvocationContext)
         Benefit.belongsTo(Scheme);
 
         // wait for all model syncs to finish
-        let syncPromises = [];
+        const syncPromises = [];
         syncPromises.push(Scheme.sync());
         syncPromises.push(Benefit.sync());
         await Promise.allSettled(syncPromises);
 
         if (request.method === 'GET') {
-            // validation happens here, dont forget joi
-            context.log(request.query.get('id'));
-            context.log(request.query.get('scheme_id'));
+            context.debug('id:', request.query.get('id'));
+            context.debug('schema_id:', request.query.get('scheme_id'));
+            Joi.assert(request.query.get('id'), Joi.string().guid());
+            Joi.assert(request.query.get('scheme_id'), Joi.string().guid());
 
             if (request.query.get('id') && request.query.get('scheme_id')) {
                 return { status: 400, body: 'Provide either id or scheme_id, not both' }
@@ -146,8 +149,8 @@ export async function benefits(request: HttpRequest, context: InvocationContext)
 
             } else if (request.query.get('scheme_id')) {
                 const benefits = await Benefit.findAll({ where: { SchemeId: request.query.get('scheme_id') } });
-                context.log('benefits', benefits);
-                let jsonBody = [];
+                context.debug('benefits', benefits);
+                const jsonBody = [];
                 benefits.forEach(benefit => {
                     jsonBody.push(benefit.dataValues);
                 })
@@ -156,10 +159,11 @@ export async function benefits(request: HttpRequest, context: InvocationContext)
             }
 
         } else if (request.method === 'POST') {
-            // validation happens here, dont forget joi
-            context.log(request.query.get('scheme_id'));
-            const benefitToCreate = await request.json() as Object;
-            context.log('benefitToCreate:', benefitToCreate);
+            context.debug('scheme_id:', request.query.get('scheme_id'));
+            const benefitToCreate = await request.json() as object;
+            context.debug('benefitToCreate:', benefitToCreate);
+            Joi.assert(request.query.get('schema_id'), Joi.string().guid());
+            validateBody(benefitToCreate);
 
             // check if scheme exists
             const scheme = Scheme.findByPk(request.query.get('scheme_id'));
@@ -172,10 +176,11 @@ export async function benefits(request: HttpRequest, context: InvocationContext)
             return { jsonBody: benefit.dataValues }
 
         } else if (request.method === 'PATCH') {
-            // validation happens here, dont forget joi
-            context.log(request.query.get('benefit_id'));
+            context.debug('benefit_id:', request.query.get('benefit_id'));
             const benefitToUpdate = await request.json();
-            context.log('benefitToUpdate:', benefitToUpdate);
+            context.debug('benefitToUpdate:', benefitToUpdate);
+            Joi.assert(request.query.get('benefit_id'), Joi.string().guid());
+            validateBody(benefitToUpdate);
 
             // check if benefit exists
             const benefit = await Benefit.findByPk(request.query.get('benefit_id'));
@@ -187,17 +192,20 @@ export async function benefits(request: HttpRequest, context: InvocationContext)
             return { jsonBody: benefit.dataValues }
 
         } else if (request.method === 'DELETE') {
-            // validation happens here, dont forget joi
-            context.log(request.query.get('id'));
+            context.debug('id:', request.query.get('id'));
+            Joi.assert(request.query.get('id'), Joi.string().guid());
             const benefit = await Benefit.findByPk(request.query.get('id'));
+            if (!benefit) {
+                return { status: 400, body: 'invalid id provided' }
+            }
             await benefit.destroy();
             return { body: request.query.get('id') }
         }
 
     } catch (error) {
         context.error('schemes: error encountered:', error);
+        if (Joi.isError(error)) { return { status: 400, jsonBody: error } }
         return { status: 500, body: `Unexpected error occured: ${error}` }
-
     }
 };
 

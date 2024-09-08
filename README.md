@@ -20,8 +20,8 @@ Coding Assignment for SWE role in GovTech GASP
     - [x] Requirements recap
     - [x] Swagger Specs
     - [x] Scaffold
-- [ ] Backend Logic
-    - [ ] Implement
+- [x] Backend Logic
+    - [x] Implement
         - [x] applicants
         - [x] codetables
         - [x] users
@@ -30,16 +30,21 @@ Coding Assignment for SWE role in GovTech GASP
         - [x] schemes basic CRUD
         - [x] benefits CRUD 
         - [x] applicant code tables integration (API + Model FKs)
-        - [ ] rules engine integration (the tedious and complex one)
-        - [ ] schemes eligible API
-        - [ ] applications (need to simplify the model, no time)
-        - [ ] Eslint (airbnb base)
-    - [ ] Build validators with joi
-    - [ ] Integrate Rules Engine
-        - [ ] Update /schemes/eligible API
-        - [ ] make use of eligibility_criteria to Schemes model
+        - [x] rules engine integration (the tedious and complex one)
+            - [x] schemes-rules API
+            - [x] actually using json-rules-engine
+        - [x] schemes eligible API
+            - [x] develop 1 test case (male employed/self-employed)
+            - [x] document test case (update swagger docs)
+        - [x] applications (need to simplify the model, no time)
+        - [x] Eslint (airbnb base)
+    - [x] Build validators with joi
+    - [x] Integrate Rules Engine
+        - [x] Update /schemes/eligible API
+        - [x] make use of eligibility_criteria to Schemes model
 - [ ] Code Quality
-    - [ ] Eslint cleanup
+    - [x] Eslint cleanup
+    - [ ] Testing
     - [ ] SAST (Likely Synk again lol)
 - [ ] Documentation
     - [ ] README
@@ -77,3 +82,5 @@ Coding Assignment for SWE role in GovTech GASP
 - [Sequelize - 1:N Concepts](https://sequelize.org/docs/v6/core-concepts/assocs/#one-to-many-relationships)
 - [Sequelize - M:N Concepts](https://sequelize.org/docs/v6/advanced-association-concepts/advanced-many-to-many/)
 - [Sequelize - Transactions](https://sequelize.org/docs/v6/other-topics/transactions/)
+- [JSON Rules Engine - Simpler explanation, but outdated](https://www.npmjs.com/package/json-rules-engine/v/1.0.0-beta9)
+- [JSON Rules Engine](https://www.npmjs.com/package/json-rules-engine)
