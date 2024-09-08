@@ -43,7 +43,7 @@ Coding Assignment for SWE role in GovTech GASP
         - [x] Update /schemes/eligible API
         - [x] make use of eligibility_criteria to Schemes model
 - [ ] Code Quality
-    - [ ] Eslint cleanup
+    - [x] Eslint cleanup
     - [ ] Testing
     - [ ] SAST (Likely Synk again lol)
 - [ ] Documentation
