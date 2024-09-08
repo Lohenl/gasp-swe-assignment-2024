@@ -12,14 +12,14 @@ const sequelize = new Sequelize(process.env['PGDATABASE'], process.env['PGUSER']
 
 /**
 * @swagger
-* /households:
+* /household-members:
 *   get:
-*       summary: Get all households / Get household details by ID
-*       description: Get a specific household's details by ID. Omit ID to get all households' details registered in system.
+*       summary: Get household members by applicant ID
+*       description: Get a specific household's details by applicant ID.
 *       parameters:
 *           - in: query
-*             name: id
-*             description: ID of the household to retrieve.
+*             name: applicant_id
+*             description: applicant ID
 *             schema:
 *               type: string
 *       responses:
@@ -27,61 +27,60 @@ const sequelize = new Sequelize(process.env['PGDATABASE'], process.env['PGUSER']
 *               description: Successful response
 * 
 *   post:
-*       summary: Creates a household
-*       description: Creates a household
+*       summary: Adds a household member
+*       description: Adds a household member to the specified applicant
+*       parameters:
+*           - in: query
+*             name: applicant_id
+*             description: applicant ID
+*             schema:
+*               type: string
 *       requestBody:
-*           description: Array of member IDs to be included in household
+*           description: Details of household member
 *           required: true
 *           content:
 *               application/json:
 *                   schema:
-*                       type: array
-*                       items:
-*                           type: string* 
-*                   example: ["2d055c48-912c-41e1-a831-3fc3c066f9ea","8943bca7-d676-42ab-b173-d139aba8a0bf"]
+*                       type: object
 *       responses:
 *           200:
 *               description: Successful response
 * 
 *   patch:
-*       summary: Updates a household
-*       description: Updates a household
+*       summary: Updates a household member
+*       description: Updates a household member
 *       parameters:
 *           - in: query
-*             name: id
-*             required: true
-*             description: ID of the household to update.
+*             name: household_member_id
+*             description: household member ID
 *             schema:
 *               type: string
 *       requestBody:
-*           description: Array of member IDs to be included in household
+*           description: Details of household member
 *           required: true
 *           content:
 *               application/json:
 *                   schema:
-*                       type: array
-*                       items:
-*                           type: string* 
-*                   example: ["2d055c48-912c-41e1-a831-3fc3c066f9ea","8943bca7-d676-42ab-b173-d139aba8a0bf"]
+*                       type: object
 *       responses:
 *           200:
 *               description: Successful response
 * 
 *   delete:
-*       summary: Delete household by ID
-*       description: Delete a household from the system by ID.
+*       summary: Delete household member by ID
+*       description: Deletes a household member from the system by ID.
 *       parameters:
 *           - in: query
-*             name: id
+*             name: household_member_id
 *             required: true
-*             description: ID of the household to delete.
+*             description: ID of the household member to delete.
 *             schema:
 *               type: string
 *       responses:
 *           200:
 *               description: Successful response
 */
-export async function households(request: HttpRequest, context: InvocationContext): Promise<HttpResponseInit> {
+export async function householdMembers(request: HttpRequest, context: InvocationContext): Promise<HttpResponseInit> {
     try {
         await sequelize.authenticate();
         ApplicantModel(sequelize, DataTypes);
@@ -249,14 +248,14 @@ export async function households(request: HttpRequest, context: InvocationContex
         }
 
     } catch (error) {
-        context.error('households: error encountered:', error);
+        context.error('household-members: error encountered:', error);
         if (Joi.isError(error)) { return { status: 400, jsonBody: error } }
         return { status: 500, body: `Unexpected error occured: ${error}` }
     }
 };
 
-app.http('households', {
+app.http('household-members', {
     methods: ['GET', 'POST', 'PATCH', 'DELETE'],
     authLevel: 'anonymous',
-    handler: households
+    handler: householdMembers
 });
