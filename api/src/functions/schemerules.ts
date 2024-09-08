@@ -128,13 +128,13 @@ export async function schemeRules(request: HttpRequest, context: InvocationConte
         } else if (request.method === 'DELETE') {
             // validation happens here, dont forget joi
             context.log(request.query.get('scheme_id'));
-            const scheme = await Scheme.findByPk(request.query.get('id'));
+            const scheme = await Scheme.findByPk(request.query.get('scheme_id'));
             if (!scheme) {
                 return { status: 400, body: 'invalid scheme_id provided' }
             }
             scheme.update({ eligibility_criteria: null });
             await scheme.save();
-            return { body: request.query.get('id') }
+            return { body: request.query.get('scheme_id') }
 
         }
 
