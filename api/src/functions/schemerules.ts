@@ -107,31 +107,19 @@ export async function schemeRules(request: HttpRequest, context: InvocationConte
             const scheme = await Scheme.findByPk(request.query.get('scheme_id'));
             return { jsonBody: scheme.dataValues.eligibility_criteria }
 
-        } else if (request.method === 'POST') {
-            // validation happens here, dont forget joi
-            context.log(request.query.get('scheme_id'));
-            const schemeRuleToCreate = await request.json() as any;
-            context.log('schemeRuleToCreate:', schemeRuleToCreate);
-            // stringify the JSON structure for persistence
-            const schemeRuleStringified = JSON.stringify(schemeRuleToCreate);
-            const scheme = await Scheme.findByPk(request.query.get('id'));
-            if (!scheme) {
-                return { status: 400, body: 'invalid scheme_id provided' }
-            }
-            scheme.update({ eligibility_criteria: schemeRuleStringified });
-            await scheme.save();
-            return { jsonBody: scheme.dataValues }
-
-        } else if (request.method === 'PATCH') {
+        } else if (request.method === 'POST' || request.method === 'PATCH') {
             // validation happens here, dont forget joi
             context.log(request.query.get('scheme_id'));
             const schemeRuleToUpdate = await request.json() as any;
             context.log('schemeRuleToUpdate:', schemeRuleToUpdate);
             // stringify the JSON structure for persistence
             const schemeRuleStringified = JSON.stringify(schemeRuleToUpdate);
-            const scheme = await Scheme.findByPk(request.query.get('id'));
+            const scheme = await Scheme.findByPk(request.query.get('scheme_id'));
             if (!scheme) {
                 return { status: 400, body: 'invalid scheme_id provided' }
+            }
+            if (request.method === 'POST' && (scheme.dataValues.eligibility_criteria !== null)) {
+                return { status: 400, body: 'scheme rule is already declared, please use HTTP PATCH method to update' }
             }
             scheme.update({ eligibility_criteria: schemeRuleStringified });
             await scheme.save();
