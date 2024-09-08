@@ -34,7 +34,7 @@ let schemeRule = {
         // in our implementation the event would be to update the eligiblity value in the Application table
     }
 }
-console.log(schemeRule); // prints to console to copy into swagger UI for API calls
+console.log("%j", schemeRule); // prints to console to copy into swagger UI for API calls
 engine.addRule(schemeRule);
 
 /**
