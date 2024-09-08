@@ -11,6 +11,8 @@ const sequelize = new Sequelize(process.env['PGDATABASE'], process.env['PGUSER']
 module.exports.checkAuthorization = async function (permission: string, request: HttpRequest, context: InvocationContext): Promise<void> {
     context.log(request);
 
+    // TODO: definitely needs Permission to be exportable
+    // TODO: needs permissionAssignment CRUD
     await sequelize.authenticate();
     UserModel(sequelize, DataTypes);
     const User = sequelize.models.User;
