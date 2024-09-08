@@ -28,7 +28,7 @@ Coding Assignment for SWE role in GovTech GASP
         - [x] permissions (the first FKs to make)
         - [x] households
         - [x] schemes basic CRUD
-        - [ ] benefits CRUD 
+        - [x] benefits CRUD 
         - [ ] applicant code tables integration (API + Model FKs)
         - [ ] rules engine integration (the tedious and complex one)
         - [ ] schemes eligible API
