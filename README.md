@@ -81,4 +81,5 @@ Coding Assignment for SWE role in GovTech GASP
 - [Sequelize - 1:N Concepts](https://sequelize.org/docs/v6/core-concepts/assocs/#one-to-many-relationships)
 - [Sequelize - M:N Concepts](https://sequelize.org/docs/v6/advanced-association-concepts/advanced-many-to-many/)
 - [Sequelize - Transactions](https://sequelize.org/docs/v6/other-topics/transactions/)
-- [JSON Rules Engine](https://www.npmjs.com/package/json-rules-engine/v/1.0.0-beta9)
+- [JSON Rules Engine - Simpler explanation, but outdated](https://www.npmjs.com/package/json-rules-engine/v/1.0.0-beta9)
+- [JSON Rules Engine](https://www.npmjs.com/package/json-rules-engine)
