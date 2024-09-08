@@ -6,7 +6,7 @@ import EmploymentstatusModel from "../models/employmentstatus";
 import MaritalStatusModel from "../models/maritalstatus";
 import GenderModel from "../models/gender";
 const { DateTime } = require("luxon");
-const validateJSON = require('../validators/applicantsValidate');
+const validateBody = require('../validators/applicantsValidate');
 
 const sequelize = new Sequelize(process.env['PGDATABASE'], process.env['PGUSER'], process.env['PGPASSWORD'], {
     host: process.env['PGHOST'],
@@ -170,7 +170,7 @@ export async function applicants(request: HttpRequest, context: InvocationContex
         } else if (request.method === 'POST') {
             const reqBody = await request.json();
             context.debug('reqBody:', reqBody);
-            validateJSON(reqBody);
+            validateBody(reqBody);
             // create transaction here (lots of FKs to make)
             const result = await sequelize.transaction(async t => {
                 const applicant = await Applicant.create({
@@ -195,7 +195,7 @@ export async function applicants(request: HttpRequest, context: InvocationContex
             const updateFields = await request.json();
             context.debug('updateFields:', updateFields);
             Joi.assert(request.query.get('id'), Joi.string().guid().required());
-            validateJSON(updateFields);
+            validateBody(updateFields);
             const applicant = await Applicant.findByPk(request.query.get('id'));
             if (!applicant) {
                 return { status: 400, body: 'invalid id provided' }

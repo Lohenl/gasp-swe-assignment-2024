@@ -3,7 +3,7 @@ import { Sequelize, DataTypes } from 'sequelize';
 import Joi = require('joi');
 import SchemeModel from "../models/scheme";
 import BenefitModel from "../models/benefit";
-const validateJSON = require('../validators/schemeRulesValidate');
+const validateBody = require('../validators/schemeRulesValidate');
 
 const sequelize = new Sequelize(process.env['PGDATABASE'], process.env['PGUSER'], process.env['PGPASSWORD'], {
     host: process.env['PGHOST'],
@@ -224,7 +224,7 @@ export async function schemeRules(request: HttpRequest, context: InvocationConte
             const schemeRuleToUpdate = await request.json() as any;
             context.debug('schemeRuleToUpdate:', schemeRuleToUpdate);
             Joi.assert(request.query.get('scheme_id'), Joi.string().guid().required());
-            validateJSON(schemeRuleToUpdate);
+            validateBody(schemeRuleToUpdate);
             // stringify the JSON structure for persistence
             const schemeRuleStringified = JSON.stringify(schemeRuleToUpdate);
             const scheme = await Scheme.findByPk(request.query.get('scheme_id'));

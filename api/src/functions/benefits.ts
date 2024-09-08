@@ -3,7 +3,7 @@ import { Sequelize, DataTypes } from 'sequelize';
 import Joi = require('joi');
 import SchemeModel from "../models/scheme";
 import BenefitModel from "../models/benefit";
-const validateJSON = require('../validators/benefitsValidate');
+const validateBody = require('../validators/benefitsValidate');
 
 const sequelize = new Sequelize(process.env['PGDATABASE'], process.env['PGUSER'], process.env['PGPASSWORD'], {
     host: process.env['PGHOST'],
@@ -162,7 +162,7 @@ export async function benefits(request: HttpRequest, context: InvocationContext)
             const benefitToCreate = await request.json() as Object;
             context.debug('benefitToCreate:', benefitToCreate);
             Joi.assert(request.query.get('schema_id'), Joi.string().guid());
-            validateJSON(benefitToCreate);
+            validateBody(benefitToCreate);
 
             // check if scheme exists
             const scheme = Scheme.findByPk(request.query.get('scheme_id'));
@@ -179,7 +179,7 @@ export async function benefits(request: HttpRequest, context: InvocationContext)
             const benefitToUpdate = await request.json();
             context.debug('benefitToUpdate:', benefitToUpdate);
             Joi.assert(request.query.get('benefit_id'), Joi.string().guid());
-            validateJSON(benefitToUpdate);
+            validateBody(benefitToUpdate);
 
             // check if benefit exists
             const benefit = await Benefit.findByPk(request.query.get('benefit_id'));

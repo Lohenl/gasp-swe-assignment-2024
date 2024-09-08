@@ -2,7 +2,7 @@ import { app, HttpRequest, HttpResponseInit, InvocationContext } from "@azure/fu
 import { Sequelize, DataTypes } from 'sequelize';
 import Joi = require('joi');
 import UserModel from '../models/user';
-const validateJSON = require('../validators/usersValidate');
+const validateBody = require('../validators/usersValidate');
 
 const sequelize = new Sequelize(process.env['PGDATABASE'], process.env['PGUSER'], process.env['PGPASSWORD'], {
     host: process.env['PGHOST'],
@@ -118,7 +118,7 @@ export async function users(request: HttpRequest, context: InvocationContext): P
         } else if (request.method === 'POST') {
             const reqBody = await request.json();
             context.debug('reqBody:', reqBody);
-            validateJSON(reqBody);
+            validateBody(reqBody);
             // validation happens here, dont forget joi
             const user = User.build({
                 name: reqBody['name'],
@@ -132,7 +132,7 @@ export async function users(request: HttpRequest, context: InvocationContext): P
             const updateFields = await request.json();
             context.debug('updateFields:', updateFields);
             Joi.assert(request.query.get('id'), Joi.string().guid().required());
-            validateJSON(updateFields);
+            validateBody(updateFields);
             const user = await User.findByPk(request.query.get('id'));
             if (!user) {
                 return { status: 400, body: 'invalid id provided' }
