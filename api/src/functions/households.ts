@@ -192,22 +192,26 @@ export async function households(request: HttpRequest, context: InvocationContex
 
                     const household = await Household.findByPk(request.query.get('id'), { transaction: t });
 
-                    // find all applicants who have this existing id, we clear them
-                    let transactionPromises = [];
+                    // find all applicants who have this existing id
                     const existingHouseholdMembers = await Applicant.findAll({ where: { HouseholdId: household.dataValues.id }, transaction: t });
 
-                    // TODO:
+                    let transactionPromises = [];
                     // compare both existingHouseholdMembers and householdMembers
-                    // get a list of members to remove, and list of members to add
-                    // perform the necessary updates in the transaction
+                    // determine a list of members to be removed from household
+                    existingHouseholdMembers.forEach(existingMember => {
+                        // remove if existing member is not in the newer household members list
+                        // reference: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/some
+                        let isInUpdatedHousehold = householdMembers.some(householdMember => householdMember.dataValues.id === existingMember.dataValues.id);
+                        if (!isInUpdatedHousehold) {
+                            transactionPromises.push(existingMember.update({ HouseholdId: null }, { transaction: t }));
+                        }
+                    });
 
-                    existingHouseholdMembers.forEach(member => {
-                        transactionPromises.push(member.update({ HouseholdId: null }, { transaction: t }));
-                    });
-                    // all the household association to the specified members
+                    // now we can update all the applicants without worrying about update errors
                     householdMembers.forEach(member => {
-                        transactionPromises.push(member.update({ HouseholdId: household.dataValues.id }, { transaction: t }));
-                    });
+                        transactionPromises.push(member.update({ HouseholdId: request.query.get('id') }, { transaction: t }));
+                    })
+                    // perform the necessary updates in the transaction
                     await Promise.allSettled(transactionPromises);
                     return household;
                 });
@@ -220,7 +224,23 @@ export async function households(request: HttpRequest, context: InvocationContex
         } else if (request.method === 'DELETE') {
             // validation happens here, dont forget joi
             context.log(request.query.get('id'));
-            return { jsonBody: {} }
+
+            const household = await Household.findByPk(request.query.get('id'));
+            if (!household) {
+                return { status: 400, body: 'invalid household ID' };
+            }
+
+            // make transaction
+            await sequelize.transaction(async t => {
+                // delete HouseholdId from all matching applicants
+                // delete household
+                const matchingApplicants = await Applicant.findAll({ where: { HouseholdId: request.query.get('id'), transaction: t } });
+                matchingApplicants.forEach(applicant => {
+                    applicant.update({ HouseholdId: null }, { transaction: t });
+                });
+
+            });
+            return { body: request.query.get('id') }
 
         }
 
