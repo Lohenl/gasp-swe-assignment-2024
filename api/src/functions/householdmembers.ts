@@ -90,22 +90,12 @@ export async function householdMembers(request: HttpRequest, context: Invocation
         const HouseholdMember = sequelize.models.HouseholdMember;
         // declare 1:N Relationship
         // reference: https://sequelize.org/docs/v6/core-concepts/assocs/#one-to-many-relationships
-        const Household = sequelize.define('Household',
-            {
-                id: {
-                    type: DataTypes.UUID,
-                    defaultValue: DataTypes.UUIDV4,
-                    allowNull: false,
-                    primaryKey: true,
-                }
-            }
-        );
-        Household.hasMany(Applicant);
-        Applicant.belongsTo(Household);
+        Applicant.hasMany(HouseholdMember, { onDelete: 'cascade' });
+        HouseholdMember.belongsTo(Applicant);
 
         // wait for all model syncs to finish
         const syncPromises = [];
-        syncPromises.push(Household.sync());
+        syncPromises.push(HouseholdMember.sync());
         syncPromises.push(Applicant.sync());
         await Promise.allSettled(syncPromises);
 
