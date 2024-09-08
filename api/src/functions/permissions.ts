@@ -166,6 +166,9 @@ export async function permissions(request: HttpRequest, context: InvocationConte
             // validation happens here, dont forget joi
             context.log(request.query.get('id'));
             const permission = await Permission.findByPk(request.query.get('id'));
+            if (!permission) {
+                return { status: 400, body: 'invalid id provided' }
+            }
             await permission.destroy();
             return { body: request.query.get('id') }
 

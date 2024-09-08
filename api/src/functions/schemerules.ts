@@ -135,7 +135,6 @@ export async function schemeRules(request: HttpRequest, context: InvocationConte
             }
             scheme.update({ eligibility_criteria: schemeRuleStringified });
             await scheme.save();
-
             return { jsonBody: scheme.dataValues }
 
         } else if (request.method === 'DELETE') {

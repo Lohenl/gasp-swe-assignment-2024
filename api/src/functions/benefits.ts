@@ -190,6 +190,9 @@ export async function benefits(request: HttpRequest, context: InvocationContext)
             // validation happens here, dont forget joi
             context.log(request.query.get('id'));
             const benefit = await Benefit.findByPk(request.query.get('id'));
+            if (!benefit) {
+                return { status: 400, body: 'invalid id provided' }
+            }
             await benefit.destroy();
             return { body: request.query.get('id') }
         }

@@ -133,6 +133,9 @@ export async function users(request: HttpRequest, context: InvocationContext): P
         } else if (request.method === 'DELETE') {
             // validation happens here, dont forget joi
             const user = await User.findByPk(request.query.get('id'));
+            if (!user) {
+                return { status: 400, body: 'invalid id provided' }
+            }
             await user.destroy();
             return { body: request.query.get('id') }
         }

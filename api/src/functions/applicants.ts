@@ -203,6 +203,9 @@ export async function applicants(request: HttpRequest, context: InvocationContex
         } else if (request.method === 'DELETE') {
             // validation happens here, dont forget joi
             const applicant = await Applicant.findByPk(request.query.get('id'));
+            if (!applicant) {
+                return { status: 400, body: 'invalid id provided' }
+            }
             await applicant.destroy();
             return { body: request.query.get('id') }
         }
