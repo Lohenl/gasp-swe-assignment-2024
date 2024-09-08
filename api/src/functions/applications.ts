@@ -188,7 +188,7 @@ export async function applications(request: HttpRequest, context: InvocationCont
 };
 
 app.http('applications', {
-    methods: ['GET', 'POST'],
+    methods: ['GET', 'POST', 'PATCH', 'DELETE'],
     authLevel: 'anonymous',
     handler: applications
 });
