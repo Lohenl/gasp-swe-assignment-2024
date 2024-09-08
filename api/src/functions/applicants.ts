@@ -50,12 +50,20 @@ const sequelize = new Sequelize(process.env['PGDATABASE'], process.env['PGUSER']
 *                               type: string
 *                           birth_date:
 *                               type: date
-*                               example: "1988-05-02"
+*                           employment_status_code:
+*                               type: number
+*                           marital_status_code:
+*                               type: number
+*                           gender_code:
+*                               type: number
 *                   example:
 *                       name: "Jane Kwok"
 *                       email: "janekwok88@gmail.com"
 *                       mobile_no: "+6512345678"
 *                       birth_date: "1988-05-02"
+*                       employment_status_code: 3
+*                       marital_status_code: 2
+*                       gender_code: 2
 *       responses:
 *           200:
 *               description: Successful response
@@ -88,11 +96,20 @@ const sequelize = new Sequelize(process.env['PGDATABASE'], process.env['PGUSER']
 *                           birth_date:
 *                               type: date
 *                               example: "1988-05-02"
+*                           employment_status_code:
+*                               type: number
+*                           marital_status_code:
+*                               type: number
+*                           gender_code:
+*                               type: number
 *                   example:
 *                       name: "Jon Tan"
 *                       email: "jontanwenghou@gmail.com"
 *                       mobile_no: "+6587654321"
 *                       birth_date: "2003-08-08"
+*                       employment_status_code: 2
+*                       marital_status_code: 1
+*                       gender_code: 1
 *       responses:
 *           200:
 *               description: Successful response
@@ -151,6 +168,7 @@ export async function applicants(request: HttpRequest, context: InvocationContex
         } else if (request.method === 'POST') {
             const reqBody = await request.json();
             // validation happens here, dont forget joi
+            // create transaction here
             const applicant = await Applicant.create({
                 name: reqBody['name'],
                 email: reqBody['email'],
