@@ -22,7 +22,22 @@ Coding Assignment for SWE role in GovTech GASP
     - [x] Scaffold
 - [ ] Backend Logic
     - [ ] Implement
+        - [x] applicants
+        - [x] codetables
+        - [x] users
+        - [x] permissions (the first FKs to make)
+        - [x] households
+        - [x] schemes basic CRUD
+        - [x] benefits CRUD 
+        - [x] applicant code tables integration (API + Model FKs)
+        - [ ] rules engine integration (the tedious and complex one)
+        - [ ] schemes eligible API
+        - [ ] applications (need to simplify the model, no time)
         - [ ] Eslint (airbnb base)
+    - [ ] Build validators with joi
+    - [ ] Integrate Rules Engine
+        - [ ] Update /schemes/eligible API
+        - [ ] make use of eligibility_criteria to Schemes model
 - [ ] Code Quality
     - [ ] Eslint cleanup
     - [ ] SAST (Likely Synk again lol)
@@ -58,3 +73,7 @@ Coding Assignment for SWE role in GovTech GASP
 - [Swagger UI Dev Setup](https://swagger.io/docs/open-source-tools/swagger-ui/development/setting-up/)
 - [Azure Functions v4 TypeScript](https://johnnyreilly.com/migrating-azure-functions-node-js-v4-typescript)
 - [Swagger Associations (Foreign Keys)](https://sequelize.org/docs/v6/core-concepts/assocs/)
+- [Sequelize - Model Querying Basics](https://sequelize.org/docs/v6/core-concepts/model-querying-basics/)
+- [Sequelize - 1:N Concepts](https://sequelize.org/docs/v6/core-concepts/assocs/#one-to-many-relationships)
+- [Sequelize - M:N Concepts](https://sequelize.org/docs/v6/advanced-association-concepts/advanced-many-to-many/)
+- [Sequelize - Transactions](https://sequelize.org/docs/v6/other-topics/transactions/)

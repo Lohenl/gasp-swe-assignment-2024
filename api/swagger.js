@@ -3,9 +3,9 @@ const swaggerJSDoc = require('swagger-jsdoc');
 const swaggerDefinition = {
     openapi: '3.0.0',
     info: {
-        title: 'My API',
-        version: '1.0.0',
-        description: 'My API Description',
+        title: 'Financial Assistance Scheme Management System API',
+        version: '0.0.0',
+        description: 'Backend solution for managing financial assistance schemes for needy individuals and families',
     },
     servers: [
         {

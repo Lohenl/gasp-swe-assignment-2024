@@ -1,6 +1,10 @@
 import { app, HttpRequest, HttpResponseInit, InvocationContext } from "@azure/functions";
-import { Sequelize, DataTypes } from 'sequelize';
-import ApplicantModel from '../models/applicant';
+import { Sequelize, DataTypes, json } from 'sequelize';
+import AdminRoleModel from "../models/adminrole";
+import EmploymentStatusModel from "../models/employmentstatus";
+import GenderModel from "../models/gender";
+import MaritalStatusModel from "../models/maritalstatus";
+import PermissionScopeModel from "../models/permissionscope";
 const { DateTime } = require("luxon");
 
 const sequelize = new Sequelize(process.env['PGDATABASE'], process.env['PGUSER'], process.env['PGPASSWORD'], {
@@ -16,9 +20,29 @@ const sequelize = new Sequelize(process.env['PGDATABASE'], process.env['PGUSER']
 *       summary: Get all code tables / Get code table by name
 *       description: Get a specific code table's details by name. Omit ID to get all code table' details registered in system.
 *       parameters:
-*           - in: path
-*             name: name
+*           - in: query
+*             name: table_name
 *             description: Name of a specific code table to retrieve.
+*             schema:
+*               type: string
+*       responses:
+*           200:
+*               description: Successful response
+* 
+*   post:
+*       summary: Adds a codetable entry
+*       description: Adds a codetable entry
+*       parameters:
+*           - in: query
+*             name: table_name
+*             description: Name of code table to add an entry to.
+*             required: true
+*             schema:
+*               type: string
+*           - in: query
+*             name: code_entry_value
+*             description: Value of code entry to be added to code table
+*             required: true
 *             schema:
 *               type: string
 *       responses:
@@ -29,40 +53,42 @@ const sequelize = new Sequelize(process.env['PGDATABASE'], process.env['PGUSER']
 *       summary: Updates a code table
 *       description: Updates a code table
 *       parameters:
-*           - in: path
-*             name: name
+*           - in: query
+*             name: table_name
 *             required: true
 *             description: Name of the code table to update.
 *             schema:
 *               type: string
-*           - in: body
-*             name: codetable
-*             description: JSON details of code table to update with
+*           - in: query
+*             name: code_entry_id
+*             required: true
+*             description: ID of code entry to update.
 *             schema:
-*               type: object
-*               required:
-*                   - name
-*                   - id
-*               properties:
-*                   name:
-*                       type: string
-*                   id:
-*                       type: string
+*               type: string
+*           - in: query
+*             name: code_entry_value
+*             description: New value of code entry
+*             required: true
+*             schema:
+*               type: string
+*       responses:
+*           200:
+*               description: Successful response
 * 
 *   delete:
 *       summary: Delete code table entry by code table name and ID
 *       description: Delete code table entry by code table name and ID
 *       parameters:
-*           - in: path
+*           - in: query
 *             name: table_name
 *             required: true
 *             description: Table name of code to be deleted from.
 *             schema:
 *                 type: string
-*           - in: path
-*             name: id
+*           - in: query
+*             name: code_entry_id
 *             required: true
-*             description: ID of code to delete.
+*             description: ID of code table entry to delete.
 *             schema:
 *                 type: string
 *       responses:
@@ -72,20 +98,157 @@ const sequelize = new Sequelize(process.env['PGDATABASE'], process.env['PGUSER']
 export async function codetables(request: HttpRequest, context: InvocationContext): Promise<HttpResponseInit> {
     try {
         await sequelize.authenticate();
-        ApplicantModel(sequelize, DataTypes); // interesting how this works
-        const Applicant = sequelize.models.Applicant;
+        AdminRoleModel(sequelize, DataTypes);
+        EmploymentStatusModel(sequelize, DataTypes);
+        GenderModel(sequelize, DataTypes);
+        MaritalStatusModel(sequelize, DataTypes);
+        PermissionScopeModel(sequelize, DataTypes);
+        const AdminRole = sequelize.models.AdminRole;
+        const EmploymentStatus = sequelize.models.EmploymentStatus;
+        const Gender = sequelize.models.Gender;
+        const MaritalStatus = sequelize.models.MaritalStatus;
+        const PermissionScope = sequelize.models.PermissionScope;
 
-        const applicant = Applicant.build({ name: 'Jane Kwok', email: 'janekwok88@gmail.com', mobile_no: '+6512345678', birth_date: DateTime.fromISO('1988-05-02').toJSDate() });
-        return { jsonBody: applicant.dataValues }
+        // wait for all model syncs to finish
+        let syncPromises = [];
+        syncPromises.push(AdminRole.sync());
+        syncPromises.push(EmploymentStatus.sync());
+        syncPromises.push(Gender.sync());
+        syncPromises.push(MaritalStatus.sync());
+        syncPromises.push(PermissionScope.sync());
+        await Promise.allSettled(syncPromises);
+
+        if (request.method === 'GET') {
+            // validation happens here, dont forget joi
+            context.log(request.query.get('table_name'));
+            if (!request.query.get('table_name')) {
+                let findallPromises = [];
+                findallPromises.push(AdminRole.findAll({}));
+                findallPromises.push(EmploymentStatus.findAll({}));
+                findallPromises.push(Gender.findAll({}));
+                findallPromises.push(MaritalStatus.findAll({}));
+                findallPromises.push(PermissionScope.findAll({}));
+                const allResults = await Promise.allSettled(findallPromises);
+                let jsonBody = {
+                    AdminRole: (allResults[0] as any).value,
+                    EmploymentStatus: (allResults[1] as any).value,
+                    Gender: (allResults[2] as any).value,
+                    MaritalStatus: (allResults[3] as any).value,
+                    PermissionScope: (allResults[4] as any).value,
+                };
+                return { jsonBody }
+            } else {
+                let jsonBody;
+                switch (request.query.get('table_name')) {
+                    case 'AdminRole':
+                        jsonBody = await AdminRole.findAll({});
+                        break;
+                    case 'EmploymentStatus':
+                        jsonBody = await EmploymentStatus.findAll({});
+                        break;
+                    case 'Gender':
+                        jsonBody = await Gender.findAll({});
+                        break;
+                    case 'MaritalStatus':
+                        jsonBody = await MaritalStatus.findAll({});
+                        break;
+                    case 'PermissionScope':
+                        jsonBody = await PermissionScope.findAll({});
+                        break;
+                }
+                return { jsonBody }
+            }
+
+        } else if (request.method === 'POST') {
+            // validation happens here, dont forget joi
+            context.log(request.query.get('table_name'));
+            context.log(request.query.get('code_entry_value'));
+            let CodeTable;
+            switch (request.query.get('table_name')) {
+                case 'AdminRole':
+                    CodeTable = AdminRole;
+                    break;
+                case 'EmploymentStatus':
+                    CodeTable = EmploymentStatus;
+                    break;
+                case 'Gender':
+                    CodeTable = Gender;
+                    break;
+                case 'MaritalStatus':
+                    CodeTable = MaritalStatus;
+                    break;
+                case 'PermissionScope':
+                    CodeTable = PermissionScope;
+                    break;
+            }
+            const codeValue = CodeTable.build({ name: request.query.get('code_entry_value') });
+            await codeValue.save();
+            return { jsonBody: codeValue.dataValues }
+
+        } else if (request.method === 'PATCH') {
+            // validation happens here, dont forget joi
+            context.log(request.query.get('table_name'));
+            context.log(request.query.get('code_entry_id'));
+            context.log(request.query.get('code_entry_value'));
+            let CodeTable;
+            switch (request.query.get('table_name')) {
+                case 'AdminRole':
+                    CodeTable = AdminRole;
+                    break;
+                case 'EmploymentStatus':
+                    CodeTable = EmploymentStatus;
+                    break;
+                case 'Gender':
+                    CodeTable = Gender;
+                    break;
+                case 'MaritalStatus':
+                    CodeTable = MaritalStatus;
+                    break;
+                case 'PermissionScope':
+                    CodeTable = PermissionScope;
+                    break;
+            }
+            const codeValue = await CodeTable.findByPk(request.query.get('code_entry_id'));
+            codeValue.update({ name: request.query.get('code_entry_value') });
+            await codeValue.save();
+            return { jsonBody: codeValue.dataValues }
+
+        } else if (request.method === 'DELETE') {
+            // validation happens here, dont forget joi
+            context.log(request.query.get('table_name'));
+            context.log(request.query.get('code_entry_id'));
+            let CodeTable;
+            switch (request.query.get('table_name')) {
+                case 'AdminRole':
+                    CodeTable = AdminRole;
+                    break;
+                case 'EmploymentStatus':
+                    CodeTable = EmploymentStatus;
+                    break;
+                case 'Gender':
+                    CodeTable = Gender;
+                    break;
+                case 'MaritalStatus':
+                    CodeTable = MaritalStatus;
+                    break;
+                case 'PermissionScope':
+                    CodeTable = PermissionScope;
+                    break;
+            }
+            const codeValue = await CodeTable.findByPk(request.query.get('code_entry_id'));
+            await codeValue.destroy();
+            return { body: request.query.get('code_entry_id') }
+
+        }
 
     } catch (error) {
-        context.error('applicants: error encountered:', error);
+        context.error('codetables: error encountered:', error);
         return { status: 500, body: `Unexpected error occured: ${error}` }
     }
 };
 
 app.http('codetables', {
-    methods: ['GET', 'POST'],
+    methods: ['GET', 'POST', 'PATCH', 'DELETE'],
     authLevel: 'anonymous',
     handler: codetables
 });
