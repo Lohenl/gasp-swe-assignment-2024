@@ -1,10 +1,10 @@
 {
   "name": "gasp-swe-assignment-2024-rules-engine",
   "version": "0.0.0",
-  "description": "Rules Engine sample for gasp-swe-assignment-2024",
-  "main": "index.js",
+  "description": "Rules Engine sample for gasp-swe-assignment-2024, use this to test rules configurations",
   "scripts": {
     "start": "node index.js",
+    "example": "node sample.js",
     "microsoft-example": "node microsoft-example.js"
   },
   "dependencies": {
