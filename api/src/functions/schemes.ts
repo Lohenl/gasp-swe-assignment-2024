@@ -174,16 +174,42 @@ export async function schemes(request: HttpRequest, context: InvocationContext):
 
         } else if (request.method === 'POST') {
             // validation happens here, dont forget joi
-            const schemeToCreate = await request.json();
+            const schemeToCreate = await request.json() as any;
             context.log('schemeToCreate:', schemeToCreate);
-            return { jsonBody: {} }
+            let benefitsToCreate = schemeToCreate.benefits as Array<any>;
+
+            // this is a complex creation, so we will need to use transaction
+            const result = await sequelize.transaction(async t => {
+                let createPromises = [];
+                // create base scheme class
+                const scheme = await Scheme.create({
+                    name: schemeToCreate.name,
+                    description: schemeToCreate.description,
+                }, { transaction: t });
+
+                // create assigned benefits
+                benefitsToCreate.forEach(benefit => {
+                    context.log('benefit:', benefit);
+                    createPromises.push(Benefit.create({ ...benefit, SchemeId: scheme.dataValues.id }, { transaction: t }));
+                });
+                await Promise.allSettled(createPromises);
+                return scheme;
+            });
+
+            return { jsonBody: result.dataValues }
 
         } else if (request.method === 'PATCH') {
             // validation happens here, dont forget joi
             context.log(request.query.get('id'));
-            const schemeToCreate = await request.json();
-            context.log('schemeToCreate:', schemeToCreate);
-            return { jsonBody: {} }
+            const schemeToUpdate = await request.json() as any;
+            context.log('schemeToUpdate:', schemeToUpdate);
+
+            // get base scheme class
+            const scheme = await Scheme.findByPk(request.query.get('id'));
+            scheme.update(schemeToUpdate);
+            await scheme.save();
+
+            return { jsonBody: scheme.dataValues }
 
         } else if (request.method === 'DELETE') {
             // validation happens here, dont forget joi
