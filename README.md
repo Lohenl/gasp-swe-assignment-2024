@@ -49,7 +49,7 @@ Coding Assignment for SWE role in GovTech GASP
 - [ ] Missed Out on First Pass
     - [ ] Applicant relationships in Households
         - [x] Revisit DB Diagram
-        - [ ] Build Models
+        - [x] Build Models
         - [ ] Update Functions
         - [ ] Test Regression urgh
     - [x] Application Outcome - just 1 extra field because I simplified
