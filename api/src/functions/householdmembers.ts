@@ -101,9 +101,10 @@ export async function householdMembers(request: HttpRequest, context: Invocation
 
         if (request.method === 'GET') {
             context.debug('applicant_id:', request.query.get('applicant_id'));
-            Joi.assert(request.query.get('applicant_id'), Joi.string().guid());
+            Joi.assert(request.query.get('applicant_id'), Joi.string().guid().required());
 
-            return { jsonBody: {} }
+            const applicant = await Applicant.findByPk(request.query.get('applicant_id'));
+            return { jsonBody: applicant.dataValues.HouseholdMembers };
 
         } else if (request.method === 'POST') {
             const reqBody = await request.json();
