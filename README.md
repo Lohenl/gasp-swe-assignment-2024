@@ -31,7 +31,11 @@ Coding Assignment for SWE role in GovTech GASP
         - [x] benefits CRUD 
         - [x] applicant code tables integration (API + Model FKs)
         - [ ] rules engine integration (the tedious and complex one)
+            - [x] schemes-rules API
+            - [ ] actually using json-rules-engine
         - [ ] schemes eligible API
+            - [ ] create 1 test case
+            - [ ] document test case
         - [ ] applications (need to simplify the model, no time)
         - [ ] Eslint (airbnb base)
     - [ ] Build validators with joi
