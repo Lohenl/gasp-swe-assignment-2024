@@ -72,3 +72,7 @@ Coding Assignment for SWE role in GovTech GASP
 - [Swagger UI Dev Setup](https://swagger.io/docs/open-source-tools/swagger-ui/development/setting-up/)
 - [Azure Functions v4 TypeScript](https://johnnyreilly.com/migrating-azure-functions-node-js-v4-typescript)
 - [Swagger Associations (Foreign Keys)](https://sequelize.org/docs/v6/core-concepts/assocs/)
+- [Sequelize - Model Querying Basics](https://sequelize.org/docs/v6/core-concepts/model-querying-basics/)
+- [Sequelize - 1:N Concepts](https://sequelize.org/docs/v6/core-concepts/assocs/#one-to-many-relationships)
+- [Sequelize - M:N Concepts](https://sequelize.org/docs/v6/advanced-association-concepts/advanced-many-to-many/)
+- [Sequelize - Transactions](https://sequelize.org/docs/v6/other-topics/transactions/)
