@@ -53,7 +53,7 @@ Coding Assignment for SWE role in GovTech GASP
         - [ ] Update Functions
         - [ ] Test Regression urgh
     - [x] Application Outcome - just 1 extra field because I simplified
-    - [ ] Update application API CU to include status query param 
+    - [x] Update application API CU to include outcome
 - [ ] Documentation
     - [ ] README
     - [x] Swagger
