@@ -17,7 +17,7 @@ const sequelize = new Sequelize(process.env['PGDATABASE'], process.env['PGUSER']
 *       parameters:
 *           - in: query
 *             required: true
-*             name: id
+*             name: scheme_id
 *             description: ID of the scheme
 *             schema:
 *               type: string
@@ -30,32 +30,18 @@ const sequelize = new Sequelize(process.env['PGDATABASE'], process.env['PGUSER']
 *       description: Creates a scheme rule for a specified scheme
 *       parameters:
 *           - in: query
-*             name: id
+*             name: scheme_id
 *             required: true
 *             description: ID of the scheme to update.
 *             schema:
 *               type: string
 *       requestBody:
-*           description: JSON Object representing scheme rule (see: json-rules-engine)
+*           description: JSON Object representing json-rules-engine scheme rule
 *           required: true
 *           content:
 *               application/json:
 *                   schema:
-*                       scheme:
-*                           type: object
-*                   example:
-*                       name: "Retrenchment Assistance Scheme"
-*                       description: "Scheme to help citizens who are recently retrenched"
-*                       benefits:
-*                           - name: SkillsFuture Credits
-*                             description: Additional SkillsFuture Credits
-*                             amount: 3000.00
-*                           - name: CDC Vouchers
-*                             description: Additional CDC Vouchers
-*                             amount: 600.00
-*                           - name: School Meal Vouchers
-*                             description: Daily school meal vouchers for applicants with children attending primary school 
-*                             amount: 5.00
+*                       type: object
 *       responses:
 *           200:
 *               description: Successful response
@@ -65,32 +51,18 @@ const sequelize = new Sequelize(process.env['PGDATABASE'], process.env['PGUSER']
 *       description: Updates a scheme rule for a specified scheme
 *       parameters:
 *           - in: query
-*             name: id
+*             name: scheme_id
 *             required: true
 *             description: ID of the scheme to update.
 *             schema:
 *               type: string
 *       requestBody:
-*           description: JSON Object representing scheme rule (see: json-rules-engine)
+*           description: JSON Object representing json-rules-engine scheme rule
 *           required: true
 *           content:
 *               application/json:
 *                   schema:
-*                       scheme:
-*                           type: object
-*                   example:
-*                       name: "Retrenchment Assistance Scheme"
-*                       description: "Scheme to help citizens who are recently retrenched"
-*                       benefits:
-*                           - name: SkillsFuture Credits
-*                             description: Additional SkillsFuture Credits
-*                             amount: 3000.00
-*                           - name: CDC Vouchers
-*                             description: Additional CDC Vouchers
-*                             amount: 600.00
-*                           - name: School Meal Vouchers
-*                             description: Daily school meal vouchers for applicants with children attending primary school 
-*                             amount: 5.00
+*                       type: object
 *       responses:
 *           200:
 *               description: Successful response
@@ -100,7 +72,7 @@ const sequelize = new Sequelize(process.env['PGDATABASE'], process.env['PGUSER']
 *       description: Delete a scheme rule from the system by scheme ID.
 *       parameters:
 *           - in: query
-*             name: id
+*             name: scheme_id
 *             required: true
 *             description: ID of the scheme to delete scheme rule from.
 *             schema:
@@ -131,65 +103,50 @@ export async function schemeRules(request: HttpRequest, context: InvocationConte
 
         if (request.method === 'GET') {
             // validation happens here, dont forget joi
-            context.log(request.query.get('id'));
-            if (!request.query.get('id')) {
-                const schemes = await Scheme.findAll({});
-                return { jsonBody: schemes }
-            } else {
-                // validation happens here, dont forget joi
-                const scheme = await Scheme.findByPk(request.query.get('id'));
-                return { jsonBody: scheme }
-            }
+            context.log(request.query.get('scheme_id'));
+            const scheme = await Scheme.findByPk(request.query.get('scheme_id'));
+            return { jsonBody: scheme.dataValues.eligibility_criteria }
 
         } else if (request.method === 'POST') {
             // validation happens here, dont forget joi
-            const schemeToCreate = await request.json() as any;
-            context.log('schemeToCreate:', schemeToCreate);
-            let benefitsToCreate = schemeToCreate.benefits as Array<any>;
-
-            // this is a complex creation, so we will need to use transaction
-            // sequelize has a way to create linked 1:N instances
-            // reference https://sequelize.org/docs/v6/advanced-association-concepts/creating-with-associations/
-            const result = await sequelize.transaction(async t => {
-                let createPromises = [];
-                // create base scheme class
-                const scheme = await Scheme.create({
-                    name: schemeToCreate.name,
-                    description: schemeToCreate.description,
-                }, {
-                    include: Benefit,
-                    transaction: t,
-                });
-
-                // create assigned benefits
-                benefitsToCreate.forEach(benefit => {
-                    context.log('benefit:', benefit);
-                    createPromises.push(Benefit.create({ ...benefit, SchemeId: scheme.dataValues.id }, { transaction: t }));
-                });
-                await Promise.allSettled(createPromises);
-                return scheme;
-            });
-
-            return { jsonBody: result.dataValues }
+            context.log(request.query.get('scheme_id'));
+            const schemeRuleToCreate = await request.json() as any;
+            context.log('schemeRuleToCreate:', schemeRuleToCreate);
+            // stringify the JSON structure for persistence
+            const schemeRuleStringified = JSON.stringify(schemeRuleToCreate);
+            const scheme = await Scheme.findByPk(request.query.get('id'));
+            if (!scheme) {
+                return { status: 400, body: 'invalid scheme_id provided' }
+            }
+            scheme.update({ eligibility_criteria: schemeRuleStringified });
+            await scheme.save();
+            return { jsonBody: scheme.dataValues }
 
         } else if (request.method === 'PATCH') {
             // validation happens here, dont forget joi
-            context.log(request.query.get('id'));
-            const schemeToUpdate = await request.json() as any;
-            context.log('schemeToUpdate:', schemeToUpdate);
-
-            // get base scheme class
+            context.log(request.query.get('scheme_id'));
+            const schemeRuleToUpdate = await request.json() as any;
+            context.log('schemeRuleToUpdate:', schemeRuleToUpdate);
+            // stringify the JSON structure for persistence
+            const schemeRuleStringified = JSON.stringify(schemeRuleToUpdate);
             const scheme = await Scheme.findByPk(request.query.get('id'));
-            scheme.update(schemeToUpdate);
+            if (!scheme) {
+                return { status: 400, body: 'invalid scheme_id provided' }
+            }
+            scheme.update({ eligibility_criteria: schemeRuleStringified });
             await scheme.save();
 
             return { jsonBody: scheme.dataValues }
 
         } else if (request.method === 'DELETE') {
             // validation happens here, dont forget joi
-            context.log(request.query.get('id'));
+            context.log(request.query.get('scheme_id'));
             const scheme = await Scheme.findByPk(request.query.get('id'));
-            await scheme.destroy();
+            if (!scheme) {
+                return { status: 400, body: 'invalid scheme_id provided' }
+            }
+            scheme.update({ eligibility_criteria: null });
+            await scheme.save();
             return { body: request.query.get('id') }
 
         }
