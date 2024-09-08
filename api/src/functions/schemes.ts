@@ -40,18 +40,32 @@ const sequelize = new Sequelize(process.env['PGDATABASE'], process.env['PGUSER']
 *                       properties:
 *                           name:
 *                               type: string
-*                           email:
+*                           description:
 *                               type: string
-*                           mobile_no:
-*                               type: string
-*                           birth_date:
-*                               type: date
-*                               example: "1988-05-02"
+*                           benefits:
+*                               type: array
+*                               items:
+*                                   type: object
+*                                   properties:
+*                                       name:
+*                                           type: string
+*                                       description:
+*                                           type: string
+*                                       amount:
+*                                           type: number
 *                   example:
-*                       name: "Jane Kwok"
-*                       email: "janekwok88@gmail.com"
-*                       mobile_no: "+6512345678"
-*                       birth_date: "1988-05-02"
+*                       name: "Retrenchment Assistance Scheme"
+*                       description: "Scheme to help citizens who are recently retrenched"
+*                       benefits:
+*                           - name: SkillsFuture Credits
+*                             description: Additional SkillsFuture Credits
+*                             amount: 3000.00
+*                           - name: CDC Vouchers
+*                             description: Additional CDC Vouchers
+*                             amount: 600.00
+*                           - name: School Meal Vouchers
+*                             description: Daily school meal vouchers for applicants with children attending primary school 
+*                             amount: 5.00
 *       responses:
 *           200:
 *               description: Successful response
@@ -79,18 +93,22 @@ const sequelize = new Sequelize(process.env['PGDATABASE'], process.env['PGUSER']
 *                       properties:
 *                           name:
 *                               type: string
-*                           email:
+*                           description:
 *                               type: string
-*                           mobile_no:
-*                               type: string
-*                           birth_date:
-*                               type: date
-*                               example: "1988-05-02"
+*                           benefits:
+*                               type: array
+*                               items:
+*                                   type: object
+*                                   properties:
+*                                       name:
+*                                           type: string
+*                                       description:
+*                                           type: string
+*                                       amount:
+*                                           type: number
 *                   example:
-*                       name: "Jane Kwok"
-*                       email: "janekwok88@gmail.com"
-*                       mobile_no: "+6512345678"
-*                       birth_date: "1988-05-02"
+*                       name: "SGSupport Scheme"
+*                       description: "Scheme to help citizens who are recently retrenched"
 *       responses:
 *           200:
 *               description: Successful response
