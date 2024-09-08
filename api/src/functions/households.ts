@@ -14,7 +14,7 @@ const sequelize = new Sequelize(process.env['PGDATABASE'], process.env['PGUSER']
 *       summary: Get all households / Get household details by ID
 *       description: Get a specific household's details by ID. Omit ID to get all households' details registered in system.
 *       parameters:
-*           - in: path
+*           - in: query
 *             name: id
 *             description: ID of the household to retrieve.
 *             schema:
@@ -44,20 +44,22 @@ const sequelize = new Sequelize(process.env['PGDATABASE'], process.env['PGUSER']
 *       summary: Updates a household
 *       description: Updates a household
 *       parameters:
-*           - in: path
+*           - in: query
 *             name: id
 *             required: true
 *             description: ID of the household to update.
 *             schema:
 *               type: string
-*           - in: body
-*             name: scheme
-*             description: Array of member IDs to be created
-*             schema:
-*               type: array
-*               items:
-*                   type: string
-*               example: ["2d055c48-912c-41e1-a831-3fc3c066f9ea","8943bca7-d676-42ab-b173-d139aba8a0bf"]
+*       requestBody:
+*           description: Array of member IDs to be included in household
+*           required: true
+*           content:
+*               application/json:
+*                   schema:
+*                       type: array
+*                       items:
+*                           type: string* 
+*                   example: ["2d055c48-912c-41e1-a831-3fc3c066f9ea","8943bca7-d676-42ab-b173-d139aba8a0bf"]
 *       responses:
 *           200:
 *               description: Successful response
@@ -66,7 +68,7 @@ const sequelize = new Sequelize(process.env['PGDATABASE'], process.env['PGUSER']
 *       summary: Delete household by ID
 *       description: Delete a household from the system by ID.
 *       parameters:
-*           - in: path
+*           - in: query
 *             name: id
 *             required: true
 *             description: ID of the household to delete.
@@ -150,18 +152,70 @@ export async function households(request: HttpRequest, context: InvocationContex
                     return household;
                 });
                 return { jsonBody: result }
-
             } else {
                 return { body: 'invalid applicant ID(s) provided' }
-
             }
-
 
         } else if (request.method === 'PATCH') {
             // validation happens here, dont forget joi
             context.log(request.query.get('id'));
             const memberIdArray = await request.json();
-            return { jsonBody: {} }
+            context.log('memberIdArray:', memberIdArray);
+
+            // check that household exists
+            const household = await Household.findByPk(request.query.get('id'));
+            if (!household) {
+                return { status: 400, body: 'invalid applicant ID(s) provided' }
+            }
+
+            // validate that all ids exist
+            // find each applicant by PK
+            // having any null values show up means that there are invalid IDs
+            let findPromises = [];
+            (memberIdArray as any).forEach(memberId => {
+                findPromises.push(Applicant.findByPk(memberId));
+            });
+            const results = await Promise.allSettled(findPromises);
+            // context.log('results:', results);
+            let householdMembers = [];
+            results.forEach((result) => {
+                householdMembers.push((result as any).value);
+            })
+            // context.log('householdMembers:', householdMembers);
+            // context.log('householdMembers.includes(null)', householdMembers.includes(null));
+            let isValid = !householdMembers.includes(null);
+
+            // once all validated, save to DB
+            if (isValid) {
+                // time for a sequelize transaction
+                const result = await sequelize.transaction(async t => {
+
+                    const household = await Household.findByPk(request.query.get('id'), { transaction: t });
+
+                    // find all applicants who have this existing id, we clear them
+                    let transactionPromises = [];
+                    const existingHouseholdMembers = await Applicant.findAll({ where: { HouseholdId: household.dataValues.id }, transaction: t });
+
+                    // TODO:
+                    // compare both existingHouseholdMembers and householdMembers
+                    // get a list of members to remove, and list of members to add
+                    // perform the necessary updates in the transaction
+
+                    existingHouseholdMembers.forEach(member => {
+                        transactionPromises.push(member.update({ HouseholdId: null }, { transaction: t }));
+                    });
+                    // all the household association to the specified members
+                    householdMembers.forEach(member => {
+                        transactionPromises.push(member.update({ HouseholdId: household.dataValues.id }, { transaction: t }));
+                    });
+                    await Promise.allSettled(transactionPromises);
+                    return household;
+                });
+                return { jsonBody: result }
+            } else {
+                return { status: 400, body: 'invalid applicant ID(s) provided' }
+            }
+
 
         } else if (request.method === 'DELETE') {
             // validation happens here, dont forget joi
@@ -178,7 +232,7 @@ export async function households(request: HttpRequest, context: InvocationContex
 };
 
 app.http('households', {
-    methods: ['GET', 'POST'],
+    methods: ['GET', 'POST', 'PATCH', 'DELETE'],
     authLevel: 'anonymous',
     handler: households
 });
