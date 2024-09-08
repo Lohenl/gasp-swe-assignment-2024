@@ -160,15 +160,11 @@ export async function applications(request: HttpRequest, context: InvocationCont
             const applicant = await Applicant.findByPk(request.query.get('applicant_id'));
             const scheme = await Scheme.findByPk(request.query.get('scheme_id'));
             if (applicant && scheme) {
-                const result = await sequelize.transaction(async t => {
-                    application.update({
-                        ApplicantId: request.query.get('applicant_id'),
-                        SchemeId: request.query.get('scheme_id'),
-                    });
-                    return application;
-                })
-
-                return { jsonBody: result.dataValues };
+                application.update({
+                    ApplicantId: request.query.get('applicant_id'),
+                    SchemeId: request.query.get('scheme_id'),
+                });
+                return { jsonBody: application.dataValues };
             } else {
                 return { status: 400, body: 'invalid ID(s) provided for admin_role_id and/or permission_scope_id' }
             }
