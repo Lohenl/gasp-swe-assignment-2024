@@ -35,7 +35,7 @@ const sequelize = new Sequelize(process.env['PGDATABASE'], process.env['PGUSER']
 * 
 *   post:
 *       summary: Creates an application
-*       description: Creates an application
+*       description: Creates an application, application will always start with a 'Pending Review' outcome
 *       parameters:
 *           - in: query
 *             name: applicant_id
@@ -53,11 +53,12 @@ const sequelize = new Sequelize(process.env['PGDATABASE'], process.env['PGUSER']
 * 
 *   patch:
 *       summary: Updates an application
-*       description: Updates an application
+*       description: Updates an application, allows manual update of application outcome
 *       parameters:
 *           - in: query
 *             name: application_id
 *             description: Application ID
+*             required: true
 *             schema:
 *               type: string
 *           - in: query
@@ -68,6 +69,11 @@ const sequelize = new Sequelize(process.env['PGDATABASE'], process.env['PGUSER']
 *           - in: query
 *             name: scheme_id
 *             description: ID for scheme the applicant is applying to
+*             schema:
+*               type: string
+*           - in: query
+*             name: outcome
+*             description: Manual update of application outcome
 *             schema:
 *               type: string
 *       responses:
@@ -136,6 +142,7 @@ export async function applications(request: HttpRequest, context: InvocationCont
             if (applicant && scheme) {
                 // create transaction here (lots of FKs to make)
                 const application = await Application.create({
+                    outcome: 'Pending Review',
                     ApplicantId: request.query.get('applicant_id'),
                     SchemeId: request.query.get('scheme_id'),
                 });
@@ -148,9 +155,11 @@ export async function applications(request: HttpRequest, context: InvocationCont
             context.debug('application_id:', request.query.get('application_id'));
             context.debug('applicant_id:', request.query.get('applicant_id'));
             context.debug('scheme_id:', request.query.get('scheme_id'));
+            context.debug('outcome:', request.query.get('outcome'));
             Joi.assert(request.query.get('application_id'), Joi.string().guid());
             Joi.assert(request.query.get('applicant_id'), Joi.string().guid());
             Joi.assert(request.query.get('scheme_id'), Joi.string().guid());
+            Joi.assert(request.query.get('outcome'), Joi.string());
 
             const application = await Application.findByPk(request.query.get('application_id'));
             if (!application) {
@@ -160,6 +169,7 @@ export async function applications(request: HttpRequest, context: InvocationCont
             const scheme = await Scheme.findByPk(request.query.get('scheme_id'));
             if (applicant && scheme) {
                 application.update({
+                    outcome: request.query.get('outcome'),
                     ApplicantId: request.query.get('applicant_id'),
                     SchemeId: request.query.get('scheme_id'),
                 });
