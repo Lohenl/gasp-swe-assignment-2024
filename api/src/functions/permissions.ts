@@ -3,6 +3,7 @@ import { Sequelize, DataTypes } from 'sequelize';
 import Joi = require('joi');
 import AdminRoleModel from "../models/adminrole";
 import PermissionScopeModel from "../models/permissionscope";
+import PermissionModel from "../models/permission";
 
 const sequelize = new Sequelize(process.env['PGDATABASE'], process.env['PGUSER'], process.env['PGPASSWORD'], {
     host: process.env['PGHOST'],
@@ -93,21 +94,13 @@ export async function permissions(request: HttpRequest, context: InvocationConte
         await sequelize.authenticate();
         AdminRoleModel(sequelize, DataTypes);
         PermissionScopeModel(sequelize, DataTypes);
+        PermissionModel(sequelize, DataTypes)
         const AdminRole = sequelize.models.AdminRole;
         const PermissionScope = sequelize.models.PermissionScope;
+        const Permission = sequelize.models.Permission;
 
         // declare M:M relationships - Permission is essentially a junction table
         // reference: https://sequelize.org/docs/v6/core-concepts/assocs/#many-to-many-relationships
-        const Permission = sequelize.define('Permission',
-            {
-                id: {
-                    type: DataTypes.UUID,
-                    defaultValue: DataTypes.UUIDV4,
-                    allowNull: false,
-                    primaryKey: true,
-                }
-            }
-        );
         AdminRole.belongsToMany(PermissionScope, { through: Permission });
         PermissionScope.belongsToMany(AdminRole, { through: Permission });
 
