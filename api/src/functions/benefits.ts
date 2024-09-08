@@ -131,18 +131,20 @@ export async function benefits(request: HttpRequest, context: InvocationContext)
         if (request.method === 'GET') {
             // validation happens here, dont forget joi
             context.log(request.query.get('id'));
+            context.log(request.query.get('scheme_id'));
 
             return { jsonBody: {} }
 
         } else if (request.method === 'POST') {
             // validation happens here, dont forget joi
+            context.log(request.query.get('scheme_id'));
             const schemeToCreate = await request.json();
             context.log('schemeToCreate:', schemeToCreate);
             return { jsonBody: {} }
 
         } else if (request.method === 'PATCH') {
             // validation happens here, dont forget joi
-            context.log(request.query.get('id'));
+            context.log(request.query.get('scheme_id'));
             const schemeToCreate = await request.json();
             context.log('schemeToCreate:', schemeToCreate);
             return { jsonBody: {} }
