@@ -161,16 +161,16 @@ export async function applicants(request: HttpRequest, context: InvocationContex
                 const applicants = await Applicant.findAll({});
                 return { jsonBody: applicants }
             } else {
-                // validation happens here, dont forget joi
+                context.debug('id', request.query.get('id'));
+                Joi.assert(request.query.get('id'), Joi.string().guid());
                 const applicant = await Applicant.findByPk(request.query.get('id'));
                 return { jsonBody: applicant }
             }
 
         } else if (request.method === 'POST') {
-            // validations
             const reqBody = await request.json();
+            context.debug('reqBody', reqBody);
             validate(reqBody);
-            context.log('reqBody', reqBody);
             // create transaction here (lots of FKs to make)
             const result = await sequelize.transaction(async t => {
                 const applicant = await Applicant.create({
@@ -191,10 +191,11 @@ export async function applicants(request: HttpRequest, context: InvocationContex
             return { jsonBody: result.dataValues }
 
         } else if (request.method === 'PATCH') {
-            // validation happens here, dont forget joi
+            context.debug('id', request.query.get('id'));
             const updateFields = await request.json();
+            context.debug('updateFields', updateFields);
+            Joi.assert(request.query.get('id'), Joi.string().guid());
             validate(updateFields);
-            context.log('updateFields', updateFields);
             const applicant = await Applicant.findByPk(request.query.get('id'));
             if (!applicant) {
                 return { status: 400, body: 'invalid id provided' }
@@ -208,7 +209,8 @@ export async function applicants(request: HttpRequest, context: InvocationContex
             return { jsonBody: result.dataValues }
 
         } else if (request.method === 'DELETE') {
-            // validation happens here, dont forget joi
+            context.debug('id', request.query.get('id'));
+            Joi.assert(request.query.get('id'), Joi.string().guid());
             const applicant = await Applicant.findByPk(request.query.get('id'));
             if (!applicant) {
                 return { status: 400, body: 'invalid id provided' }
