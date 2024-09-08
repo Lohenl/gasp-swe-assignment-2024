@@ -133,7 +133,7 @@ export async function benefits(request: HttpRequest, context: InvocationContext)
 
         if (request.method === 'GET') {
             context.debug('id:', request.query.get('id'));
-            context.debug('schema_id:', request.query.get('scheme_id'));
+            context.debug('scheme_id:', request.query.get('scheme_id'));
             Joi.assert(request.query.get('id'), Joi.string().guid());
             Joi.assert(request.query.get('scheme_id'), Joi.string().guid());
 
