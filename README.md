@@ -52,7 +52,7 @@ Coding Assignment for SWE role in GovTech GASP
         - [ ] Build Models
         - [ ] Update Functions
         - [ ] Test Regression urgh
-    - [ ] Application Outcome - just 1 extra field because I simplified
+    - [x] Application Outcome - just 1 extra field because I simplified
 - [ ] Documentation
     - [ ] README
     - [x] Swagger
