@@ -10,14 +10,19 @@ const sequelize = new Sequelize(process.env['PGDATABASE'], process.env['PGUSER']
 
 /**
 * @swagger
-* /schemes:
+* /benefits:
 *   get:
-*       summary: Get all schemes / Get scheme details by ID
-*       description: Get a specific scheme's details by ID. Omit ID to get all schemes' details registered in system.
+*       summary: Get benefit details by ID / Get benefit details by SchemeId
+*       description: Get a specific scheme's details by either ID or all benefit details under a specific Scheme with SchemeId
 *       parameters:
 *           - in: query
 *             name: id
-*             description: ID of the scheme to retrieve.
+*             description: ID of the benefit to retrieve.
+*             schema:
+*               type: string
+*           - in: query
+*             name: scheme_id
+*             description: ID of the scheme to retrieve all benefits under.
 *             schema:
 *               type: string
 *       responses:
@@ -25,90 +30,66 @@ const sequelize = new Sequelize(process.env['PGDATABASE'], process.env['PGUSER']
 *               description: Successful response
 * 
 *   post:
-*       summary: Creates a scheme (Benefits needs fixing)
-*       description: Creates a scheme
+*       summary: Creates a benefit under a given scheme
+*       description: Creates a benefit under a given scheme
+*       parameters:
+*           - in: query
+*             name: scheme_id
+*             description: ID of the scheme to retrieve all benefits under.
+*             schema:
+*               type: string
 *       requestBody:
-*           description: Array of member IDs to be included in household
+*           description: Benefit Details
 *           required: true
 *           content:
 *               application/json:
 *                   schema:
-*                       scheme:
+*                       benefit:
 *                           type: object
-*                       required:
-*                           - name
 *                       properties:
 *                           name:
 *                               type: string
 *                           description:
 *                               type: string
-*                           benefits:
-*                               type: array
-*                               items:
-*                                   type: object
-*                                   properties:
-*                                       name:
-*                                           type: string
-*                                       description:
-*                                           type: string
-*                                       amount:
-*                                           type: number
+*                           amount:
+*                               type: number
 *                   example:
-*                       name: "Retrenchment Assistance Scheme"
-*                       description: "Scheme to help citizens who are recently retrenched"
-*                       benefits:
-*                           - name: SkillsFuture Credits
-*                             description: Additional SkillsFuture Credits
-*                             amount: 3000.00
-*                           - name: CDC Vouchers
-*                             description: Additional CDC Vouchers
-*                             amount: 600.00
-*                           - name: School Meal Vouchers
-*                             description: Daily school meal vouchers for applicants with children attending primary school 
-*                             amount: 5.00
+*                       name: "CPF Medisave Account Top Up"
+*                       description: "Top up to citizen's CPF Medisave Account"
+*                       amount: 600.00
+*                       
 *       responses:
 *           200:
 *               description: Successful response
 * 
 *   patch:
-*       summary: Updates a scheme (Benefits needs fixing)
-*       description: Updates a scheme
+*       summary: Updates a benefit
+*       description: Updates a benefit
 *       parameters:
 *           - in: query
-*             name: id
-*             required: true
-*             description: ID of the scheme to update.
+*             name: benefit_id
+*             description: ID of the benefit to update
 *             schema:
 *               type: string
 *       requestBody:
-*           description: Array of member IDs to be included in household
+*           description: Benefit Details
 *           required: true
 *           content:
 *               application/json:
 *                   schema:
-*                       scheme:
+*                       benefit:
 *                           type: object
-*                       required:
-*                           - name
 *                       properties:
 *                           name:
 *                               type: string
 *                           description:
 *                               type: string
-*                           benefits:
-*                               type: array
-*                               items:
-*                                   type: object
-*                                   properties:
-*                                       name:
-*                                           type: string
-*                                       description:
-*                                           type: string
-*                                       amount:
-*                                           type: number
+*                           amount:
+*                               type: number
 *                   example:
-*                       name: "SGSupport Scheme"
-*                       description: "Scheme to help citizens who are recently retrenched"
+*                       name: "CPF Medisave Account Top Up"
+*                       description: "Top up to citizen's CPF Medisave Account"
+*                       amount: 600.00
 *       responses:
 *           200:
 *               description: Successful response
