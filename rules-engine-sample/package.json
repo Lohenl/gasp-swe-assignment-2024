@@ -1,0 +1,14 @@
+{
+  "name": "gasp-swe-assignment-2024-rules-engine",
+  "version": "0.0.0",
+  "description": "Rules Engine sample for gasp-swe-assignment-2024",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "microsoft-example": "node microsoft-example.js"
+  },
+  "dependencies": {
+    "gasp-swe-assignment-2024-rules-engine": "file:",
+    "json-rules-engine": "^6.5.0"
+  }
+}
