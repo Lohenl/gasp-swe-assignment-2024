@@ -43,8 +43,8 @@ const sequelize = new Sequelize(process.env['PGDATABASE'], process.env['PGUSER']
 *                           email:
 *                               type: string
 *                   example:
-*                       name: "Loh En Liang"
-*                       email: "loh_en_liang@tech.gov.sg"
+*                       name: "Koh Wen Hao"
+*                       email: "koh_wen_hao@tech.gov.sg"
 *       responses:
 *           200:
 *               description: Successful response
@@ -73,8 +73,8 @@ const sequelize = new Sequelize(process.env['PGDATABASE'], process.env['PGUSER']
 *                           email:
 *                               type: string
 *                   example:
-*                       name: "Loh En Liang"
-*                       email: "loh_en_liang@cpf.gov.sg"
+*                       name: "Koh Wen Hao"
+*                       email: "koh_wen_hao@tech.gov.sg"
 *       responses:
 *           200:
 *               description: Successful response
