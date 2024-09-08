@@ -36,7 +36,7 @@ Coding Assignment for SWE role in GovTech GASP
         - [x] schemes eligible API
             - [x] develop 1 test case (male employed/self-employed)
             - [x] document test case (update swagger docs)
-        - [ ] applications (need to simplify the model, no time)
+        - [x] applications (need to simplify the model, no time)
         - [ ] Eslint (airbnb base)
     - [ ] Build validators with joi
     - [x] Integrate Rules Engine
