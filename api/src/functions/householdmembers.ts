@@ -33,6 +33,7 @@ const sequelize = new Sequelize(process.env['PGDATABASE'], process.env['PGUSER']
 *       parameters:
 *           - in: query
 *             name: applicant_id
+*             required: true
 *             description: applicant ID
 *             schema:
 *               type: string
@@ -107,11 +108,21 @@ export async function householdMembers(request: HttpRequest, context: Invocation
             return { jsonBody: applicant.dataValues.HouseholdMembers };
 
         } else if (request.method === 'POST') {
-            const reqBody = await request.json();
+            context.debug('applicant_id:', request.query.get('applicant_id'));
+            Joi.assert(request.query.get('applicant_id'), Joi.string().guid().required());
+            const reqBody = await request.json() as object;
             context.debug('reqBody:', reqBody);
             validateBody(reqBody);
 
-            return { jsonBody: {} }
+            // check if applicant exists
+            const applicant = Applicant.findByPk(request.query.get('applicant_id'));
+            if (!applicant) {
+                return { status: 400, body: 'invalid applicant_id provided' }
+            }
+
+            // do creation
+            const householdMember = await HouseholdMember.create({ ...reqBody, ApplicantId: request.query.get('applicant_id') });
+            return { jsonBody: householdMember.dataValues }
 
         } else if (request.method === 'PATCH') {
             context.debug('household-member-id:', request.query.get('household-member-id'));
@@ -120,14 +131,24 @@ export async function householdMembers(request: HttpRequest, context: Invocation
             Joi.assert(request.query.get('household'), Joi.string().guid().required());
             validateBody(reqBody);
 
-            return { jsonBody: {} }
+            // check if household member exists
+            const householdMember = await HouseholdMember.findByPk(request.query.get('household-member-id'));
+            if (!householdMember) {
+                return { status: 400, body: 'invalid household-member-id provided' }
+            }
+            householdMember.update(reqBody);
+            await householdMember.save();
+            return { jsonBody: householdMember.dataValues }
 
         } else if (request.method === 'DELETE') {
             context.debug('household_member_id:', request.query.get('household_member_id'));
             Joi.assert(request.query.get('household_member_id'), Joi.string().guid());
-
-            return { jsonBody: {} }
-
+            const householdMember = await HouseholdMember.findByPk(request.query.get('household-member-id'));
+            if (!householdMember) {
+                return { status: 400, body: 'invalid household-member-id provided' }
+            }
+            await householdMember.destroy();
+            return { body: request.query.get('household_member_id') }
         }
 
     } catch (error) {
