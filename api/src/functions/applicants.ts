@@ -157,11 +157,11 @@ export async function applicants(request: HttpRequest, context: InvocationContex
         await Promise.allSettled(syncPromises);
 
         if (request.method === 'GET') {
+            context.debug('id:', request.query.get('id'));
             if (!request.query.get('id')) {
                 const applicants = await Applicant.findAll({});
                 return { jsonBody: applicants }
             } else {
-                context.debug('id:', request.query.get('id'));
                 Joi.assert(request.query.get('id'), Joi.string().guid());
                 const applicant = await Applicant.findByPk(request.query.get('id'));
                 return { jsonBody: applicant }
@@ -194,7 +194,7 @@ export async function applicants(request: HttpRequest, context: InvocationContex
             context.debug('id:', request.query.get('id'));
             const updateFields = await request.json();
             context.debug('updateFields:', updateFields);
-            Joi.assert(request.query.get('id'), Joi.string().guid());
+            Joi.assert(request.query.get('id'), Joi.string().guid().required());
             validateJSON(updateFields);
             const applicant = await Applicant.findByPk(request.query.get('id'));
             if (!applicant) {
