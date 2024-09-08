@@ -11,6 +11,7 @@ let engine = new Engine();
 
 // define schema rules here (this will be json definition saved into DB)
 let schemeRule = {
+    name: 'employed-male-scheme',
     // this sample rule evaluates if 1), applicant is male, and 2), either employed/self-employed
     conditions: {
         all: [{ // applicant is male (refer to code tables)
@@ -58,8 +59,13 @@ let facts = { applicantId: 'e6b52c5e-b9d0-468c-9baf-533c1f2f2f80' } // this user
 // Run the engine to evaluate
 engine
     .run(facts)
-    .then(({ events }) => {
-        events.map(event => console.log(event.params.message))
+    .then((response) => {
+        // console.log(response.results);
+        response.results.forEach(result => {
+            // access your condition name and results here - you can evaluate multiple rules at once if wanted
+            console.log('condition name:', result.name, ', result:', result.result)
+        });
+        response.events.map(event => console.log(event.params.message))
     })
 
 /*
