@@ -109,7 +109,7 @@ export async function applications(request: HttpRequest, context: InvocationCont
         Scheme.belongsToMany(Applicant, { through: Application });
 
         // wait for all model syncs to finish
-        let syncPromises = [];
+        const syncPromises = [];
         syncPromises.push(Applicant.sync());
         syncPromises.push(Scheme.sync());
         syncPromises.push(Application.sync());

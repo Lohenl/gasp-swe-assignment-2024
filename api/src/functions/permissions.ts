@@ -111,7 +111,7 @@ export async function permissions(request: HttpRequest, context: InvocationConte
         PermissionScope.belongsToMany(AdminRole, { through: Permission });
 
         // wait for all model syncs to finish
-        let syncPromises = [];
+        const syncPromises = [];
         syncPromises.push(AdminRole.sync());
         syncPromises.push(PermissionScope.sync());
         syncPromises.push(Permission.sync());

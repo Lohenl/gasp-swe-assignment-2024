@@ -43,7 +43,7 @@ export async function schemesEligibility(request: HttpRequest, context: Invocati
         Benefit.belongsTo(Scheme);
 
         // wait for all model syncs to finish
-        let syncPromises = [];
+        const syncPromises = [];
         syncPromises.push(Scheme.sync());
         syncPromises.push(Benefit.sync());
         syncPromises.push(Applicant.sync());
@@ -62,9 +62,9 @@ export async function schemesEligibility(request: HttpRequest, context: Invocati
             return { status: 500, body: 'no schemes loaded in system' }
         }
 
-        let evaluatedSchemes = [];
-        let eligibleSchemes = [];
-        let engine = new Engine();
+        const evaluatedSchemes = [];
+        const eligibleSchemes = [];
+        const engine = new Engine();
 
         // load applicant details into rules engine as facts
         engine.addFact('applicant-details', () => {
@@ -73,7 +73,7 @@ export async function schemesEligibility(request: HttpRequest, context: Invocati
 
         // load all defined scheme conditions into the rules engine
         schemes.forEach(scheme => {
-            let savedRule = scheme.dataValues.eligibility_criteria;
+            const savedRule = scheme.dataValues.eligibility_criteria;
             if (savedRule) {
                 evaluatedSchemes.push(scheme);
                 engine.addRule(JSON.parse(savedRule));
@@ -81,8 +81,8 @@ export async function schemesEligibility(request: HttpRequest, context: Invocati
         });
 
         // run rules engine for result
-        let facts = { applicantId: request.query.get('id') }
-        let engineResults = await engine.run(facts);
+        const facts = { applicantId: request.query.get('id') }
+        const engineResults = await engine.run(facts);
         engineResults.results.forEach((result, index) => {
             // TODO: test assumption that rules are evaluated in the order of adding to engine
             context.debug('condition name:', result.name, ', result:', result.result);
@@ -93,7 +93,7 @@ export async function schemesEligibility(request: HttpRequest, context: Invocati
         });
 
         // TODO: do json transformation here
-        let jsonBody = eligibleSchemes;
+        const jsonBody = eligibleSchemes;
         return { jsonBody }
 
     } catch (error) {

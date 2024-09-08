@@ -102,7 +102,7 @@ export async function households(request: HttpRequest, context: InvocationContex
         Applicant.belongsTo(Household);
 
         // wait for all model syncs to finish
-        let syncPromises = [];
+        const syncPromises = [];
         syncPromises.push(Household.sync());
         syncPromises.push(Applicant.sync());
         await Promise.allSettled(syncPromises);
@@ -128,26 +128,26 @@ export async function households(request: HttpRequest, context: InvocationContex
             // validate that all ids exist
             // find each applicant by PK
             // having any null values show up means that there are invalid IDs
-            let findPromises = [];
+            const findPromises = [];
             (memberIdArray as any).forEach(memberId => {
                 findPromises.push(Applicant.findByPk(memberId));
             });
             const results = await Promise.allSettled(findPromises);
             context.debug('results:', results);
-            let householdMembers = [];
+            const householdMembers = [];
             results.forEach((result) => {
                 householdMembers.push((result as any).value);
             })
             context.debug('householdMembers:', householdMembers);
             context.debug('householdMembers.includes(null):', householdMembers.includes(null));
-            let isValid = !householdMembers.includes(null);
+            const isValid = !householdMembers.includes(null);
 
             // once all validated, save to DB
             if (isValid) {
                 // time for a sequelize transaction
                 const result = await sequelize.transaction(async t => {
                     const household = await Household.create({}, { transaction: t });
-                    let updatePromises = [];
+                    const updatePromises = [];
                     householdMembers.forEach(member => {
                         updatePromises.push(member.update({ HouseholdId: household.dataValues.id }, { transaction: t }));
                     });
@@ -175,19 +175,19 @@ export async function households(request: HttpRequest, context: InvocationContex
             // validate that all ids exist
             // find each applicant by PK
             // having any null values show up means that there are invalid IDs
-            let findPromises = [];
+            const findPromises = [];
             (memberIdArray as any).forEach(memberId => {
                 findPromises.push(Applicant.findByPk(memberId));
             });
             const results = await Promise.allSettled(findPromises);
             context.debug('results:', results);
-            let householdMembers = [];
+            const householdMembers = [];
             results.forEach((result) => {
                 householdMembers.push((result as any).value);
             })
             context.debug('householdMembers:', householdMembers);
             context.debug('householdMembers.includes(null):', householdMembers.includes(null));
-            let isValid = !householdMembers.includes(null);
+            const isValid = !householdMembers.includes(null);
 
             // once all validated, save to DB
             if (isValid) {
@@ -199,13 +199,13 @@ export async function households(request: HttpRequest, context: InvocationContex
                     // find all applicants who have this existing id
                     const existingHouseholdMembers = await Applicant.findAll({ where: { HouseholdId: household.dataValues.id }, transaction: t });
 
-                    let transactionPromises = [];
+                    const transactionPromises = [];
                     // compare both existingHouseholdMembers and householdMembers
                     // determine a list of members to be removed from household
                     existingHouseholdMembers.forEach(existingMember => {
                         // remove if existing member is not in the newer household members list
                         // reference: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/some
-                        let isInUpdatedHousehold = householdMembers.some(householdMember => householdMember.dataValues.id === existingMember.dataValues.id);
+                        const isInUpdatedHousehold = householdMembers.some(householdMember => householdMember.dataValues.id === existingMember.dataValues.id);
                         if (!isInUpdatedHousehold) {
                             transactionPromises.push(existingMember.update({ HouseholdId: null }, { transaction: t }));
                         }

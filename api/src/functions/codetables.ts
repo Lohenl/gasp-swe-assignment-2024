@@ -110,7 +110,7 @@ export async function codetables(request: HttpRequest, context: InvocationContex
         const PermissionScope = sequelize.models.PermissionScope;
 
         // wait for all model syncs to finish
-        let syncPromises = [];
+        const syncPromises = [];
         syncPromises.push(AdminRole.sync());
         syncPromises.push(EmploymentStatus.sync());
         syncPromises.push(Gender.sync());
@@ -121,19 +121,19 @@ export async function codetables(request: HttpRequest, context: InvocationContex
         if (request.method === 'GET') {
             context.debug('table_name:', request.query.get('table_name'));
             if (!request.query.get('table_name')) {
-                let findallPromises = [];
+                const findallPromises = [];
                 findallPromises.push(AdminRole.findAll({}));
                 findallPromises.push(EmploymentStatus.findAll({}));
                 findallPromises.push(Gender.findAll({}));
                 findallPromises.push(MaritalStatus.findAll({}));
                 findallPromises.push(PermissionScope.findAll({}));
-                const allResults = await Promise.allSettled(findallPromises);
-                let jsonBody = {
-                    AdminRole: (allResults[0] as any).value,
-                    EmploymentStatus: (allResults[1] as any).value,
-                    Gender: (allResults[2] as any).value,
-                    MaritalStatus: (allResults[3] as any).value,
-                    PermissionScope: (allResults[4] as any).value,
+                const allResults = await Promise.allSettled(findallPromises) as any[];
+                const jsonBody = {
+                    AdminRole: allResults[0].value,
+                    EmploymentStatus: allResults[1].value,
+                    Gender: allResults[2].value,
+                    MaritalStatus: allResults[3].value,
+                    PermissionScope: allResults[4].value,
                 };
                 return { jsonBody }
             } else {

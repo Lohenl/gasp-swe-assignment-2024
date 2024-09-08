@@ -125,7 +125,7 @@ export async function benefits(request: HttpRequest, context: InvocationContext)
         Benefit.belongsTo(Scheme);
 
         // wait for all model syncs to finish
-        let syncPromises = [];
+        const syncPromises = [];
         syncPromises.push(Scheme.sync());
         syncPromises.push(Benefit.sync());
         await Promise.allSettled(syncPromises);
@@ -149,7 +149,7 @@ export async function benefits(request: HttpRequest, context: InvocationContext)
             } else if (request.query.get('scheme_id')) {
                 const benefits = await Benefit.findAll({ where: { SchemeId: request.query.get('scheme_id') } });
                 context.debug('benefits', benefits);
-                let jsonBody = [];
+                const jsonBody = [];
                 benefits.forEach(benefit => {
                     jsonBody.push(benefit.dataValues);
                 })
@@ -159,7 +159,7 @@ export async function benefits(request: HttpRequest, context: InvocationContext)
 
         } else if (request.method === 'POST') {
             context.debug('scheme_id:', request.query.get('scheme_id'));
-            const benefitToCreate = await request.json() as Object;
+            const benefitToCreate = await request.json() as object;
             context.debug('benefitToCreate:', benefitToCreate);
             Joi.assert(request.query.get('schema_id'), Joi.string().guid());
             validateBody(benefitToCreate);

@@ -149,7 +149,7 @@ export async function applicants(request: HttpRequest, context: InvocationContex
         Gender.belongsToMany(Applicant, { through: 'ApplicantGender' });
 
         // wait for all model syncs to finish
-        let syncPromises = [];
+        const syncPromises = [];
         syncPromises.push(Applicant.sync());
         syncPromises.push(EmploymentStatus.sync());
         syncPromises.push(MaritalStatus.sync());

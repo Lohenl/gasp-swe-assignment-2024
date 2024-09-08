@@ -143,7 +143,7 @@ export async function schemes(request: HttpRequest, context: InvocationContext):
         Benefit.belongsTo(Scheme);
 
         // wait for all model syncs to finish
-        let syncPromises = [];
+        const syncPromises = [];
         syncPromises.push(Scheme.sync());
         syncPromises.push(Benefit.sync());
         await Promise.allSettled(syncPromises);
@@ -163,13 +163,13 @@ export async function schemes(request: HttpRequest, context: InvocationContext):
             const schemeToCreate = await request.json() as any;
             context.debug('schemeToCreate:', schemeToCreate);
             validateBody(schemeToCreate);
-            let benefitsToCreate = schemeToCreate.benefits as Array<any>;
+            const benefitsToCreate = schemeToCreate.benefits as any[];
 
             // this is a complex creation, so we will need to use transaction
             // sequelize has a way to create linked 1:N instances
             // reference https://sequelize.org/docs/v6/advanced-association-concepts/creating-with-associations/
             const result = await sequelize.transaction(async t => {
-                let createPromises = [];
+                const createPromises = [];
                 // create base scheme class
                 const scheme = await Scheme.create({
                     name: schemeToCreate.name,

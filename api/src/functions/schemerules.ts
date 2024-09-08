@@ -208,7 +208,7 @@ export async function schemeRules(request: HttpRequest, context: InvocationConte
         Benefit.belongsTo(Scheme);
 
         // wait for all model syncs to finish
-        let syncPromises = [];
+        const syncPromises = [];
         syncPromises.push(Scheme.sync());
         syncPromises.push(Benefit.sync());
         await Promise.allSettled(syncPromises);
