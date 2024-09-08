@@ -3,6 +3,7 @@ import { Sequelize, DataTypes } from 'sequelize';
 import Joi = require('joi');
 import ApplicantModel from "../models/applicant";
 import SchemeModel from "../models/scheme";
+import ApplicationModel from "../models/application";
 
 const sequelize = new Sequelize(process.env['PGDATABASE'], process.env['PGUSER'], process.env['PGPASSWORD'], {
     host: process.env['PGHOST'],
@@ -93,22 +94,12 @@ export async function applications(request: HttpRequest, context: InvocationCont
         await sequelize.authenticate();
         ApplicantModel(sequelize, DataTypes);
         SchemeModel(sequelize, DataTypes);
+        ApplicationModel(sequelize, DataTypes);
         const Applicant = sequelize.models.Applicant;
         const Scheme = sequelize.models.Scheme;
-
+        const Application = sequelize.models.Application;
         // declare M:M relationships - Permission is essentially a junction table
         // reference: https://sequelize.org/docs/v6/core-concepts/assocs/#many-to-many-relationships
-        const Application = sequelize.define('Application', {
-            id: {
-                type: DataTypes.UUID,
-                defaultValue: DataTypes.UUIDV4,
-                allowNull: false,
-                primaryKey: true,
-            },
-            outcome: {
-                type: DataTypes.STRING, // ought to be a codetable, and ought to be expanded into workflow entities
-            }
-        })
         Applicant.belongsToMany(Scheme, { through: Application });
         Scheme.belongsToMany(Applicant, { through: Application });
 
