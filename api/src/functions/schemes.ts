@@ -127,19 +127,6 @@ const sequelize = new Sequelize(process.env['PGDATABASE'], process.env['PGUSER']
 *           200:
 *               description: Successful response
 * 
-* /schemes/eligible:
-*   get:
-*       summary: Get all eligible schemes for given applicant
-*       description: Get all schemes that an applicant is eligible to apply for
-*       parameters:
-*           - in: query
-*             name: applicant
-*             description: ID of the applicant to retrieve.
-*             schema:
-*               type: string
-*       responses:
-*           200:
-*               description: Successful response
 */
 export async function schemes(request: HttpRequest, context: InvocationContext): Promise<HttpResponseInit> {
     try {
