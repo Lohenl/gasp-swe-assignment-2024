@@ -1,11 +1,11 @@
 import { app, HttpRequest, HttpResponseInit, InvocationContext } from "@azure/functions";
-import { Sequelize, DataTypes, json } from 'sequelize';
+import { Sequelize, DataTypes } from 'sequelize';
+import Joi = require('joi');
 import AdminRoleModel from "../models/adminrole";
 import EmploymentStatusModel from "../models/employmentstatus";
 import GenderModel from "../models/gender";
 import MaritalStatusModel from "../models/maritalstatus";
 import PermissionScopeModel from "../models/permissionscope";
-const { DateTime } = require("luxon");
 
 const sequelize = new Sequelize(process.env['PGDATABASE'], process.env['PGUSER'], process.env['PGPASSWORD'], {
     host: process.env['PGHOST'],
@@ -119,8 +119,7 @@ export async function codetables(request: HttpRequest, context: InvocationContex
         await Promise.allSettled(syncPromises);
 
         if (request.method === 'GET') {
-            // validation happens here, dont forget joi
-            context.log(request.query.get('table_name'));
+            context.debug('table_name:', request.query.get('table_name'));
             if (!request.query.get('table_name')) {
                 let findallPromises = [];
                 findallPromises.push(AdminRole.findAll({}));
@@ -138,6 +137,7 @@ export async function codetables(request: HttpRequest, context: InvocationContex
                 };
                 return { jsonBody }
             } else {
+                Joi.assert(request.query.get('table_name'), Joi.string());
                 let jsonBody;
                 switch (request.query.get('table_name')) {
                     case 'AdminRole':
@@ -161,8 +161,10 @@ export async function codetables(request: HttpRequest, context: InvocationContex
 
         } else if (request.method === 'POST') {
             // validation happens here, dont forget joi
-            context.log(request.query.get('table_name'));
-            context.log(request.query.get('code_entry_value'));
+            context.debug('table_name:', request.query.get('table_name'));
+            context.debug('code_entry_value:', request.query.get('code_entry_value'));
+            Joi.assert(request.query.get('table_name'), Joi.string().required());
+            Joi.assert(request.query.get('code_entry_value'), Joi.string().required());
             let CodeTable;
             switch (request.query.get('table_name')) {
                 case 'AdminRole':
@@ -187,9 +189,12 @@ export async function codetables(request: HttpRequest, context: InvocationContex
 
         } else if (request.method === 'PATCH') {
             // validation happens here, dont forget joi
-            context.log(request.query.get('table_name'));
-            context.log(request.query.get('code_entry_id'));
-            context.log(request.query.get('code_entry_value'));
+            context.debug('table_name:', request.query.get('table_name'));
+            context.debug('code_entry_id:', request.query.get('code_entry_id'));
+            context.debug('code_entry_value:', request.query.get('code_entry_value'));
+            Joi.assert(request.query.get('table_name'), Joi.string().required());
+            Joi.assert(request.query.get('code_entry_id'), Joi.string().required());
+            Joi.assert(request.query.get('code_entry_value'), Joi.string().required());
             let CodeTable;
             switch (request.query.get('table_name')) {
                 case 'AdminRole':
@@ -217,9 +222,10 @@ export async function codetables(request: HttpRequest, context: InvocationContex
             return { jsonBody: codeValue.dataValues }
 
         } else if (request.method === 'DELETE') {
-            // validation happens here, dont forget joi
-            context.log(request.query.get('table_name'));
-            context.log(request.query.get('code_entry_id'));
+            context.debug('table_name:', request.query.get('table_name'));
+            context.debug('code_entry_id:', request.query.get('code_entry_id'));
+            Joi.assert(request.query.get('table_name'), Joi.string().required());
+            Joi.assert(request.query.get('code_entry_id'), Joi.string().required());
             let CodeTable;
             switch (request.query.get('table_name')) {
                 case 'AdminRole':
@@ -244,11 +250,11 @@ export async function codetables(request: HttpRequest, context: InvocationContex
             }
             await codeValue.destroy();
             return { body: request.query.get('code_entry_id') }
-
         }
 
     } catch (error) {
         context.error('codetables: error encountered:', error);
+        if (Joi.isError(error)) { return { status: 400, jsonBody: error } }
         return { status: 500, body: `Unexpected error occured: ${error}` }
     }
 };
