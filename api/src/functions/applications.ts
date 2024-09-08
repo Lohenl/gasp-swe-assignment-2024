@@ -1,5 +1,6 @@
 import { app, HttpRequest, HttpResponseInit, InvocationContext } from "@azure/functions";
 import { Sequelize, DataTypes } from 'sequelize';
+import Joi = require('joi');
 import ApplicantModel from "../models/applicant";
 import SchemeModel from "../models/scheme";
 
@@ -88,7 +89,6 @@ const sequelize = new Sequelize(process.env['PGDATABASE'], process.env['PGUSER']
 */
 export async function applications(request: HttpRequest, context: InvocationContext): Promise<HttpResponseInit> {
     try {
-
         await sequelize.authenticate();
         ApplicantModel(sequelize, DataTypes);
         SchemeModel(sequelize, DataTypes);
@@ -116,9 +116,10 @@ export async function applications(request: HttpRequest, context: InvocationCont
         await Promise.allSettled(syncPromises);
 
         if (request.method === 'GET') {
-            // validation happens here, dont forget joi
-            context.log(request.query.get('applicant_id'));
-            context.log(request.query.get('scheme_id'));
+            context.debug('applicant_id:', request.query.get('applicant_id'));
+            context.debug('scheme_id:', request.query.get('scheme_id'));
+            Joi.assert(request.query.get('applicant_id'), Joi.string().guid());
+            Joi.assert(request.query.get('scheme_id'), Joi.string().guid());
             if (!request.query.get('id')) {
                 const applications = await Application.findAll({});
                 return { jsonBody: applications }
@@ -128,9 +129,10 @@ export async function applications(request: HttpRequest, context: InvocationCont
             }
 
         } else if (request.method === 'POST') {
-            // validation happens here, dont forget joi
-            context.log(request.query.get('applicant_id'));
-            context.log(request.query.get('scheme_id'));
+            context.debug('applicant_id:', request.query.get('applicant_id'));
+            context.debug('scheme_id:', request.query.get('scheme_id'));
+            Joi.assert(request.query.get('applicant_id'), Joi.string().guid());
+            Joi.assert(request.query.get('scheme_id'), Joi.string().guid());
 
             // practically speaking a UI would directly feed the respective IDs to this join table
             // so at best you would only need to check if the IDs exist in the respective tables
@@ -148,10 +150,12 @@ export async function applications(request: HttpRequest, context: InvocationCont
             }
 
         } else if (request.method === 'PATCH') {
-            // validation happens here, dont forget joi
-            context.log(request.query.get('application_id'));
-            context.log(request.query.get('applicant_id'));
-            context.log(request.query.get('scheme_id'));
+            context.debug('application_id:', request.query.get('application_id'));
+            context.debug('applicant_id:', request.query.get('applicant_id'));
+            context.debug('scheme_id:', request.query.get('scheme_id'));
+            Joi.assert(request.query.get('application_id'), Joi.string().guid());
+            Joi.assert(request.query.get('applicant_id'), Joi.string().guid());
+            Joi.assert(request.query.get('scheme_id'), Joi.string().guid());
 
             const application = await Application.findByPk(request.query.get('application_id'));
             if (!application) {
@@ -170,8 +174,8 @@ export async function applications(request: HttpRequest, context: InvocationCont
             }
 
         } else if (request.method === 'DELETE') {
-            // validation happens here, dont forget joi
-            context.log(request.query.get('application_id'));
+            context.debug('application_id:', request.query.get('application_id'));
+            Joi.assert(request.query.get('application_id'), Joi.string().guid());
             const application = await Application.findByPk(request.query.get('application_id'));
             if (!application) {
                 return { status: 400, body: 'invalid id provided' }
@@ -183,6 +187,7 @@ export async function applications(request: HttpRequest, context: InvocationCont
 
     } catch (error) {
         context.error('permissions: error encountered:', error);
+        if (Joi.isError(error)) { return { status: 400, jsonBody: error } }
         return { status: 500, body: `Unexpected error occured: ${error}` }
     }
 };
