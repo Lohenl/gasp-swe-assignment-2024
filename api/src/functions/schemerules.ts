@@ -36,12 +36,67 @@ const sequelize = new Sequelize(process.env['PGDATABASE'], process.env['PGUSER']
 *             schema:
 *               type: string
 *       requestBody:
-*           description: JSON Object representing json-rules-engine scheme rule
+*           description: JSON Object representing json-rules-engine scheme rule (Refer to README instead for premade examples)
 *           required: true
 *           content:
 *               application/json:
 *                   schema:
-*                       type: object
+*                       schemeRule:
+*                           type: object
+*                       properties:
+*                           name:
+*                               type: string
+*                               name: "employed-male-scheme"
+*                           conditions:
+*                               type: object
+*                               properties:
+*                                   "any":
+*                                       type: array
+*                                       items:
+*                                           type: object
+*                                           properties:
+*                                               fact:
+*                                                   type: string
+*                                                   example: applicant-details
+*                                               operator:
+*                                                   type: string
+*                                                   example: equal
+*                                               value:
+*                                                   type: {}
+*                                                   example: 1
+*                                               path:
+*                                                   type: string
+*                                                   example: "$.GenderId"
+*                                   "all":
+*                                       type: array
+*                                       items:
+*                                           type: object
+*                                           properties:
+*                                               fact:
+*                                                   type: string
+*                                                   example: applicant-details
+*                                               operator:
+*                                                   type: string
+*                                                   example: equal
+*                                               value:
+*                                                   type: {}
+*                                                   example: 1
+*                                               path:
+*                                                   type: string
+*                                                   example: "$.GenderId"
+* 
+*                           event:
+*                               type: object
+*                               properties:
+*                                   type:
+*                                       type: string
+*                                       example: "eligible"
+*                                   params:
+*                                       type: object
+*                                       properties:
+*                                           message:
+*                                               type: string
+*                                               example: "Applicant is eligible for the scheme"
 *       responses:
 *           200:
 *               description: Successful response
@@ -57,12 +112,68 @@ const sequelize = new Sequelize(process.env['PGDATABASE'], process.env['PGUSER']
 *             schema:
 *               type: string
 *       requestBody:
-*           description: JSON Object representing json-rules-engine scheme rule
+*           description: JSON Object representing json-rules-engine scheme rule (Refer to README instead for premade examples)
 *           required: true
 *           content:
 *               application/json:
 *                   schema:
-*                       type: object
+*                       schemeRule:
+*                           type: object
+*                       properties:
+*                           name:
+*                               type: string
+*                               name: "employed-male-scheme"
+*                           conditions:
+*                               type: object
+*                               properties:
+*                                   "any":
+*                                       type: array
+*                                       items:
+*                                           type: object
+*                                           properties:
+*                                               fact:
+*                                                   type: string
+*                                                   example: applicant-details
+*                                               operator:
+*                                                   type: string
+*                                                   example: equal
+*                                               value:
+*                                                   type: {}
+*                                                   example: 1
+*                                               path:
+*                                                   type: string
+*                                                   example: "$.GenderId"
+*                                   "all":
+*                                       type: array
+*                                       items:
+*                                           type: object
+*                                           properties:
+*                                               fact:
+*                                                   type: string
+*                                                   example: applicant-details
+*                                               operator:
+*                                                   type: string
+*                                                   example: equal
+*                                               value:
+*                                                   type: {}
+*                                                   example: 1
+*                                               path:
+*                                                   type: string
+*                                                   example: "$.GenderId"
+* 
+*                           event:
+*                               type: object
+*                               properties:
+*                                   type:
+*                                       type: string
+*                                       example: "eligible"
+*                                   params:
+*                                       type: object
+*                                       properties:
+*                                           message:
+*                                               type: string
+*                                               example: "Applicant is eligible for the scheme"
+*                           
 *       responses:
 *           200:
 *               description: Successful response
