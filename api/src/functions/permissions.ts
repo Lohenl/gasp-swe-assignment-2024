@@ -1,5 +1,6 @@
 import { app, HttpRequest, HttpResponseInit, InvocationContext } from "@azure/functions";
 import { Sequelize, DataTypes } from 'sequelize';
+import Joi = require('joi');
 import AdminRoleModel from "../models/adminrole";
 import PermissionScopeModel from "../models/permissionscope";
 
@@ -31,11 +32,13 @@ const sequelize = new Sequelize(process.env['PGDATABASE'], process.env['PGUSER']
 *       parameters:
 *           - in: query
 *             name: admin_role_id
+*             required: true
 *             description: ID of a admin role to set
 *             schema:
 *               type: string
 *           - in: query
 *             name: permission_scope_id
+*             required: true
 *             description: ID of permission scope to set
 *             schema:
 *               type: string
@@ -49,16 +52,19 @@ const sequelize = new Sequelize(process.env['PGDATABASE'], process.env['PGUSER']
 *       parameters:
 *           - in: query
 *             name: permission_id
+*             required: true
 *             description: ID of a admin role to set
 *             schema:
 *               type: string
 *           - in: query
 *             name: admin_role_id
+*             required: true
 *             description: ID of a admin role to set
 *             schema:
 *               type: string
 *           - in: query
 *             name: permission_scope_id
+*             required: true
 *             description: ID of permission scope to set
 *             schema:
 *               type: string
@@ -83,7 +89,6 @@ const sequelize = new Sequelize(process.env['PGDATABASE'], process.env['PGUSER']
 */
 export async function permissions(request: HttpRequest, context: InvocationContext): Promise<HttpResponseInit> {
     try {
-
         await sequelize.authenticate();
         AdminRoleModel(sequelize, DataTypes);
         PermissionScopeModel(sequelize, DataTypes);
@@ -113,8 +118,8 @@ export async function permissions(request: HttpRequest, context: InvocationConte
         await Promise.allSettled(syncPromises);
 
         if (request.method === 'GET') {
-            // validation happens here, dont forget joi
-            context.log(request.query.get('id'));
+            context.debug('id:', request.query.get('id'));
+            Joi.assert(request.query.get('id'), Joi.string().guid());
             if (!request.query.get('id')) {
                 const permissions = await Permission.findAll({});
                 return { jsonBody: permissions }
@@ -125,8 +130,10 @@ export async function permissions(request: HttpRequest, context: InvocationConte
 
         } else if (request.method === 'POST') {
             // validation happens here, dont forget joi
-            context.log(request.query.get('admin_role_id'));
-            context.log(request.query.get('permission_scope_id'));
+            context.debug('admin_role_id:', request.query.get('admin_role_id'));
+            context.debug('permission_scope_id:', request.query.get('permission_scope_id'));
+            Joi.assert(request.query.get('admin_role_id'), Joi.string().guid().required());
+            Joi.assert(request.query.get('permission_scope_id'), Joi.string().guid().required());
 
             // practically speaking a UI would directly feed the respective IDs to this join table
             // so at best you would only need to check if the IDs exist in the respective tables
@@ -144,9 +151,12 @@ export async function permissions(request: HttpRequest, context: InvocationConte
             }
 
         } else if (request.method === 'PATCH') {
-            context.log(request.query.get('permission_id'));
-            context.log(request.query.get('admin_role_id'));
-            context.log(request.query.get('permission_scope_id'));
+            context.debug('permission_id:', request.query.get('permission_id'));
+            context.debug('admin_role_id:', request.query.get('admin_role_id'));
+            context.debug('permission_scope_id:', request.query.get('permission_scope_id'));
+            Joi.assert(request.query.get('permission_id'), Joi.string().guid().required());
+            Joi.assert(request.query.get('admin_role_id'), Joi.string().guid().required());
+            Joi.assert(request.query.get('permission_scope_id'), Joi.string().guid().required());
 
             const permission = await Permission.findByPk(request.query.get('permission_id'));
             if (!permission) {
@@ -166,19 +176,19 @@ export async function permissions(request: HttpRequest, context: InvocationConte
             }
 
         } else if (request.method === 'DELETE') {
-            // validation happens here, dont forget joi
-            context.log(request.query.get('id'));
+            context.debug('id:', request.query.get('id'));
+            Joi.assert(request.query.get('id'), Joi.string().guid().required());
             const permission = await Permission.findByPk(request.query.get('id'));
             if (!permission) {
                 return { status: 400, body: 'invalid id provided' }
             }
             await permission.destroy();
             return { body: request.query.get('id') }
-
         }
 
     } catch (error) {
         context.error('permissions: error encountered:', error);
+        if (Joi.isError(error)) { return { status: 400, jsonBody: error } }
         return { status: 500, body: `Unexpected error occured: ${error}` }
     }
 };
