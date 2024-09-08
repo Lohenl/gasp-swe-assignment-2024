@@ -35,7 +35,8 @@ const sequelize = new Sequelize(process.env['PGDATABASE'], process.env['PGUSER']
 *       parameters:
 *           - in: query
 *             name: scheme_id
-*             description: ID of the scheme to retrieve all benefits under.
+*             description: ID of the scheme to create a benefit under.
+*             required: true
 *             schema:
 *               type: string
 *       requestBody:
@@ -157,9 +158,18 @@ export async function benefits(request: HttpRequest, context: InvocationContext)
         } else if (request.method === 'POST') {
             // validation happens here, dont forget joi
             context.log(request.query.get('scheme_id'));
-            const schemeToCreate = await request.json();
-            context.log('schemeToCreate:', schemeToCreate);
-            return { jsonBody: {} }
+            const benefitToCreate = await request.json() as Object;
+            context.log('benefitToCreate:', benefitToCreate);
+
+            // check if scheme exists
+            const scheme = Scheme.findByPk(request.query.get('scheme_id'));
+            if (!scheme) {
+                return { status: 400, body: 'invalid scheme_id provided' }
+            }
+            
+            // do creation
+            const benefit = await Benefit.create({ ...benefitToCreate, SchemeId: request.query.get('scheme_id') });
+            return { jsonBody: benefit.dataValues }
 
         } else if (request.method === 'PATCH') {
             // validation happens here, dont forget joi
