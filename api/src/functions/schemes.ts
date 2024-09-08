@@ -151,6 +151,8 @@ export async function schemes(request: HttpRequest, context: InvocationContext):
         BenefitModel(sequelize, DataTypes);
         const Scheme = sequelize.models.Scheme;
         const Benefit = sequelize.models.Benefit;
+        Scheme.hasMany(Benefit, { onDelete: 'cascade' });
+        Benefit.belongsTo(Scheme);
 
         // wait for all model syncs to finish
         let syncPromises = [];
