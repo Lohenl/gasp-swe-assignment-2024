@@ -2,7 +2,7 @@ import { app, HttpRequest, HttpResponseInit, InvocationContext } from "@azure/fu
 import { Sequelize, DataTypes } from 'sequelize';
 import Joi = require('joi');
 import ApplicantModel from "../models/applicant";
-const validateBody = require('../validators/householdsValidate');
+const validateBody = require('../validators/householdmembersValidate');
 
 const sequelize = new Sequelize(process.env['PGDATABASE'], process.env['PGUSER'], process.env['PGPASSWORD'], {
     host: process.env['PGHOST'],
