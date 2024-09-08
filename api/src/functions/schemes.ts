@@ -163,8 +163,14 @@ export async function schemes(request: HttpRequest, context: InvocationContext):
         if (request.method === 'GET') {
             // validation happens here, dont forget joi
             context.log(request.query.get('id'));
-
-            return { jsonBody: {} }
+            if (!request.query.get('id')) {
+                const schemes = await Scheme.findAll({});
+                return { jsonBody: schemes }
+            } else {
+                // validation happens here, dont forget joi
+                const scheme = await Scheme.findByPk(request.query.get('id'));
+                return { jsonBody: scheme }
+            }
 
         } else if (request.method === 'POST') {
             // validation happens here, dont forget joi
@@ -182,7 +188,9 @@ export async function schemes(request: HttpRequest, context: InvocationContext):
         } else if (request.method === 'DELETE') {
             // validation happens here, dont forget joi
             context.log(request.query.get('id'));
-            return { jsonBody: {} }
+            const scheme = await Scheme.findByPk(request.query.get('id'));
+            await scheme.destroy();
+            return { body: request.query.get('id') }
 
         }
 
