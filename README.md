@@ -29,7 +29,7 @@ Coding Assignment for SWE role in GovTech GASP
         - [x] households
         - [x] schemes basic CRUD
         - [x] benefits CRUD 
-        - [ ] applicant code tables integration (API + Model FKs)
+        - [x] applicant code tables integration (API + Model FKs)
         - [ ] rules engine integration (the tedious and complex one)
         - [ ] schemes eligible API
         - [ ] applications (need to simplify the model, no time)
