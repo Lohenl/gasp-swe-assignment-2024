@@ -7,7 +7,8 @@ const validateBody = require('../validators/schemeRulesValidate');
 
 const sequelize = new Sequelize(process.env['PGDATABASE'], process.env['PGUSER'], process.env['PGPASSWORD'], {
     host: process.env['PGHOST'],
-    dialect: 'postgres'
+    dialect: 'postgres',
+    logging: false,
 });
 
 /**
