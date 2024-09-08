@@ -209,6 +209,9 @@ export async function codetables(request: HttpRequest, context: InvocationContex
                     break;
             }
             const codeValue = await CodeTable.findByPk(request.query.get('code_entry_id'));
+            if (!codeValue) {
+                return { status: 400, body: 'invalid id provided' }
+            }
             codeValue.update({ name: request.query.get('code_entry_value') });
             await codeValue.save();
             return { jsonBody: codeValue.dataValues }

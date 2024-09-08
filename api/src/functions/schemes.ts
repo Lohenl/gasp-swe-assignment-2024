@@ -211,6 +211,9 @@ export async function schemes(request: HttpRequest, context: InvocationContext):
 
             // get base scheme class
             const scheme = await Scheme.findByPk(request.query.get('id'));
+            if (!scheme) {
+                return { status: 400, body: 'invalid id provided' }
+            }
             scheme.update(schemeToUpdate);
             await scheme.save();
 

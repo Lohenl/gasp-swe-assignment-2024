@@ -192,9 +192,13 @@ export async function applicants(request: HttpRequest, context: InvocationContex
             // validation happens here, dont forget joi
             const updateFields = await request.json();
             context.log('updateFields', updateFields);
+            const applicant = await Applicant.findByPk(request.query.get('id'));
+            if (!applicant) {
+                return { status: 400, body: 'invalid id provided' }
+            }
             // create transaction here (lots of FKs to make)
             const result = await sequelize.transaction(async t => {
-                const applicant = await Applicant.findByPk(request.query.get('id'));
+                const applicant = await Applicant.findByPk(request.query.get('id'), { transaction: t });
                 applicant.update(updateFields);
                 return applicant;
             });

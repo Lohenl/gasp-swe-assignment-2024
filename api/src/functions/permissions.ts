@@ -149,6 +149,9 @@ export async function permissions(request: HttpRequest, context: InvocationConte
             context.log(request.query.get('permission_scope_id'));
 
             const permission = await Permission.findByPk(request.query.get('permission_id'));
+            if (!permission) {
+                return { status: 400, body: 'invalid id provided' }
+            }
             const adminRole = await AdminRole.findByPk(request.query.get('admin_role_id'));
             const permissionScope = await PermissionScope.findByPk(request.query.get('permission_scope_id'));
             if (adminRole && permissionScope) {

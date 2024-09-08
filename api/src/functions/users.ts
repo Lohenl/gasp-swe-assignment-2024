@@ -126,6 +126,9 @@ export async function users(request: HttpRequest, context: InvocationContext): P
             const updateFields = await request.json();
             // validation happens here, dont forget joi
             const user = await User.findByPk(request.query.get('id'));
+            if (!user) {
+                return { status: 400, body: 'invalid id provided' }
+            }
             user.update(updateFields);
             await user.save();
             return { jsonBody: user.dataValues }
