@@ -39,9 +39,9 @@ Coding Assignment for SWE role in GovTech GASP
         - [ ] applications (need to simplify the model, no time)
         - [ ] Eslint (airbnb base)
     - [ ] Build validators with joi
-    - [ ] Integrate Rules Engine
-        - [ ] Update /schemes/eligible API
-        - [ ] make use of eligibility_criteria to Schemes model
+    - [x] Integrate Rules Engine
+        - [x] Update /schemes/eligible API
+        - [x] make use of eligibility_criteria to Schemes model
 - [ ] Code Quality
     - [ ] Eslint cleanup
     - [ ] SAST (Likely Synk again lol)
