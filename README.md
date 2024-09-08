@@ -46,13 +46,22 @@ Coding Assignment for SWE role in GovTech GASP
     - [x] Eslint cleanup
     - [ ] Testing
     - [x] SAST (Synk again lol)
+- [ ] Missed Out on First Pass
+    - [ ] Applicant relationships in Households
+        - [ ] Revisit DB Diagram
+        - [ ] Build Models
+        - [ ] Update Functions
+        - [ ] Test Regression urgh
+    - [ ] Application Outcome - just 1 extra field because I simplified
 - [ ] Documentation
     - [ ] README
-    - [ ] Swagger
-- [ ] AuthN and AuthZ Integration (hard pressed for time)
-    - [ ] Design
-    - [ ] Implement APIs
+    - [x] Swagger
+- [ ] AuthN and AuthZ Integration
+    - [x] Design the approach
+    - [ ] Build authorization service using Permissions and Users
+    - [ ] Implement authorization layer in APIs
     - [ ] Integrate with codebase
+        - [ ] Extra Swagger header to mimic authenticated user
 - [ ] Demonstration / Open House
     - [ ] Mock Data
     - [ ] Seed Script
