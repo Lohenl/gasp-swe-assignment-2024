@@ -2,7 +2,7 @@ import { app, HttpRequest, HttpResponseInit, InvocationContext } from "@azure/fu
 import { Sequelize, DataTypes } from 'sequelize';
 import Joi = require('joi');
 import ApplicantModel from "../models/applicant";
-const validateJSON = require('../validators/householdsValidate');
+const validateBody = require('../validators/householdsValidate');
 
 const sequelize = new Sequelize(process.env['PGDATABASE'], process.env['PGUSER'], process.env['PGPASSWORD'], {
     host: process.env['PGHOST'],
@@ -123,7 +123,7 @@ export async function households(request: HttpRequest, context: InvocationContex
             // validation happens here, dont forget joi
             const memberIdArray = await request.json();
             context.debug('memberIdArray:', memberIdArray);
-            validateJSON(memberIdArray);
+            validateBody(memberIdArray);
 
             // validate that all ids exist
             // find each applicant by PK
@@ -164,7 +164,7 @@ export async function households(request: HttpRequest, context: InvocationContex
             const memberIdArray = await request.json();
             context.debug('memberIdArray:', memberIdArray);
             Joi.assert(request.query.get('id'), Joi.string().guid().required());
-            validateJSON(memberIdArray);
+            validateBody(memberIdArray);
 
             // check that household exists
             const household = await Household.findByPk(request.query.get('id'));

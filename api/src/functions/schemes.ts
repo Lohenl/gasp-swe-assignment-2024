@@ -3,7 +3,7 @@ import { Sequelize, DataTypes } from 'sequelize';
 import Joi = require('joi');
 import SchemeModel from "../models/scheme";
 import BenefitModel from "../models/benefit";
-const validateJSON = require('../validators/schemesValidate');
+const validateBody = require('../validators/schemesValidate');
 
 const sequelize = new Sequelize(process.env['PGDATABASE'], process.env['PGUSER'], process.env['PGPASSWORD'], {
     host: process.env['PGHOST'],
@@ -162,7 +162,7 @@ export async function schemes(request: HttpRequest, context: InvocationContext):
         } else if (request.method === 'POST') {
             const schemeToCreate = await request.json() as any;
             context.debug('schemeToCreate:', schemeToCreate);
-            validateJSON(schemeToCreate);
+            validateBody(schemeToCreate);
             let benefitsToCreate = schemeToCreate.benefits as Array<any>;
 
             // this is a complex creation, so we will need to use transaction
@@ -195,7 +195,7 @@ export async function schemes(request: HttpRequest, context: InvocationContext):
             const schemeToUpdate = await request.json() as any;
             context.debug('schemeToUpdate:', schemeToUpdate);
             Joi.assert(request.query.get('id'), Joi.string().guid().required());
-            validateJSON(schemeToUpdate);
+            validateBody(schemeToUpdate);
 
             // get base scheme class
             const scheme = await Scheme.findByPk(request.query.get('id'));
