@@ -138,7 +138,6 @@ const sequelize = new Sequelize(process.env['PGDATABASE'], process.env['PGUSER']
 *                               type: string
 *                           birth_date:
 *                               type: date
-*                               example: "1988-05-02"
 *                           EmploymentStatusId:
 *                               type: number
 *                           MaritalStatusId:
@@ -146,13 +145,13 @@ const sequelize = new Sequelize(process.env['PGDATABASE'], process.env['PGUSER']
 *                           GenderId:
 *                               type: number
 *                   example:
-*                       name: "Jon Tan"
-*                       email: "jontanwenghou@gmail.com"
-*                       mobile_no: "+6587654321"
-*                       birth_date: "2003-08-08"
-*                       EmploymentStatusId: 2
-*                       MaritalStatusId: 1
-*                       GenderId: 1
+*                       name: "Mary-Jane Kwok Siu Ching"
+*                       email: "janekwok88@gmail.com"
+*                       mobile_no: "+6543218765"
+*                       birth_date: "1988-05-02"
+*                       EmploymentStatusId: 1
+*                       MaritalStatusId: 2
+*                       GenderId: 2
 *       responses:
 *           200:
 *               description: Successful response
