@@ -119,36 +119,39 @@ export async function applications(request: HttpRequest, context: InvocationCont
             context.debug('id:', request.query.get('id'));
             context.debug('applicant_id:', request.query.get('applicant_id'));
             context.debug('scheme_id:', request.query.get('scheme_id'));
+            const id = request.query.get('id');
+            const applicant_id = request.query.get('applicant_id');
+            const scheme_id = request.query.get('scheme_id');
 
-            if (!request.query.get('id') && !request.query.get('applicant_id') && !request.query.get('scheme_id')) {
+            if (!id && !applicant_id && !scheme_id) {
                 // omit all params to get everything
                 const applications = await Application.findAll({});
                 if (applications.length == 0) return { status: 404, body: 'no applications found' }
                 return { jsonBody: applications }
 
-            } else if (request.query.get('id') && !request.query.get('applicant_id') && !request.query.get('scheme_id')) {
+            } else if (id && !applicant_id && !scheme_id) {
                 // getting application by id
-                Joi.assert(request.query.get('id'), Joi.string().guid());
-                const application = await Application.findByPk(request.query.get('id'));
+                Joi.assert(id, Joi.string().guid());
+                const application = await Application.findByPk(id);
                 if (!application) return { status: 404, body: 'no application found' }
                 if (applications.length == 0) return { status: 404, body: 'no applications found' }
                 return { jsonBody: application }
 
-            } else if (!request.query.get('id') && request.query.get('applicant_id') && !request.query.get('scheme_id')) {
+            } else if (!id && applicant_id && !scheme_id) {
                 // getting application by applicant_id
-                Joi.assert(request.query.get('applicant_id'), Joi.string().guid());
-                const applicant = await Application.findByPk(request.query.get('applicant_id'));
+                Joi.assert(applicant_id, Joi.string().guid());
+                const applicant = await Application.findByPk(applicant_id);
                 if (!applicant) return { status: 404, body: 'no applicant found' }
-                const applications = await Application.findAll({ where: { ApplicantId: request.query.get('applicant_id') } });
+                const applications = await Application.findAll({ where: { ApplicantId: applicant_id } });
                 if (applications.length == 0) return { status: 404, body: 'no applications found' }
                 return { jsonBody: applications }
 
-            } else if (!request.query.get('id') && !request.query.get('applicant_id') && request.query.get('scheme_id')) {
+            } else if (!id && !applicant_id && scheme_id) {
                 // getting application by scheme_id
-                Joi.assert(request.query.get('scheme_id'), Joi.string().guid());
-                const scheme = await Scheme.findByPk(request.query.get('scheme_id'));
+                Joi.assert(scheme_id, Joi.string().guid());
+                const scheme = await Scheme.findByPk(scheme_id);
                 if (!scheme) return { status: 404, body: 'no scheme found' }
-                const applications = await Application.findAll({ where: { SchemeId: request.query.get('scheme_id') } });
+                const applications = await Application.findAll({ where: { SchemeId: scheme_id } });
                 if (applications.length == 0) return { status: 404, body: 'no applications found' }
                 return { jsonBody: applications }
 
