@@ -1,4 +1,4 @@
-# references
+# References
 
 This lists all the online refences I've used to learn or troubleshoot stuff while developing this system
 
