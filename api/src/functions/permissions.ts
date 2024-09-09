@@ -48,32 +48,6 @@ const sequelize = new Sequelize(process.env['PGDATABASE'], process.env['PGUSER']
 *           200:
 *               description: Successful response
 * 
-*   patch:
-*       summary: Updates a permission
-*       description: Updates a permission
-*       parameters:
-*           - in: query
-*             name: permission_id
-*             required: true
-*             description: ID of a admin role to set
-*             schema:
-*               type: string
-*           - in: query
-*             name: admin_role_id
-*             required: true
-*             description: ID of a admin role to set
-*             schema:
-*               type: string
-*           - in: query
-*             name: permission_scope_id
-*             required: true
-*             description: ID of permission scope to set
-*             schema:
-*               type: string
-*       responses:
-*           200:
-*               description: Successful response
-* 
 *   delete:
 *       summary: Deletes permission by ID
 *       description: Deletes permission by ID
@@ -155,40 +129,14 @@ export async function permissions(request: HttpRequest, context: InvocationConte
             await permission.save();
             return { jsonBody: permission.dataValues };
 
-        } else if (request.method === 'PATCH') {
-            context.debug('permission_id:', request.query.get('permission_id'));
-            context.debug('admin_role_id:', request.query.get('admin_role_id'));
-            context.debug('permission_scope_id:', request.query.get('permission_scope_id'));
-            Joi.assert(request.query.get('permission_id'), Joi.string().guid().required());
-            Joi.assert(request.query.get('admin_role_id'), Joi.string().guid().required());
-            Joi.assert(request.query.get('permission_scope_id'), Joi.string().guid().required());
-
-            const permission = await Permission.findByPk(request.query.get('permission_id'));
-            if (!permission) {
-                return { status: 400, body: 'invalid id provided' }
-            }
-            const adminRole = await AdminRole.findByPk(request.query.get('admin_role_id'));
-            const permissionScope = await PermissionScope.findByPk(request.query.get('permission_scope_id'));
-            if (adminRole && permissionScope) {
-                permission.update({
-                    AdminRoleId: request.query.get('admin_role_id'),
-                    PermissionScopeId: request.query.get('permission_scope_id'),
-                });
-                await permission.save();
-                return { jsonBody: permission.dataValues };
-            } else {
-                return { status: 400, body: 'invalid ID(s) provided for admin_role_id and/or permission_scope_id' }
-            }
-
         } else if (request.method === 'DELETE') {
-            context.debug('id:', request.query.get('id'));
-            Joi.assert(request.query.get('id'), Joi.string().guid().required());
-            const permission = await Permission.findByPk(request.query.get('id'));
-            if (!permission) {
-                return { status: 400, body: 'invalid id provided' }
-            }
+            const id = request.query.get('id');
+            context.debug('id:', id);
+            Joi.assert(id, Joi.string().guid().required());
+            const permission = await Permission.findByPk(id);
+            if (!permission) return { status: 404, body: 'id not found' }
             await permission.destroy();
-            return { body: request.query.get('id') }
+            return { body: id }
         }
 
     } catch (error) {
@@ -200,7 +148,7 @@ export async function permissions(request: HttpRequest, context: InvocationConte
 };
 
 app.http('permissions', {
-    methods: ['GET', 'POST', 'PATCH', 'DELETE'],
+    methods: ['GET', 'POST', 'DELETE'],
     authLevel: 'anonymous',
     handler: permissions
 });
