@@ -1,5 +1,5 @@
 import { app, HttpRequest, HttpResponseInit, InvocationContext } from "@azure/functions";
-import { Sequelize, DataTypes } from 'sequelize';
+import { Sequelize, DataTypes, where } from 'sequelize';
 import Joi = require('joi');
 import PermissionModel from "../models/permission";
 import PermissionAssignmentModel from "../models/permissionassignment";
@@ -111,10 +111,41 @@ export async function permissionAssignments(request: HttpRequest, context: Invoc
             context.debug('id:', request.query.get('id'));
             context.debug('permission_id:', request.query.get('permission_id'));
             context.debug('user_id:', request.query.get('user_id'));
+            const id = request.query.get('id');
+            const permission_id = request.query.get('permission_id');
+            const user_id = request.query.get('user_id');
 
+            if (id && !permission_id && !user_id) {
+                Joi.assert(id, Joi.string().guid());
+                const assignment = await PermissionAssignment.findByPk(id);
+                if (!assignment) return { status: 404, body: 'permission assignment not found' }
+                return { jsonBody: assignment.dataValues }
 
+            } else if (!id && permission_id && !user_id) {
+                Joi.assert(permission_id, Joi.string().guid());
+                const permission = await Permission.findByPk(permission_id);
+                if (!permission) return { status: 404, body: 'permission not found' }
+                const assignments = await PermissionAssignment.findAll({ where: { PermissionId: permission_id } });
+                const jsonBody = []
+                assignments.forEach(assignment => {
+                    jsonBody.push(assignment.dataValues)
+                });
+                return { jsonBody }
 
-            return { jsonBody: {} }
+            } else if (!id && !permission_id && user_id) {
+                Joi.assert(user_id, Joi.string().guid());
+                const user = await User.findByPk(user_id);
+                if (!user) return { status: 404, body: 'user not found' }
+                const assignments = await PermissionAssignment.findAll({ where: { UserId: user_id } });
+                const jsonBody = []
+                assignments.forEach(assignment => {
+                    jsonBody.push(assignment.dataValues)
+                });
+                return { jsonBody }
+
+            } else {
+                return { status: 400, body: 'invalid params, provide only one of id, permission_id, or user_id, or none at all' }
+            }
 
         } else if (request.method === 'POST') {
             context.debug('permission_id:', request.query.get('permission_id'));
