@@ -84,7 +84,7 @@ const sequelize = new Sequelize(process.env['PGDATABASE'], process.env['PGUSER']
 *       description: Updates a household member
 *       parameters:
 *           - in: query
-*             name: household_member_id
+*             name: id
 *             description: household member ID
 *             schema:
 *               type: string
@@ -206,14 +206,14 @@ export async function householdMembers(request: HttpRequest, context: Invocation
             return { jsonBody: householdMember.dataValues }
 
         } else if (request.method === 'PATCH') {
-            context.debug('household-member-id:', request.query.get('household-member-id'));
+            context.debug('id:', request.query.get('id'));
             const reqBody = await request.json();
             context.debug('reqBody:', reqBody);
-            Joi.assert(request.query.get('household'), Joi.string().guid().required());
+            Joi.assert(request.query.get('id'), Joi.string().guid().required());
             validateBody(reqBody);
 
             // check if household member exists
-            const householdMember = await HouseholdMember.findByPk(request.query.get('household-member-id'));
+            const householdMember = await HouseholdMember.findByPk(request.query.get('id'));
             if (!householdMember) {
                 return { status: 400, body: 'invalid household-member-id provided' }
             }
