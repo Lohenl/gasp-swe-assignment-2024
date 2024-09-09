@@ -1,5 +1,20 @@
 import Joi = require('joi');
 
+// copied from householdmembersValidate.ts
+const householdMemberSchema = Joi.object({
+    id: Joi.string().guid,
+    name: Joi.string().max(50).required(),
+    email: Joi.string().max(90),
+    mobile_no: Joi.string().max(31),
+    birth_date: Joi.string().required(),
+    GenderId: Joi.number().required(),
+    MaritalStatusId: Joi.number().required(),
+    EmploymentStatusId: Joi.number().required(),
+    RelationshipId: Joi.number().required(),
+    updatedAt: Joi.string(),
+    createdAt: Joi.string(),
+});
+
 const schema = Joi.object({
     id: Joi.string().guid,
     name: Joi.string().max(50).required(),
@@ -9,6 +24,7 @@ const schema = Joi.object({
     GenderId: Joi.number().required(),
     MaritalStatusId: Joi.number().required(),
     EmploymentStatusId: Joi.number().required(),
+    household: Joi.array().items(householdMemberSchema),
     updatedAt: Joi.string(),
     createdAt: Joi.string(),
 });
