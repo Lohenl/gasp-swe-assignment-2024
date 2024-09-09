@@ -42,9 +42,9 @@ Coding Assignment for SWE role in GovTech GASP
     - [x] Integrate Rules Engine
         - [x] Update /schemes/eligible API
         - [x] make use of eligibility_criteria to Schemes model
-- [ ] Code Quality
+- [x] Code Quality
     - [x] Eslint cleanup
-    - [ ] Testing
+    - [x] Testing
     - [x] SAST (Synk again lol)
 - [x] Missed Out on First Pass
     - [x] Applicant relationships in Households
@@ -54,9 +54,6 @@ Coding Assignment for SWE role in GovTech GASP
         - [x] Test Regression urgh
     - [x] Application Outcome - just 1 extra field because I simplified
     - [x] Update application API CU to include outcome
-- [ ] Documentation
-    - [ ] README
-    - [x] Swagger
 - [ ] AuthN and AuthZ Integration
     - [x] Design the approach
     - [x] Make permission into a module
@@ -65,6 +62,9 @@ Coding Assignment for SWE role in GovTech GASP
     - [ ] Implement authorization layer in APIs
     - [ ] Integrate with codebase
         - [ ] Extra Swagger header to mimic authenticated user
+- [ ] Documentation
+    - [ ] README
+    - [x] Swagger
 - [ ] Demonstration / Open House
     - [ ] Mock Data
     - [ ] Seed Script
