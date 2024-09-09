@@ -30,20 +30,19 @@ Nice-to-haves:
 ### Table of Contents
 
 - Overview
-    - [Tech Stack]()
+    - [Tech Stack](./docs/overview.md#tech-stack)
         - Application
         - Rules Engine
         - DB
-    - [Data Design]()
+    - [Data Design](./docs/overview.md#data-design)
     
 - How To Use
-    - [Requirements]()
-        - Node Runtime + npm
+    - [Requirements](./docs/how-to-use.md#requirements)
         - IDE
-        - API Tester
-        - DB Viewer
-    - [Using the APIs]()
-    - [Guided Tour]()
+        - Application
+        - DB + Viewer
+    - [Using the APIs](./docs/how-to-use.md#using-the-apis)
+    - [Guided Tour](./docs/how-to-use.md#guided-tour)
 
 ## Assignment Checklist
 - [x] Scaffold project
