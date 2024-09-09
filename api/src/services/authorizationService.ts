@@ -1,12 +1,14 @@
 import { HttpRequest, InvocationContext } from "@azure/functions";
-// import { Sequelize, DataTypes } from 'sequelize';
+import { Sequelize, DataTypes } from 'sequelize';
+import PermissionModel from "../models/permission";
+import PermissionAssignmentModel from "../models/permissionassignment";
 // import UserModel from '../models/user';
 
-// const sequelize = new Sequelize(process.env['PGDATABASE'], process.env['PGUSER'], process.env['PGPASSWORD'], {
-//     host: process.env['PGHOST'],
-//     dialect: 'postgres',
-//     logging: false,
-// });
+const sequelize = new Sequelize(process.env['PGDATABASE'], process.env['PGUSER'], process.env['PGPASSWORD'], {
+    host: process.env['PGHOST'],
+    dialect: 'postgres',
+    logging: false,
+});
 
 module.exports.checkAuthorization = async function (request: HttpRequest, context: InvocationContext, scopeId: number, roleId: number): Promise<void> {
     context.log(request);
@@ -19,10 +21,15 @@ module.exports.checkAuthorization = async function (request: HttpRequest, contex
     // TODO: needs permissionAssignment CRUD
     // Then just use permissionAssignment to grab values
 
-    // await sequelize.authenticate();
-    // UserModel(sequelize, DataTypes);
-    // const User = sequelize.models.User;
-    // await User.sync();
+    await sequelize.authenticate();
+    PermissionModel(sequelize, DataTypes);
+    PermissionAssignmentModel(sequelize, DataTypes);
+    const Permission = sequelize.models.Permission;
+    const PermissionAssignment = sequelize.models.PermissionAssignment;
+    const syncPromises = [];
+    syncPromises.push(Permission.sync());
+    syncPromises.push(PermissionAssignment.sync());
+    await Promise.allSettled(syncPromises);
 
     const notAuthorized = false;
     if (notAuthorized) throw new Error('unauthorized user');
