@@ -130,7 +130,17 @@ npm run swagger
 
 ### Using Swagger
 
+1. Click on the API that you want to test
 
+![swagger guide](./img/swag-1.PNG)
+
+2. Click on the 'Try is out' button
+
+![swagger guide](./img/swag-2.PNG)
+
+3. Enter the necessary values and click on the 'Execute' button, view the response
+
+![swagger guide](./img/swag-3.PNG)
 
 ### Guided User Story
 
