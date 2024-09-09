@@ -20,7 +20,7 @@ const sequelize = new Sequelize(process.env['PGDATABASE'], process.env['PGUSER']
 *       description: Get a specific user's details by ID. Omit ID to get all users' details registered in system.
 *       parameters:
 *           - in: header
-*             name: user_id
+*             name: authz_user_id
 *             description: (For Demo) Put user_id here to simulate an authenticated user, for authorization checks
 *             schema:
 *               type: string
