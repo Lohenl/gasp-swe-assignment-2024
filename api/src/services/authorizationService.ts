@@ -10,7 +10,7 @@ const sequelize = new Sequelize(process.env['PGDATABASE'], process.env['PGUSER']
     logging: false,
 });
 
-module.exports.checkAuthorization = async function (request: HttpRequest, context: InvocationContext, scopeId: number, roleId: number): Promise<void> {
+module.exports.checkAuthorization = async function (request: HttpRequest, context: InvocationContext, scopeId: number, roleId: number[]): Promise<void> {
     context.log(request);
     context.log('scopeId', scopeId);
     context.log('roleId', roleId);
