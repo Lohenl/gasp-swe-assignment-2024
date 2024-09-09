@@ -57,7 +57,7 @@ Coding Assignment for SWE role in GovTech GASP
 - [ ] AuthN and AuthZ Integration
     - [x] Design the approach
     - [x] Make permission into a module
-    - [ ] Build permission assignments CRUD APIs
+    - [x] Build permission assignments CRUD APIs
     - [ ] Build authorization service using Permissions and Users
     - [ ] Implement authorization layer in APIs
     - [ ] Integrate with codebase
