@@ -94,7 +94,33 @@ const sequelize = new Sequelize(process.env['PGDATABASE'], process.env['PGUSER']
 *           content:
 *               application/json:
 *                   schema:
-*                       type: object
+*                       household-member:
+*                           type: object
+*                       properties:
+*                           name:
+*                               type: string
+*                               example: Aloysius Kwok Geng Hao
+*                           email:
+*                               type: string
+*                               example: akwok87@gmail.com
+*                           mobile_no:
+*                               type: string
+*                               example: +6511111111
+*                           birth_date:
+*                               type: string
+*                               example: 1987-01-08
+*                           EmploymentStatusId:
+*                               type: number
+*                               example: 1
+*                           MaritalStatusId:
+*                               type: number
+*                               example: 2
+*                           GenderId:
+*                               type: number
+*                               example: 1
+*                           RelationshipId:
+*                               type: number
+*                               example: 2
 *       responses:
 *           200:
 *               description: Successful response
