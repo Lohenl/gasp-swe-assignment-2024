@@ -38,6 +38,7 @@ Nice-to-haves:
         - DB + Viewer
     - [Using the APIs](./docs/how-to-use.md#using-the-apis)
     - [Guided Tour](./docs/how-to-use.md#guided-tour)
+- [References](./docs/references.md)
 
 ## Assignment Checklist
 - [x] Scaffold project
@@ -108,26 +109,3 @@ Nice-to-haves:
     - [ ] Seed Script
     - [ ] Finish Guided Tour
     - [ ] Set Repo to Public
-
-## References (organize later)
-- [Azure Function Core Tools](https://github.com/Azure/azure-functions-core-tools/blob/v4.x/README.md#windows)
-- [Azure Function Typescript Setup](https://learn.microsoft.com/en-us/azure/azure-functions/create-first-function-cli-typescript?tabs=windows%2Cazure-cli%2Cbrowser&pivots=nodejs-model-v4)
-- [Azure Function Typescript Local Dev](https://learn.microsoft.com/en-us/azure/azure-functions/functions-run-local?tabs=windows%2Cisolated-process%2Cnode-v4%2Cpython-v2%2Chttp-trigger%2Ccontainer-apps&pivots=programming-language-typescript)
-- [DB Normalization](https://www.youtube.com/watch?v=GFQaEYEc8_8)
-- [PostgreSQL Container Setup](https://dev.to/andre347/how-to-easily-create-a-postgres-database-in-docker-4moj)
-- [Sequelize Start Guide](https://sequelize.org/docs/v6/getting-started/)
-- [PostgreSQL Seeding](https://dev.to/studio_hungry/how-to-seed-a-postgres-database-with-node-384i)
-- [Reference Repo for DB Seeding](https://github.com/molebox/seed-postgres-database-tutorial/blob/main/src/config.js)
-- [(Education) Azure Functions](https://learn.microsoft.com/en-us/azure/developer/javascript/how-to/develop-serverless-apps?tabs=v4-ts)
-- [Swagger Getting Started](https://swagger.io/tools/open-source/getting-started/)
-- [(Education) Swagger Overview](https://medium.com/@samuelnoye35/simplifying-api-development-in-node-js-with-swagger-a5021ac45742)
-- [Swagger UI Dev Setup](https://swagger.io/docs/open-source-tools/swagger-ui/development/setting-up/)
-- [Azure Functions v4 TypeScript](https://johnnyreilly.com/migrating-azure-functions-node-js-v4-typescript)
-- [Swagger Associations (Foreign Keys)](https://sequelize.org/docs/v6/core-concepts/assocs/)
-- [Sequelize - Model Querying Basics](https://sequelize.org/docs/v6/core-concepts/model-querying-basics/)
-- [Sequelize - 1:N Concepts](https://sequelize.org/docs/v6/core-concepts/assocs/#one-to-many-relationships)
-- [Sequelize - M:N Concepts](https://sequelize.org/docs/v6/advanced-association-concepts/advanced-many-to-many/)
-- [Sequelize - Transactions](https://sequelize.org/docs/v6/other-topics/transactions/)
-- [JSON Rules Engine - Simpler explanation, but outdated](https://www.npmjs.com/package/json-rules-engine/v/1.0.0-beta9)
-- [JSON Rules Engine](https://www.npmjs.com/package/json-rules-engine)
-- [HTTP 422](https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/422)
