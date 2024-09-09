@@ -126,12 +126,14 @@ export async function permissionAssignments(request: HttpRequest, context: Invoc
                 return { jsonBody }
 
             } else if (id && !permission_id && !user_id) {
+                // get assignment by ID
                 Joi.assert(id, Joi.string().guid());
                 const assignment = await PermissionAssignment.findByPk(id);
                 if (!assignment) return { status: 404, body: 'permission assignment not found' }
                 return { jsonBody: assignment.dataValues }
 
             } else if (!id && permission_id && !user_id) {
+                // get all assignments by permission
                 Joi.assert(permission_id, Joi.string().guid());
                 const permission = await Permission.findByPk(permission_id);
                 if (!permission) return { status: 404, body: 'permission not found' }
@@ -143,6 +145,7 @@ export async function permissionAssignments(request: HttpRequest, context: Invoc
                 return { jsonBody }
 
             } else if (!id && !permission_id && user_id) {
+                // get all assignments by user
                 Joi.assert(user_id, Joi.string().guid());
                 const user = await User.findByPk(user_id);
                 if (!user) return { status: 404, body: 'user not found' }
@@ -187,11 +190,58 @@ export async function permissionAssignments(request: HttpRequest, context: Invoc
             return { jsonBody: newAssignment.dataValues }
 
         } else if (request.method === 'DELETE') {
-            context.debug('id:', request.query.get('id'));
-            context.debug('permission_id:', request.query.get('permission_id'));
-            context.debug('id:', request.query.get('id'));
+            const id = request.query.get('id');
+            const permission_id = request.query.get('permission_id');
+            const user_id = request.query.get('user_id');
+            context.debug('id:', id);
+            context.debug('permission_id:', permission_id);
+            context.debug('user_id:', user_id);
 
-            return { jsonBody: {} }
+            if (id && !permission_id && !user_id) {
+                // delete assignment by ID
+                Joi.assert(id, Joi.string().guid());
+                const assignment = await PermissionAssignment.findByPk(id);
+                if (!assignment) return { status: 404, body: 'permission assignment not found' }
+
+                await assignment.destroy();
+                return { body: id }
+
+            } else if (!id && permission_id && !user_id) {
+                // delete all assignments by permission
+                Joi.assert(permission_id, Joi.string().guid());
+                const permission = await Permission.findByPk(permission_id);
+                if (!permission) return { status: 404, body: 'permission not found' }
+                const assignments = await PermissionAssignment.findAll({ where: { PermissionId: permission_id } });
+
+                await sequelize.transaction(async t => {
+                    const deletePromises = [];
+                    assignments.forEach(assignment => {
+                        deletePromises.push(assignment.destroy({ transaction: t }))
+                    });
+                    await Promise.allSettled(deletePromises);
+                });
+                return { body: permission_id }
+
+            } else if (!id && !permission_id && user_id) {
+                // delete all assignments by user
+                Joi.assert(user_id, Joi.string().guid());
+                const user = await User.findByPk(user_id);
+                if (!user) return { status: 404, body: 'user not found' }
+                const assignments = await PermissionAssignment.findAll({ where: { UserId: user_id } });
+
+                await sequelize.transaction(async t => {
+                    const deletePromises = [];
+                    assignments.forEach(assignment => {
+                        deletePromises.push(assignment.destroy({ transaction: t }))
+                    });
+                    await Promise.allSettled(deletePromises);
+                });
+                return { body: user_id }
+
+            } else {
+                return { status: 400, body: 'invalid parameters, provide one of id, permission_id, or user_id' }
+            }
+
         }
 
     } catch (error) {
