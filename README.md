@@ -1,8 +1,8 @@
 # gasp-swe-assignment-2024
 
-Financial Assistance Scheme Management System developed in NodeJS on Azure Functions
+Financial Assistance Scheme Management System developed in TypeScript for NodeJS on Azure Functions
 
-Coding Assignment for SWE role in GovTech GASP
+Coding Assignment for SWE role in GASP
 
 ## Features
 
@@ -35,7 +35,7 @@ Nice-to-haves:
     - [Requirements](./docs/how-to-use.md#requirements)
         - [IDE](./docs/how-to-use.md#ide)
         - [Application](./docs/how-to-use.md#application)
-        - DB + Viewer
+        - [DB + Viewer](./docs/how-to-use.md#db--viewer)
     - [Using the APIs](./docs/how-to-use.md#using-the-apis)
     - [Guided Tour](./docs/how-to-use.md#guided-tour)
 - [References](./docs/references.md)
