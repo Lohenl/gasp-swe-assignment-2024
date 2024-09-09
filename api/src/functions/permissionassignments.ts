@@ -88,18 +88,18 @@ const sequelize = new Sequelize(process.env['PGDATABASE'], process.env['PGUSER']
 export async function permissionAssignments(request: HttpRequest, context: InvocationContext): Promise<HttpResponseInit> {
     try {
         await sequelize.authenticate();
-        PermissionModel(sequelize, DataTypes)
-        PermissionAssignmentModel(sequelize, DataTypes)
-        UserModel(sequelize, DataTypes)
+        PermissionModel(sequelize, DataTypes);
+        UserModel(sequelize, DataTypes);
+        PermissionAssignmentModel(sequelize, DataTypes);
         const Permission = sequelize.models.Permission;
-        const PermissionAssignment = sequelize.models.Permission;
-        const User = sequelize.models.Permission;
+        const User = sequelize.models.User;
+        const PermissionAssignment = sequelize.models.PermissionAssignment;
 
         // declare M:M relationships - Permission is essentially a junction table
         // reference: https://sequelize.org/docs/v6/core-concepts/assocs/#many-to-many-relationships
-        User.belongsToMany(Permission, { through: PermissionAssignment });
         Permission.belongsToMany(User, { through: PermissionAssignment });
-
+        User.belongsToMany(Permission, { through: PermissionAssignment });
+        
         // wait for all model syncs to finish
         const syncPromises = [];
         syncPromises.push(Permission.sync());
