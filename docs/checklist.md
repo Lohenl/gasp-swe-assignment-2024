@@ -67,7 +67,7 @@ If you are curious what it took, or how it went..
     - [x] README
     - [x] Swagger
 - [ ] Demonstration / Open House
-    - [ ] Mock Data
+    - [x] Mock Data
     - [ ] Seed Script
     - [ ] Finish Guided Tour
     - [ ] Set Repo to Public
