@@ -158,7 +158,7 @@ export async function schemes(request: HttpRequest, context: InvocationContext):
                 Joi.assert(request.query.get('id'), Joi.string().guid());
                 const scheme = await Scheme.findByPk(request.query.get('id'));
                 if (!scheme) {
-                    return { status: 400, body: 'invalid ID provided' }
+                    return { status: 404, body: 'scheme not found' }
                 }
                 return { jsonBody: scheme }
             }
@@ -204,7 +204,7 @@ export async function schemes(request: HttpRequest, context: InvocationContext):
             // get base scheme class
             const scheme = await Scheme.findByPk(request.query.get('id'));
             if (!scheme) {
-                return { status: 400, body: 'invalid id provided' }
+                return { status: 404, body: 'scheme not found' }
             }
             scheme.update(schemeToUpdate);
             await scheme.save();
@@ -216,7 +216,7 @@ export async function schemes(request: HttpRequest, context: InvocationContext):
             Joi.assert(request.query.get('id'), Joi.string().guid().required());
             const scheme = await Scheme.findByPk(request.query.get('id'));
             if (!scheme) {
-                return { status: 400, body: 'invalid id provided' }
+                return { status: 404, body: 'scheme not found' }
             }
             await scheme.destroy();
             return { body: request.query.get('id') }
