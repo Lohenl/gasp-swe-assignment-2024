@@ -1,5 +1,5 @@
 import { app, HttpRequest, HttpResponseInit, InvocationContext } from "@azure/functions";
-import { Sequelize, DataTypes, where } from 'sequelize';
+import { Sequelize, DataTypes } from 'sequelize';
 import Joi = require('joi');
 import PermissionModel from "../models/permission";
 import PermissionAssignmentModel from "../models/permissionassignment";
@@ -115,7 +115,17 @@ export async function permissionAssignments(request: HttpRequest, context: Invoc
             const permission_id = request.query.get('permission_id');
             const user_id = request.query.get('user_id');
 
-            if (id && !permission_id && !user_id) {
+            if (!id && !permission_id && !user_id) {
+                // get all permission assignments
+                const assignments = await PermissionAssignment.findAll({});
+                if (!assignments) return { status: 404, body: 'permission assignment not found' }
+                const jsonBody = []
+                assignments.forEach(assignment => {
+                    jsonBody.push(assignment.dataValues)
+                });
+                return { jsonBody }
+
+            } else if (id && !permission_id && !user_id) {
                 Joi.assert(id, Joi.string().guid());
                 const assignment = await PermissionAssignment.findByPk(id);
                 if (!assignment) return { status: 404, body: 'permission assignment not found' }
