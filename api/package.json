@@ -10,6 +10,7 @@
     "prestart": "npm run clean && npm run build",
     "start": "func start --cors http://localhost:3000",
     "swagger": "node swagger-main.js",
+    "lint": "npx eslint .",
     "test": "echo \"No tests yet...\""
   },
   "dependencies": {
