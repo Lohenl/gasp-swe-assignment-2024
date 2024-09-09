@@ -64,20 +64,17 @@ const sequelize = new Sequelize(process.env['PGDATABASE'], process.env['PGUSER']
 *       parameters:
 *           - in: query
 *             name: id
-*             required: true
 *             description: ID of the permission to delete.
 *             schema:
 *               type: string
 *           - in: query
 *             name: permission_id
-*             required: true
-*             description: ID of a permission to assign to user
+*             description: ID of permissions to delete all assignments under
 *             schema:
 *               type: string
 *           - in: query
 *             name: user_id
-*             required: true
-*             description: ID of user to assign a permission to
+*             description: ID of user to delete all assignments for
 *             schema:
 *               type: string
 *       responses:
