@@ -25,21 +25,21 @@ Nice-to-haves:
 
 ## Docs
 
-**If you are in a rush**, you can go right to the [Guided Tour]() instead!
+**If you are in a rush**, you can go right to the [Guided Tour](./docs/how-to-use.md#guided-tour) instead!
 
 ### Table of Contents
 
-- Overview
+- [Overview](./docs/overview.md)
     - [Tech Stack](./docs/overview.md#tech-stack)
-        - Application
-        - Rules Engine
-        - DB
+        - [Application](./docs/overview.md#application)
+        - [Rules Engine](./docs/overview.md#rules-engine)
+        - [Database](./docs/overview.md#database)
     - [Data Design](./docs/overview.md#data-design)
     
-- How To Use
+- [How To Use](./docs/how-to-use.md)
     - [Requirements](./docs/how-to-use.md#requirements)
-        - IDE
-        - Application
+        - [IDE](./docs/how-to-use.md#ide)
+        - [Application](./docs/how-to-use.md#application)
         - DB + Viewer
     - [Using the APIs](./docs/how-to-use.md#using-the-apis)
     - [Guided Tour](./docs/how-to-use.md#guided-tour)
