@@ -108,12 +108,12 @@ export async function permissionAssignments(request: HttpRequest, context: Invoc
         await Promise.allSettled(syncPromises);
 
         if (request.method === 'GET') {
-            context.debug('id:', request.query.get('id'));
-            context.debug('permission_id:', request.query.get('permission_id'));
-            context.debug('user_id:', request.query.get('user_id'));
             const id = request.query.get('id');
             const permission_id = request.query.get('permission_id');
             const user_id = request.query.get('user_id');
+            context.debug('id:', id);
+            context.debug('permission_id:', permission_id);
+            context.debug('user_id:', user_id);
 
             if (!id && !permission_id && !user_id) {
                 // get all permission assignments
@@ -158,9 +158,33 @@ export async function permissionAssignments(request: HttpRequest, context: Invoc
             }
 
         } else if (request.method === 'POST') {
-            context.debug('permission_id:', request.query.get('permission_id'));
-            context.debug('user_id:', request.query.get('user_id '));
-            return { jsonBody: {} }
+            const permission_id = request.query.get('permission_id');
+            const user_id = request.query.get('user_id');
+            context.debug('permission_id:', permission_id);
+            context.debug('user_id:', user_id);
+            Joi.assert(permission_id, Joi.string().guid().required());
+            Joi.assert(user_id, Joi.string().guid().required());
+
+            // check if user and permission exist
+            const user = await User.findByPk(user_id);
+            if (!user) return { status: 404, body: 'user not found' }
+            const permission = await Permission.findByPk(permission_id);
+            if (!permission) return { status: 404, body: 'permission not found' }
+
+            // check if permission has already been assigned
+            const existingAssignment = await PermissionAssignment.findOne({
+                where: {
+                    PermissionId: permission_id,
+                    UserId: user_id,
+                }
+            });
+            if (existingAssignment) return { status: 422, body: 'user is already assigned this permission' }
+
+            const newAssignment = await PermissionAssignment.create({
+                PermissionId: permission_id,
+                UserId: user_id,
+            })
+            return { jsonBody: newAssignment.dataValues }
 
         } else if (request.method === 'DELETE') {
             context.debug('id:', request.query.get('id'));
