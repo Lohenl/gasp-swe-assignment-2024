@@ -117,6 +117,7 @@ npm start
 npm run swagger
 ```
 14. Wait till you see the following on the console:
+
 ![display that swagger is ready](./img/swagger-is-ready.PNG)
 
 15. Open your web browser, and navigate to ```http://localhost:3000/```
