@@ -18,11 +18,6 @@ Nice-to-haves:
 - Rules Engine testbed to test JSON-based rules
 - Dockerized PostgreSQL for easy setup
 
-## Default Local Ports Used (move elsewhere)
-- 7071: Azure Functions
-- 3000: Swagger UI
-- 5432: PostgreSQL
-
 ## Docs
 
 **If you are in a rush**, you can go right to the [Guided Tour](./docs/how-to-use.md#guided-tour) instead!
