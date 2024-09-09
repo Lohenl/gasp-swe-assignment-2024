@@ -74,7 +74,7 @@ const sequelize = new Sequelize(process.env['PGDATABASE'], process.env['PGUSER']
 *                                       mobile_no:
 *                                           type: string
 *                                       birth_date:
-*                                           type: date
+*                                           type: string
 *                                       EmploymentStatusId:
 *                                           type: number
 *                                       MaritalStatusId:
