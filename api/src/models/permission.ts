@@ -6,6 +6,8 @@ export default (sequelize, DataTypes) => sequelize.define(
             defaultValue: DataTypes.UUIDV4,
             allowNull: false,
             primaryKey: true,
-        }
+        },
+        AdminRoleId: DataTypes.UUID,
+        PermissionScopeId: DataTypes.UUID,
     }
 );

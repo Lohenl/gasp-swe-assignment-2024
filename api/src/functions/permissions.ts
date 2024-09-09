@@ -134,7 +134,7 @@ export async function permissions(request: HttpRequest, context: InvocationConte
             context.debug('id:', id);
             Joi.assert(id, Joi.string().guid().required());
             const permission = await Permission.findByPk(id);
-            if (!permission) return { status: 404, body: 'id not found' }
+            if (!permission) return { status: 404, body: 'permission not found' }
             await permission.destroy();
             return { body: id }
         }
