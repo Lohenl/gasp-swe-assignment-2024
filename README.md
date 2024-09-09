@@ -39,3 +39,4 @@ Nice-to-haves:
     - [Using the APIs](./docs/how-to-use.md#using-the-apis)
     - [Guided Tour](./docs/how-to-use.md#guided-tour)
 - [References](./docs/references.md)
+- [Assignment Checklist](./docs/checklist.md) (If you are curious!)
