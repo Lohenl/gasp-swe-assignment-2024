@@ -62,21 +62,58 @@ const sequelize = new Sequelize(process.env['PGDATABASE'], process.env['PGUSER']
 *                               type: number
 *                           GenderId:
 *                               type: number
+*                           household:
+*                               type: array
+*                               items:
+*                                   type: object
+*                                   properties:
+*                                       name:
+*                                           type: string
+*                                       email:
+*                                           type: string
+*                                       mobile_no:
+*                                           type: string
+*                                       birth_date:
+*                                           type: date
+*                                       EmploymentStatusId:
+*                                           type: number
+*                                       MaritalStatusId:
+*                                           type: number
+*                                       GenderId:
+*                                           type: number
+*                                       RelationshipId:
+*                                           type: number
 *                   example:
-*                       name: "Jane Kwok"
+*                       name: "Mary-Jane Kwok Siu Ching"
 *                       email: "janekwok88@gmail.com"
 *                       mobile_no: "+6512345678"
 *                       birth_date: "1988-05-02"
 *                       EmploymentStatusId: 3
 *                       MaritalStatusId: 2
 *                       GenderId: 2
+*                       household:
+*                           - name: "Samuel Kwok Fu Chen"
+*                             email: "sammykdkwok@gmail.com"
+*                             mobile_no: "+6577777777"
+*                             birth_date: "2016-03-11"
+*                             EmploymentStatusId: 1
+*                             MaritalStatusId: 1
+*                             GenderId: 1
+*                             RelationshipId: 3
+*                           - name: "Loretta Kwok Fu Mei"
+*                             birth_date: "2016-03-11"
+*                             EmploymentStatusId: 1
+*                             MaritalStatusId: 1
+*                             GenderId: 2
+*                             RelationshipId: 3
+*                             
 *       responses:
 *           200:
 *               description: Successful response
 * 
 *   patch:
 *       summary: Updates an applicant
-*       description: Updates an applicant
+*       description: Updates an applicant (update household members with PATCH household-members instead)
 *       parameters:
 *           - in: query
 *             name: id
@@ -181,7 +218,7 @@ export async function applicants(request: HttpRequest, context: InvocationContex
             const reqBody = await request.json() as any;
             context.debug('reqBody:', reqBody);
             validateBody(reqBody);
-            const householdMembersToCreate = reqBody.householdMembers as any[];
+            const householdMembersToCreate = reqBody.household as any[];
             householdMembersToCreate.forEach(member => {
                 validateHouseholdMember(member);
             });
@@ -220,18 +257,19 @@ export async function applicants(request: HttpRequest, context: InvocationContex
 
         } else if (request.method === 'PATCH') {
             context.debug('id:', request.query.get('id'));
-            const updateFields = await request.json();
-            context.debug('updateFields:', updateFields);
+            const reqBody = await request.json() as any;
+            context.debug('reqBody:', reqBody);
             Joi.assert(request.query.get('id'), Joi.string().guid().required());
-            validateBody(updateFields);
+            validateBody(reqBody);
+
             const applicant = await Applicant.findByPk(request.query.get('id'));
             if (!applicant) {
                 return { status: 400, body: 'invalid id provided' }
             }
-            // create transaction here (lots of FKs to make)
+
             const result = await sequelize.transaction(async t => {
                 const applicant = await Applicant.findByPk(request.query.get('id'), { transaction: t });
-                applicant.update(updateFields);
+                applicant.update(reqBody);
                 return applicant;
             });
             return { jsonBody: result.dataValues }
@@ -249,7 +287,7 @@ export async function applicants(request: HttpRequest, context: InvocationContex
 
     } catch (error) {
         context.error('applicants: error encountered:', error);
-        if (Joi.isError(error)) { return { status: 400, jsonBody: error } }
+        if (Joi.isError(error)) return { status: 400, jsonBody: error }
         return { status: 500, body: `Unexpected error occured: ${error}` }
     }
 };
