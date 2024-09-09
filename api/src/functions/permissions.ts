@@ -112,37 +112,48 @@ export async function permissions(request: HttpRequest, context: InvocationConte
         await Promise.allSettled(syncPromises);
 
         if (request.method === 'GET') {
-            context.debug('id:', request.query.get('id'));
+            const id = request.query.get('id');
+            context.debug('id:', id);
             if (!request.query.get('id')) {
-                Joi.assert(request.query.get('id'), Joi.string().guid());
                 const permissions = await Permission.findAll({});
                 return { jsonBody: permissions }
             } else {
-                const permission = await Permission.findByPk(request.query.get('id'));
+                Joi.assert(id, Joi.string().guid());
+                const permission = await Permission.findByPk(id);
+                if (permission) return { status: 404, body: 'permission not found' }
                 return { jsonBody: permission }
             }
 
         } else if (request.method === 'POST') {
-            // validation happens here, dont forget joi
-            context.debug('admin_role_id:', request.query.get('admin_role_id'));
-            context.debug('permission_scope_id:', request.query.get('permission_scope_id'));
-            Joi.assert(request.query.get('admin_role_id'), Joi.string().guid().required());
-            Joi.assert(request.query.get('permission_scope_id'), Joi.string().guid().required());
+            const admin_role_id = request.query.get('admin_role_id');
+            const permission_scope_id = request.query.get('permission_scope_id');
+            context.debug('admin_role_id:', admin_role_id);
+            context.debug('permission_scope_id:', permission_scope_id);
 
-            // practically speaking a UI would directly feed the respective IDs to this join table
-            // so at best you would only need to check if the IDs exist in the respective tables
-            const adminRole = await AdminRole.findByPk(request.query.get('admin_role_id'));
-            const permissionScope = await PermissionScope.findByPk(request.query.get('permission_scope_id'));
-            if (adminRole && permissionScope) {
-                const permission = Permission.build({
-                    AdminRoleId: request.query.get('admin_role_id'),
-                    PermissionScopeId: request.query.get('permission_scope_id'),
-                });
-                await permission.save();
-                return { jsonBody: permission.dataValues };
-            } else {
-                return { status: 400, body: 'invalid ID(s) provided for admin_role_id and/or permission_scope_id' }
-            }
+            // practically speaking only numbers will be fed to the backend
+            // we are using code tables
+            Joi.assert(admin_role_id, Joi.number().required());
+            Joi.assert(permission_scope_id, Joi.number().required());
+            const adminRole = await AdminRole.findByPk(admin_role_id);
+            if (!adminRole) return { status: 404, body: 'admin role not found' }
+            const permissionScope = await PermissionScope.findByPk(permission_scope_id);
+            if (!permissionScope) return { status: 404, body: 'permission scope not found' }
+
+            // check if permission has already been defined before
+            const existingPermission = await Permission.findOne({
+                where: {
+                    AdminRoleId: admin_role_id,
+                    PermissionScopeId: permission_scope_id,
+                }
+            })
+            if (existingPermission) return { status: 422, body: 'permission already exists' }
+
+            const permission = Permission.build({
+                AdminRoleId: admin_role_id,
+                PermissionScopeId: permission_scope_id,
+            });
+            await permission.save();
+            return { jsonBody: permission.dataValues };
 
         } else if (request.method === 'PATCH') {
             context.debug('permission_id:', request.query.get('permission_id'));
