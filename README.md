@@ -59,9 +59,9 @@ Coding Assignment for SWE role in GovTech GASP
     - [x] Make permission into a module
     - [x] Build permission assignments CRUD APIs
     - [ ] Build authorization service using Permissions and Users
-    - [ ] Implement authorization layer in APIs
-    - [ ] Integrate with codebase
-        - [ ] Extra Swagger header to mimic authenticated user
+    - [x] Implement authorization layer in APIs
+    - [x] Integrate with codebase
+        - [x] Extra Swagger header to mimic authenticated user
 - [ ] Documentation
     - [ ] README
     - [x] Swagger
