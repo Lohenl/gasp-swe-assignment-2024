@@ -142,5 +142,162 @@ npm run swagger
 
 ![swagger guide](./img/swag-3.PNG)
 
-### Guided User Story
+# Guided User Scenarios
 
+#### Scenario A
+In this scenario, you have been tasked to do the following:
+
+1. View all available financal assistance schemes
+2. Register a new applicant
+3. Check if the applicant is eligible for any schemes
+4. Register an application on behalf of the applicant to the financal assistance scheme
+
+#### Scenario B
+Later in the day, a new scheme is announced - you have been tasked with:
+
+1. Registering a new scheme
+2. Updating the eligility criteria of the scheme
+3. Testing the eligility against applicants registered in the system
+
+#### Scenario C
+Lastly, you have some system admin work to do:
+
+1. Register a new user
+2. Assign permissions to the new user
+3. Bonus: Try out authorization
+
+## Scenario A
+
+#### 1. View all available financal assistance schemes
+
+1. Under Business - Scheme Management, look for ```GET /schemes```
+2. Execute the function without entering any parameters
+3. You will see only 1 scheme registered in the system:
+
+```json
+[
+  {
+    "id": "1bed3b60-2988-4a7e-b47b-3825295a8b10",
+    "name": "Retrenchment Assistance Scheme",
+    "eligibility_criteria": "...",
+    "createdAt": "2024-09-09T06:49:24.596Z",
+    "updatedAt": "2024-09-09T21:27:25.136Z"
+  }
+]
+```
+
+#### 2. Register a new applicant
+
+1. Under Business - Applicant Management, look for ```POST /applicants```
+2. Replace the sample with the following JSON and execute the function
+
+```json
+{
+  "name": "Agnes Tan Peh Wen",
+  "email": "agtanpw99@gmail.com",
+  "mobile_no": "+6562353535",
+  "birth_date": "1999-11-09",
+  "EmploymentStatusId": 1,
+  "MaritalStatusId": 2,
+  "GenderId": 2,
+  "household": [
+    {
+      "name": "James Jerome Kwek Rui Hao",
+      "birth_date": "1998-11-01",
+      "EmploymentStatusId": 2,
+      "MaritalStatusId": 2,
+      "GenderId": 1,
+      "RelationshipId": 2
+    }
+  ]
+}
+```
+3. You will get the following response similar to the one below. Make sure to copy the ```id``` value, in this example below it is ```0b49aa6a-8a8d-4a66-bd29-f5af454abc40```
+
+```json
+{
+  "id": "0b49aa6a-8a8d-4a66-bd29-f5af454abc40",
+  "name": "Agnes Tan Peh Wen",
+  "email": "agtanpw99@gmail.com",
+  "mobile_no": "+6562353535",
+  "birth_date": "1999-11-09",
+  "EmploymentStatusId": 1,
+  "MaritalStatusId": 2,
+  "GenderId": 2,
+  "updatedAt": "2024-09-09T23:26:15.442Z",
+  "createdAt": "2024-09-09T23:26:15.442Z"
+}
+```
+
+#### 3. Check if the applicant is eligible for any schemes
+
+1. Under Business - Applicant Management, look for ```GET /schemes/eligible```
+2. Paste the ```id``` you haave copied into the ```id``` field under the Parameters sectopn, and execute the function
+3. You should see the 1 scheme show up (it is currently set to be available for unemployed females), similar to this response below:
+```json
+[
+  {
+    "id": "1bed3b60-2988-4a7e-b47b-3825295a8b10",
+    "name": "Retrenchment Assistance Scheme",
+    "eligibility_criteria": "{\"name\":\"unemployed-female\",\"conditions\":{\"all\":[{\"fact\":\"applicant-details\",\"path\":\"$.GenderId\",\"operator\":\"equal\",\"value\":2},{\"fact\":\"applicant-details\",\"path\":\"$.EmploymentStatusId\",\"operator\":\"equal\",\"value\":1}]},\"event\":{\"type\":\"unemployed-male\",\"params\":{\"message\":\"Applicant is an unemployed female\"}}}",
+    "description": "Scheme to help citizens who are recently retrenched",
+    "createdAt": "2024-09-09T06:49:24.596Z",
+    "updatedAt": "2024-09-09T22:02:49.496Z",
+    "Benefits": [
+      {
+        "id": "b6fdfc27-f9b9-41d9-9ca8-31e7156d8fab",
+        "name": "SkillsFuture Credits",
+        "amount": "3000",
+        "description": "Additional SkillsFuture Credits",
+        "createdAt": "2024-09-09T06:49:24.646Z",
+        "updatedAt": "2024-09-09T06:49:24.646Z",
+        "SchemeId": "1bed3b60-2988-4a7e-b47b-3825295a8b10"
+      },
+      {
+        "id": "56bd2e05-4208-4194-b822-5da8ce4d2a6a",
+        "name": "CDC Vouchers",
+        "amount": "600",
+        "description": "Additional CDC Vouchers",
+        "createdAt": "2024-09-09T06:49:24.646Z",
+        "updatedAt": "2024-09-09T06:49:24.646Z",
+        "SchemeId": "1bed3b60-2988-4a7e-b47b-3825295a8b10"
+      },
+      {
+        "id": "1f77d974-2e85-41fd-961f-ccd4536cff28",
+        "name": "School Meal Vouchers",
+        "amount": "5",
+        "description": "Daily school meal vouchers for applicants with children attending primary school",
+        "createdAt": "2024-09-09T06:49:24.647Z",
+        "updatedAt": "2024-09-09T06:49:24.647Z",
+        "SchemeId": "1bed3b60-2988-4a7e-b47b-3825295a8b10"
+      },
+      {
+        "id": "25d67480-2d69-45f8-8f14-94e32d9e2e31",
+        "name": "CPF Medisave Account Top Up",
+        "amount": "600",
+        "description": "Top up to CPF Medisave Account",
+        "createdAt": "2024-09-09T06:52:15.199Z",
+        "updatedAt": "2024-09-09T06:52:15.199Z",
+        "SchemeId": "1bed3b60-2988-4a7e-b47b-3825295a8b10"
+      }
+    ]
+  }
+]
+```
+
+
+4. (Optional) You can try using other ```id```s to check, such as ```027d9a40-b8cc-4ab3-a831-c232f2617c1f``` for Joe Linder, a self-employed male
+
+#### 4. Register an application on behalf of the applicant to the financal assistance scheme
+
+## Scenario B
+
+#### 1. Registering a new scheme
+#### 2. Updating the eligility criteria of the scheme
+#### 3. Testing the eligility against applicants registered in the system
+
+## Scenario C
+
+#### 1. Register a new user
+#### 2. Assign permissions to the new user
+#### 3. Bonus: Try out authorization
