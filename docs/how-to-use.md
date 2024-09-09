@@ -106,7 +106,7 @@ npm i
 ```
 npm start
 ```
-11. wait till you see a list of functions like so:
+11. Wait till you see a list of functions like so:
 
 ![display of ready functions](./img/functions-are-ready.PNG)
 
@@ -116,9 +116,12 @@ npm start
 ```
 npm run swagger
 ```
-14. Open your web browser, and navigate to ```http://localhost:3000/```
+14. Wait till you see the following on the console:
+![display that swagger is ready](./img/swagger-is-ready.PNG)
 
-15. Here's a picture of what my screen typically looks like, building on this system: (I use a 2nd screen, and the swagger docs might look different)
+15. Open your web browser, and navigate to ```http://localhost:3000/```
+
+16. Here's a picture of what my screen typically looks like, building on this system: (I use a 2nd screen, and the swagger docs might look different)
 
 ![Sample layout](./img/sample-layout.PNG)
 
