@@ -1,9 +1,9 @@
 import { app, HttpRequest, HttpResponseInit, InvocationContext } from "@azure/functions";
 import { Sequelize, DataTypes } from 'sequelize';
 import Joi = require('joi');
-import AdminRoleModel from "../models/adminrole";
-import PermissionScopeModel from "../models/permissionscope";
 import PermissionModel from "../models/permission";
+import PermissionAssignmentModel from "../models/permissionassignment";
+import UserModel from "../models/user";
 
 const sequelize = new Sequelize(process.env['PGDATABASE'], process.env['PGUSER'], process.env['PGPASSWORD'], {
     host: process.env['PGHOST'],
@@ -88,67 +88,45 @@ const sequelize = new Sequelize(process.env['PGDATABASE'], process.env['PGUSER']
 export async function permissionAssignments(request: HttpRequest, context: InvocationContext): Promise<HttpResponseInit> {
     try {
         await sequelize.authenticate();
-        AdminRoleModel(sequelize, DataTypes);
-        PermissionScopeModel(sequelize, DataTypes);
         PermissionModel(sequelize, DataTypes)
-        const AdminRole = sequelize.models.AdminRole;
-        const PermissionScope = sequelize.models.PermissionScope;
+        PermissionAssignmentModel(sequelize, DataTypes)
+        UserModel(sequelize, DataTypes)
         const Permission = sequelize.models.Permission;
+        const PermissionAssignment = sequelize.models.Permission;
+        const User = sequelize.models.Permission;
 
         // declare M:M relationships - Permission is essentially a junction table
         // reference: https://sequelize.org/docs/v6/core-concepts/assocs/#many-to-many-relationships
-        AdminRole.belongsToMany(PermissionScope, { through: Permission });
-        PermissionScope.belongsToMany(AdminRole, { through: Permission });
+        User.belongsToMany(Permission, { through: PermissionAssignment });
+        Permission.belongsToMany(User, { through: PermissionAssignment });
 
         // wait for all model syncs to finish
         const syncPromises = [];
-        syncPromises.push(AdminRole.sync());
-        syncPromises.push(PermissionScope.sync());
         syncPromises.push(Permission.sync());
+        syncPromises.push(User.sync());
+        syncPromises.push(PermissionAssignment.sync());
         await Promise.allSettled(syncPromises);
 
         if (request.method === 'GET') {
             context.debug('id:', request.query.get('id'));
-            Joi.assert(request.query.get('id'), Joi.string().guid());
-            if (!request.query.get('id')) {
-                const permissions = await Permission.findAll({});
-                return { jsonBody: permissions }
-            } else {
-                const permission = await Permission.findByPk(request.query.get('id'));
-                return { jsonBody: permission }
-            }
+            context.debug('permission_id:', request.query.get('permission_id'));
+            context.debug('user_id:', request.query.get('user_id'));
+
+
+
+            return { jsonBody: {} }
 
         } else if (request.method === 'POST') {
-            // validation happens here, dont forget joi
-            context.debug('admin_role_id:', request.query.get('admin_role_id'));
-            context.debug('permission_scope_id:', request.query.get('permission_scope_id'));
-            Joi.assert(request.query.get('admin_role_id'), Joi.string().guid().required());
-            Joi.assert(request.query.get('permission_scope_id'), Joi.string().guid().required());
-
-            // practically speaking a UI would directly feed the respective IDs to this join table
-            // so at best you would only need to check if the IDs exist in the respective tables
-            const adminRole = await AdminRole.findByPk(request.query.get('admin_role_id'));
-            const permissionScope = await PermissionScope.findByPk(request.query.get('permission_scope_id'));
-            if (adminRole && permissionScope) {
-                const permission = Permission.build({
-                    AdminRoleId: request.query.get('admin_role_id'),
-                    PermissionScopeId: request.query.get('permission_scope_id'),
-                });
-                await permission.save();
-                return { jsonBody: permission.dataValues };
-            } else {
-                return { status: 400, body: 'invalid ID(s) provided for admin_role_id and/or permission_scope_id' }
-            }
+            context.debug('permission_id:', request.query.get('permission_id'));
+            context.debug('user_id:', request.query.get('user_id '));
+            return { jsonBody: {} }
 
         } else if (request.method === 'DELETE') {
             context.debug('id:', request.query.get('id'));
-            Joi.assert(request.query.get('id'), Joi.string().guid().required());
-            const permission = await Permission.findByPk(request.query.get('id'));
-            if (!permission) {
-                return { status: 400, body: 'invalid id provided' }
-            }
-            await permission.destroy();
-            return { body: request.query.get('id') }
+            context.debug('permission_id:', request.query.get('permission_id'));
+            context.debug('id:', request.query.get('id'));
+
+            return { jsonBody: {} }
         }
 
     } catch (error) {
