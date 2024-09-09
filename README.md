@@ -1,7 +1,51 @@
 # gasp-swe-assignment-2024
+
+Financial Assistance Scheme Management System developed in NodeJS on Azure Functions
+
 Coding Assignment for SWE role in GovTech GASP
 
-# Assignment Checklist
+## Features
+
+Core Stuff:
+- Schemes Management
+- Rules Engine integration for Schemes Eligibility
+- Applicant / Application Management
+- User Management
+- Authorization Management
+
+Nice-to-haves:
+- Local Swagger integration to test APIs
+- Rules Engine testbed to test JSON-based rules
+- Dockerized PostgreSQL for easy setup
+
+## Default Local Ports Used (move elsewhere)
+- 7071: Azure Functions
+- 3000: Swagger UI
+- 5432: PostgreSQL
+
+## Docs
+
+**If you are in a rush**, you can go right to the [Guided Tour]() instead!
+
+### Table of Contents
+
+- Overview
+    - [Tech Stack]()
+        - Application
+        - Rules Engine
+        - DB
+    - [Data Design]()
+    
+- How To Use
+    - [Requirements]()
+        - Node Runtime + npm
+        - IDE
+        - API Tester
+        - DB Viewer
+    - [Using the APIs]()
+    - [Guided Tour]()
+
+## Assignment Checklist
 - [x] Scaffold project
     - [x] API
     - [x] Database
@@ -70,12 +114,7 @@ Coding Assignment for SWE role in GovTech GASP
     - [ ] Seed Script
     - [ ] Set Repo to Public
 
-# Local Ports
-- 7071: Azure Functions
-- 3000: Swagger UI
-- 5432: PostgreSQL
-
-# References (organize later)
+## References (organize later)
 - [Azure Function Core Tools](https://github.com/Azure/azure-functions-core-tools/blob/v4.x/README.md#windows)
 - [Azure Function Typescript Setup](https://learn.microsoft.com/en-us/azure/azure-functions/create-first-function-cli-typescript?tabs=windows%2Cazure-cli%2Cbrowser&pivots=nodejs-model-v4)
 - [Azure Function Typescript Local Dev](https://learn.microsoft.com/en-us/azure/azure-functions/functions-run-local?tabs=windows%2Cisolated-process%2Cnode-v4%2Cpython-v2%2Chttp-trigger%2Ccontainer-apps&pivots=programming-language-typescript)
