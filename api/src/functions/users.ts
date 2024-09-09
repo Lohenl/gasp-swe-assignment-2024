@@ -109,12 +109,12 @@ export async function users(request: HttpRequest, context: InvocationContext): P
         if (request.method === 'GET') {
             context.debug('id:', request.query.get('id'));
             if (!request.query.get('id')) {
-                // await checkAuthorization(null, request, context);
+                await checkAuthorization(request, context, 1, 1);
                 const users = await User.findAll({});
                 return { jsonBody: users }
             } else {
                 Joi.assert(request.query.get('id'), Joi.string().guid());
-                // await checkAuthorization(null, request, context);
+                await checkAuthorization(request, context, 1, 1);
                 const user = await User.findByPk(request.query.get('id'));
                 if (!user) return { status: 404, body: 'user not found' }
                 return { jsonBody: user }
@@ -124,7 +124,7 @@ export async function users(request: HttpRequest, context: InvocationContext): P
             const reqBody = await request.json();
             context.debug('reqBody:', reqBody);
             validateBody(reqBody);
-            // await checkAuthorization(null, request, context);
+            await checkAuthorization(request, context, 1, 1);
             const user = User.build({
                 name: reqBody['name'],
                 email: reqBody['email'],
@@ -138,7 +138,7 @@ export async function users(request: HttpRequest, context: InvocationContext): P
             context.debug('updateFields:', updateFields);
             Joi.assert(request.query.get('id'), Joi.string().guid().required());
             validateBody(updateFields);
-            // await checkAuthorization(null, request, context);
+            await checkAuthorization(request, context, 1, 1);
             const user = await User.findByPk(request.query.get('id'));
             if (!user) return { status: 404, body: 'user not found' }
 
@@ -149,7 +149,7 @@ export async function users(request: HttpRequest, context: InvocationContext): P
         } else if (request.method === 'DELETE') {
             context.debug('id:', request.query.get('id'));
             Joi.assert(request.query.get('id'), Joi.string().guid().required());
-            // await checkAuthorization(null, request, context);
+            await checkAuthorization(request, context, 1, 1);
             const user = await User.findByPk(request.query.get('id'));
             if (!user) return { status: 404, body: 'user not found' }
 
@@ -158,6 +158,7 @@ export async function users(request: HttpRequest, context: InvocationContext): P
         }
     } catch (error) {
         context.error('users: error encountered:', error);
+        if (error?.message?.startsWith('unauthorized')) { return { status: 403, body: error } }
         if (Joi.isError(error)) { return { status: 400, jsonBody: error } }
         return { status: 500, body: `Unexpected error occured: ${error}` }
     }
