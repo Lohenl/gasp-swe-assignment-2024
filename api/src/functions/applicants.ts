@@ -185,12 +185,12 @@ export async function applicants(request: HttpRequest, context: InvocationContex
         const Gender = sequelize.models.Gender;
         const HouseholdMember = sequelize.models.HouseholdMember;
         Applicant.hasOne(EmploymentStatus);
-        Applicant.hasOne(MaritalStatus);
-        Applicant.hasOne(Gender);
-        Applicant.hasMany(HouseholdMember, { onDelete: 'cascade' });
         EmploymentStatus.belongsToMany(Applicant, { through: 'ApplicantEmploymentStatus' });
+        Applicant.hasOne(MaritalStatus);
         MaritalStatus.belongsToMany(Applicant, { through: 'ApplicantMaritalStatus' });
+        Applicant.hasOne(Gender);
         Gender.belongsToMany(Applicant, { through: 'ApplicantGender' });
+        Applicant.hasMany(HouseholdMember, { onDelete: 'cascade' });
         HouseholdMember.belongsTo(Applicant);
 
         // wait for all model syncs to finish
@@ -234,7 +234,7 @@ export async function applicants(request: HttpRequest, context: InvocationContex
                     MaritalStatusId: reqBody['MaritalStatusId'],
                     GenderId: reqBody['GenderId'],
                 }, {
-                    include: [EmploymentStatus, MaritalStatus, Gender, HouseholdMember],
+                    include: HouseholdMember,
                     transaction: t
                 });
 
