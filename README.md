@@ -54,11 +54,11 @@ Coding Assignment for SWE role in GovTech GASP
         - [x] Test Regression urgh
     - [x] Application Outcome - just 1 extra field because I simplified
     - [x] Update application API CU to include outcome
-- [ ] AuthN and AuthZ Integration
+- [x] AuthN and AuthZ Integration
     - [x] Design the approach
     - [x] Make permission into a module
     - [x] Build permission assignments CRUD APIs
-    - [ ] Build authorization service using Permissions and Users
+    - [x] Build authorization service using Permissions and Users
     - [x] Implement authorization layer in APIs
     - [x] Integrate with codebase
         - [x] Extra Swagger header to mimic authenticated user
