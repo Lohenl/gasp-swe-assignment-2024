@@ -100,12 +100,13 @@ Nice-to-haves:
     - [x] Implement authorization layer in APIs
     - [x] Integrate with codebase
         - [x] Extra Swagger header to mimic authenticated user
-- [ ] Documentation
-    - [ ] README
+- [x] Documentation
+    - [x] README
     - [x] Swagger
 - [ ] Demonstration / Open House
     - [ ] Mock Data
     - [ ] Seed Script
+    - [ ] Finish Guided Tour
     - [ ] Set Repo to Public
 
 ## References (organize later)
