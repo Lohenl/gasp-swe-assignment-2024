@@ -157,6 +157,9 @@ export async function schemes(request: HttpRequest, context: InvocationContext):
             } else {
                 Joi.assert(request.query.get('id'), Joi.string().guid());
                 const scheme = await Scheme.findByPk(request.query.get('id'));
+                if (!scheme) {
+                    return { status: 400, body: 'invalid ID provided' }
+                }
                 return { jsonBody: scheme }
             }
 
