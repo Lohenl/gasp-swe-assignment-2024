@@ -70,5 +70,5 @@ If you are curious what it took, or how it went..
     - [x] Mock Data
     - [x] Seed Script
     - [ ] Finish Guided Tour
-    - [ ] Finalize DB Diagram
+    - [x] Finalize DB Diagram
     - [ ] Set Repo to Public
