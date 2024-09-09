@@ -273,6 +273,7 @@ export async function codetables(request: HttpRequest, context: InvocationContex
 
     } catch (error) {
         context.error('codetables: error encountered:', error);
+        if (error?.message?.startsWith('unauthorized')) { return { status: 403, body: error } }
         if (Joi.isError(error)) { return { status: 400, jsonBody: error } }
         return { status: 500, body: `Unexpected error occured: ${error}` }
     }

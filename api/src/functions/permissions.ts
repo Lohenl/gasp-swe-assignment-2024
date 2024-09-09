@@ -182,6 +182,7 @@ export async function permissions(request: HttpRequest, context: InvocationConte
 
     } catch (error) {
         context.error('permissions: error encountered:', error);
+        if (error?.message?.startsWith('unauthorized')) { return { status: 403, body: error } }
         if (Joi.isError(error)) { return { status: 400, jsonBody: error } }
         return { status: 500, body: `Unexpected error occured: ${error}` }
     }

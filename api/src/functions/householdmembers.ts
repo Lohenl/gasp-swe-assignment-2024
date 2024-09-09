@@ -234,6 +234,7 @@ export async function householdMembers(request: HttpRequest, context: Invocation
 
     } catch (error) {
         context.error('household-members: error encountered:', error);
+        if (error?.message?.startsWith('unauthorized')) { return { status: 403, body: error } }
         if (Joi.isError(error)) { return { status: 400, jsonBody: error } }
         return { status: 500, body: `Unexpected error occured: ${error}` }
     }
