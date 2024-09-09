@@ -34,11 +34,9 @@ Since the premise is financial support, I think it makes sense to go for a relat
 
 This is the database model I have iterated on several times while designing my APIs. Please pardon the inaccuracies, because I had limited time to check if my modelling was correct. Further below are a few initial iterations and considerations I've thought about initially, and while testing the APIs early on.
 
-(Remember to replace when done diagramming)
-
 ### Current Iteration
 
-![v2](./img/schema-design-v2.png)
+![v4](./img/schema-design-v4.png)
 
 ### v2
 
