@@ -108,6 +108,8 @@ npm start
 ```
 11. wait till you see a list of functions like so:
 
+![display of ready functions](./img/functions-are-ready.PNG)
+
 12. Press ```Ctrl + Shift + 5``` to split the screen
 
 13. Click on the newly opened terminal, and start the Swagger UI app with
