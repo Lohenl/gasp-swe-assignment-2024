@@ -63,26 +63,18 @@ const sequelize = new Sequelize(process.env['PGDATABASE'], process.env['PGUSER']
 *       description: Updates an application, allows manual update of application outcome
 *       parameters:
 *           - in: query
-*             name: application_id
+*             name: id
 *             description: Application ID
 *             required: true
 *             schema:
 *               type: string
 *           - in: query
-*             name: applicant_id
-*             description: ID for applicant making the application
-*             schema:
-*               type: string
-*           - in: query
-*             name: scheme_id
-*             description: ID for scheme the applicant is applying to
-*             schema:
-*               type: string
-*           - in: query
 *             name: outcome
 *             description: Manual update of application outcome
+*             example: Benefits Issued
 *             schema:
 *               type: string
+*
 *       responses:
 *           200:
 *               description: Successful response
@@ -136,13 +128,17 @@ export async function applications(request: HttpRequest, context: InvocationCont
 
             } else if (request.query.get('id') && !request.query.get('applicant_id') && !request.query.get('scheme_id')) {
                 // getting application by id
+                Joi.assert(request.query.get('id'), Joi.string().guid());
                 const application = await Application.findByPk(request.query.get('id'));
+                if (!application) return { status: 404, body: 'no application found' }
                 if (applications.length == 0) return { status: 404, body: 'no applications found' }
                 return { jsonBody: application }
 
             } else if (!request.query.get('id') && request.query.get('applicant_id') && !request.query.get('scheme_id')) {
                 // getting application by applicant_id
                 Joi.assert(request.query.get('applicant_id'), Joi.string().guid());
+                const applicant = await Application.findByPk(request.query.get('applicant_id'));
+                if (!applicant) return { status: 404, body: 'no applicant found' }
                 const applications = await Application.findAll({ where: { ApplicantId: request.query.get('applicant_id') } });
                 if (applications.length == 0) return { status: 404, body: 'no applications found' }
                 return { jsonBody: applications }
@@ -150,6 +146,8 @@ export async function applications(request: HttpRequest, context: InvocationCont
             } else if (!request.query.get('id') && !request.query.get('applicant_id') && request.query.get('scheme_id')) {
                 // getting application by scheme_id
                 Joi.assert(request.query.get('scheme_id'), Joi.string().guid());
+                const scheme = await Scheme.findByPk(request.query.get('scheme_id'));
+                if (!scheme) return { status: 404, body: 'no scheme found' }
                 const applications = await Application.findAll({ where: { SchemeId: request.query.get('scheme_id') } });
                 if (applications.length == 0) return { status: 404, body: 'no applications found' }
                 return { jsonBody: applications }
@@ -166,10 +164,8 @@ export async function applications(request: HttpRequest, context: InvocationCont
 
             // practically speaking a UI would directly feed the respective IDs to this join table
             // so at best you would only need to check if the IDs exist in the respective tables
-            const applicant = await Applicant.findByPk(request.query.get('applicant_id'));
-            const scheme = await Scheme.findByPk(request.query.get('scheme_id'));
 
-            if (applicant && scheme) {
+            if (request.query.get('applicant_id') && request.query.get('scheme_id')) {
                 // check for applicant and scheme
                 const applicant = await Applicant.findByPk(request.query.get('applicant_id'));
                 if (!applicant) return { status: 404, body: 'applicant not found' }
@@ -188,41 +184,24 @@ export async function applications(request: HttpRequest, context: InvocationCont
             }
 
         } else if (request.method === 'PATCH') {
-            context.debug('application_id:', request.query.get('application_id'));
-            context.debug('applicant_id:', request.query.get('applicant_id'));
-            context.debug('scheme_id:', request.query.get('scheme_id'));
+            context.debug('id:', request.query.get('id'));
             context.debug('outcome:', request.query.get('outcome'));
-            Joi.assert(request.query.get('application_id'), Joi.string().guid());
-            Joi.assert(request.query.get('applicant_id'), Joi.string().guid());
-            Joi.assert(request.query.get('scheme_id'), Joi.string().guid());
+            Joi.assert(request.query.get('id'), Joi.string().guid().required());
             Joi.assert(request.query.get('outcome'), Joi.string());
 
-            const application = await Application.findByPk(request.query.get('application_id'));
-            if (!application) {
-                return { status: 400, body: 'invalid id provided' }
-            }
-            const applicant = await Applicant.findByPk(request.query.get('applicant_id'));
-            const scheme = await Scheme.findByPk(request.query.get('scheme_id'));
-            if (applicant && scheme) {
-                application.update({
-                    outcome: request.query.get('outcome'),
-                    ApplicantId: request.query.get('applicant_id'),
-                    SchemeId: request.query.get('scheme_id'),
-                });
-                return { jsonBody: application.dataValues };
-            } else {
-                return { status: 400, body: 'invalid ID(s) provided for admin_role_id and/or permission_scope_id' }
-            }
+            const application = await Application.findByPk(request.query.get('id'));
+            if (!application) return { status: 404, body: 'application not found' }
+            application.update({ outcome: request.query.get('outcome') });
+            return { jsonBody: application.dataValues };
 
         } else if (request.method === 'DELETE') {
-            context.debug('application_id:', request.query.get('application_id'));
-            Joi.assert(request.query.get('application_id'), Joi.string().guid());
-            const application = await Application.findByPk(request.query.get('application_id'));
-            if (!application) {
-                return { status: 400, body: 'invalid id provided' }
-            }
+            context.debug('id:', request.query.get('id'));
+            Joi.assert(request.query.get('id'), Joi.string().guid().required());
+
+            const application = await Application.findByPk(request.query.get('id'));
+            if (!application) return { status: 404, body: 'application not found' }
             await application.destroy();
-            return { body: request.query.get('application_id') }
+            return { body: request.query.get('id') }
 
         }
 
