@@ -130,7 +130,7 @@ const sequelize = new Sequelize(process.env['PGDATABASE'], process.env['PGUSER']
 *       description: Deletes a household member from the system by ID.
 *       parameters:
 *           - in: query
-*             name: household_member_id
+*             name: id
 *             required: true
 *             description: ID of the household member to delete.
 *             schema:
@@ -222,14 +222,14 @@ export async function householdMembers(request: HttpRequest, context: Invocation
             return { jsonBody: householdMember.dataValues }
 
         } else if (request.method === 'DELETE') {
-            context.debug('household_member_id:', request.query.get('household_member_id'));
-            Joi.assert(request.query.get('household_member_id'), Joi.string().guid());
-            const householdMember = await HouseholdMember.findByPk(request.query.get('household-member-id'));
+            context.debug('id:', request.query.get('id'));
+            Joi.assert(request.query.get('id'), Joi.string().guid());
+            const householdMember = await HouseholdMember.findByPk(request.query.get('id'));
             if (!householdMember) {
-                return { status: 400, body: 'invalid household-member-id provided' }
+                return { status: 400, body: 'invalid ID provided' }
             }
             await householdMember.destroy();
-            return { body: request.query.get('household_member_id') }
+            return { body: request.query.get('id') }
         }
 
     } catch (error) {
