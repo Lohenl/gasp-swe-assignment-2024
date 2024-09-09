@@ -20,8 +20,13 @@ const sequelize = new Sequelize(process.env['PGDATABASE'], process.env['PGUSER']
 *       description: Get all applications registered in the system, or by scheme, or by applicant
 *       parameters:
 *           - in: query
+*             name: id
+*             description: application ID
+*             schema:
+*               type: string
+*           - in: query
 *             name: applicant_id
-*             description: ID of application to retrieve all applications for
+*             description: ID of applicant to retrieve all applications for
 *             schema:
 *               type: string
 *           - in: query
@@ -39,11 +44,13 @@ const sequelize = new Sequelize(process.env['PGDATABASE'], process.env['PGUSER']
 *       parameters:
 *           - in: query
 *             name: applicant_id
+*             required: true
 *             description: ID for applicant making the application
 *             schema:
 *               type: string
 *           - in: query
 *             name: scheme_id
+*             required: true
 *             description: ID for scheme the applicant is applying to
 *             schema:
 *               type: string
@@ -154,14 +161,21 @@ export async function applications(request: HttpRequest, context: InvocationCont
         } else if (request.method === 'POST') {
             context.debug('applicant_id:', request.query.get('applicant_id'));
             context.debug('scheme_id:', request.query.get('scheme_id'));
-            Joi.assert(request.query.get('applicant_id'), Joi.string().guid());
-            Joi.assert(request.query.get('scheme_id'), Joi.string().guid());
+            Joi.assert(request.query.get('applicant_id'), Joi.string().guid().required());
+            Joi.assert(request.query.get('scheme_id'), Joi.string().guid().required());
 
             // practically speaking a UI would directly feed the respective IDs to this join table
             // so at best you would only need to check if the IDs exist in the respective tables
             const applicant = await Applicant.findByPk(request.query.get('applicant_id'));
             const scheme = await Scheme.findByPk(request.query.get('scheme_id'));
+
             if (applicant && scheme) {
+                // check for applicant and scheme
+                const applicant = await Applicant.findByPk(request.query.get('applicant_id'));
+                if (!applicant) return { status: 404, body: 'applicant not found' }
+                const scheme = await Scheme.findByPk(request.query.get('scheme_id'));
+                if (!scheme) return { status: 404, body: 'scheme not found' }
+
                 // create transaction here (lots of FKs to make)
                 const application = await Application.create({
                     outcome: 'Pending Review',
@@ -170,7 +184,7 @@ export async function applications(request: HttpRequest, context: InvocationCont
                 });
                 return { jsonBody: application.dataValues };
             } else {
-                return { status: 400, body: 'invalid ID(s) provided for applicant_id and/or scheme_id' }
+                return { status: 400, body: 'you need to provide both applicant_id and scheme_id' }
             }
 
         } else if (request.method === 'PATCH') {
