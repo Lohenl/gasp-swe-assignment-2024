@@ -50,7 +50,7 @@ Coding Assignment for SWE role in GovTech GASP
     - [ ] Applicant relationships in Households
         - [x] Revisit DB Diagram
         - [x] Build Models
-        - [ ] Update Functions
+        - [x] Update Functions
         - [ ] Test Regression urgh
     - [x] Application Outcome - just 1 extra field because I simplified
     - [x] Update application API CU to include outcome
