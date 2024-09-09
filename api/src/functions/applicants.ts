@@ -210,6 +210,9 @@ export async function applicants(request: HttpRequest, context: InvocationContex
             } else {
                 Joi.assert(request.query.get('id'), Joi.string().guid());
                 const applicant = await Applicant.findByPk(request.query.get('id'));
+                if (!applicant) {
+                    return { status: 404, body: 'applicant not found' }
+                }
                 return { jsonBody: applicant }
             }
 
