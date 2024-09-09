@@ -5,8 +5,11 @@ import ApplicantModel from '../models/applicant';
 import EmploymentstatusModel from "../models/employmentstatus";
 import MaritalStatusModel from "../models/maritalstatus";
 import GenderModel from "../models/gender";
+import RelationshipModel from "../models/relationship";
+import HouseholdMemberModel from "../models/householdmember";
 const { DateTime } = require("luxon");
 const validateBody = require('../validators/applicantsValidate');
+const validateHouseholdMember = require('../validators/householdmembersValidate');
 
 const sequelize = new Sequelize(process.env['PGDATABASE'], process.env['PGUSER'], process.env['PGPASSWORD'], {
     host: process.env['PGHOST'],
@@ -138,16 +141,21 @@ export async function applicants(request: HttpRequest, context: InvocationContex
         EmploymentstatusModel(sequelize, DataTypes);
         MaritalStatusModel(sequelize, DataTypes);
         GenderModel(sequelize, DataTypes);
+        RelationshipModel(sequelize, DataTypes);
+        HouseholdMemberModel(sequelize, DataTypes);
         const Applicant = sequelize.models.Applicant;
         const EmploymentStatus = sequelize.models.EmploymentStatus;
         const MaritalStatus = sequelize.models.MaritalStatus;
         const Gender = sequelize.models.Gender;
+        const HouseholdMember = sequelize.models.HouseholdMember;
         Applicant.hasOne(EmploymentStatus);
         Applicant.hasOne(MaritalStatus);
         Applicant.hasOne(Gender);
+        Applicant.hasMany(HouseholdMember, { onDelete: 'cascade' });
         EmploymentStatus.belongsToMany(Applicant, { through: 'ApplicantEmploymentStatus' });
         MaritalStatus.belongsToMany(Applicant, { through: 'ApplicantMaritalStatus' });
         Gender.belongsToMany(Applicant, { through: 'ApplicantGender' });
+        HouseholdMember.belongsTo(Applicant);
 
         // wait for all model syncs to finish
         const syncPromises = [];
@@ -155,6 +163,7 @@ export async function applicants(request: HttpRequest, context: InvocationContex
         syncPromises.push(EmploymentStatus.sync());
         syncPromises.push(MaritalStatus.sync());
         syncPromises.push(Gender.sync());
+        syncPromises.push(HouseholdMember.sync());
         await Promise.allSettled(syncPromises);
 
         if (request.method === 'GET') {
@@ -169,11 +178,17 @@ export async function applicants(request: HttpRequest, context: InvocationContex
             }
 
         } else if (request.method === 'POST') {
-            const reqBody = await request.json();
+            const reqBody = await request.json() as any;
             context.debug('reqBody:', reqBody);
             validateBody(reqBody);
+            const householdMembersToCreate = reqBody.householdMembers as any[];
+            householdMembersToCreate.forEach(member => {
+                validateHouseholdMember(member);
+            });
+
             // create transaction here (lots of FKs to make)
             const result = await sequelize.transaction(async t => {
+                const createPromises = [];
                 const applicant = await Applicant.create({
                     name: reqBody['name'],
                     email: reqBody['email'],
@@ -183,9 +198,21 @@ export async function applicants(request: HttpRequest, context: InvocationContex
                     MaritalStatusId: reqBody['MaritalStatusId'],
                     GenderId: reqBody['GenderId'],
                 }, {
-                    include: [EmploymentStatus, MaritalStatus, Gender],
+                    include: [EmploymentStatus, MaritalStatus, Gender, HouseholdMember],
                     transaction: t
                 });
+
+                // create assigned householdMembers
+                householdMembersToCreate.forEach(member => {
+                    context.debug('householdMember: ', member);
+                    createPromises.push(HouseholdMember.create({
+                        ...member,
+                        ApplicantId: applicant.dataValues.id
+                    }, {
+                        transaction: t
+                    }));
+                });
+                await Promise.allSettled(createPromises);
                 return applicant;
             })
 
