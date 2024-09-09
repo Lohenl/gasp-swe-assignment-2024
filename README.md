@@ -96,3 +96,4 @@ Coding Assignment for SWE role in GovTech GASP
 - [Sequelize - Transactions](https://sequelize.org/docs/v6/other-topics/transactions/)
 - [JSON Rules Engine - Simpler explanation, but outdated](https://www.npmjs.com/package/json-rules-engine/v/1.0.0-beta9)
 - [JSON Rules Engine](https://www.npmjs.com/package/json-rules-engine)
+- [HTTP 422](https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/422)
