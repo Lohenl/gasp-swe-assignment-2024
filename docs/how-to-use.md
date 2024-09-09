@@ -122,6 +122,8 @@ npm run swagger
 
 15. Open your web browser, and navigate to ```http://localhost:3000/```
 
+![swagger ui](./img/swagger-ui-sample.PNG)
+
 16. Here's a picture of what my screen typically looks like, building on this system: (I use a 2nd screen, and the swagger docs might look different)
 
 ![Sample layout](./img/sample-layout.PNG)
