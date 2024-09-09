@@ -221,9 +221,11 @@ export async function applicants(request: HttpRequest, context: InvocationContex
             context.debug('reqBody:', reqBody);
             validateBody(reqBody);
             const householdMembersToCreate = reqBody.household as any[];
-            householdMembersToCreate.forEach(member => {
-                validateHouseholdMember(member);
-            });
+            if (householdMembersToCreate?.length > 0) {
+                householdMembersToCreate.forEach(member => {
+                    validateHouseholdMember(member);
+                });
+            }
 
             // create transaction here (lots of FKs to make)
             const result = await sequelize.transaction(async t => {
@@ -242,15 +244,17 @@ export async function applicants(request: HttpRequest, context: InvocationContex
                 });
 
                 // create assigned householdMembers
-                householdMembersToCreate.forEach(member => {
-                    context.debug('householdMember: ', member);
-                    createPromises.push(HouseholdMember.create({
-                        ...member,
-                        ApplicantId: applicant.dataValues.id
-                    }, {
-                        transaction: t
-                    }));
-                });
+                if (householdMembersToCreate?.length > 0) {
+                    householdMembersToCreate?.forEach(member => {
+                        context.debug('householdMember: ', member);
+                        createPromises.push(HouseholdMember.create({
+                            ...member,
+                            ApplicantId: applicant.dataValues.id
+                        }, {
+                            transaction: t
+                        }));
+                    })
+                };
                 await Promise.allSettled(createPromises);
                 return applicant;
             })

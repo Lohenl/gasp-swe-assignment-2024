@@ -53,9 +53,7 @@ export async function schemesEligibility(request: HttpRequest, context: Invocati
         context.debug('id:', request.query.get('id'));
         Joi.assert(request.query.get('id'), Joi.string().guid().required());
         const applicant = await Applicant.findByPk(request.query.get('id'))
-        if (!applicant) {
-            return { status: 400, body: 'invalid ID provided' }
-        }
+        if (!applicant) return { status: 404, body: 'no applicant found' }
 
         // get all schemes, also eagerly load associated benefits
         const schemes = await Scheme.findAll({ include: Benefit });
