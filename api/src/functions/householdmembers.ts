@@ -15,9 +15,14 @@ const sequelize = new Sequelize(process.env['PGDATABASE'], process.env['PGUSER']
 * @swagger
 * /household-members:
 *   get:
-*       summary: Get household members by applicant ID
-*       description: Get a specific household's details by applicant ID.
+*       summary: Get household members by applicant ID / Get household member by ID
+*       description: Get all household members registered under an applicant, or get a specific household member's details by household member ID
 *       parameters:
+*           - in: query
+*             name: id
+*             description: household member ID
+*             schema:
+*               type: string
 *           - in: query
 *             name: applicant_id
 *             description: applicant ID
@@ -101,17 +106,35 @@ export async function householdMembers(request: HttpRequest, context: Invocation
         await Promise.allSettled(syncPromises);
 
         if (request.method === 'GET') {
+            context.debug('id:', request.query.get('id'));
             context.debug('applicant_id:', request.query.get('applicant_id'));
-            Joi.assert(request.query.get('applicant_id'), Joi.string().guid().required());
-            const applicant = await Applicant.findByPk(request.query.get('applicant_id'));
-            if (!applicant) return { status: 400, body: 'invalid ID provided' }
-            
-            const householdMembers = await HouseholdMember.findAll({ where: { ApplicantId: request.query.get('applicant_id') } });
-            const jsonBody = [];
-            householdMembers.forEach(member => {
-                jsonBody.push(member.dataValues);
-            })
-            return { jsonBody }
+
+            if (request.query.get('id') && request.query.get('applicant_id')) {
+                return { status: 400, body: 'Provide either id or applicant_id, not both' }
+            } else if (!request.query.get('id') && !request.query.get('applicant_id')) {
+                return { status: 400, body: 'Provide either id or applicant_id' }
+            }
+
+            if (request.query.get('applicant_id')) {
+                Joi.assert(request.query.get('applicant_id'), Joi.string().guid());
+                const applicant = await Applicant.findByPk(request.query.get('applicant_id'));
+                if (!applicant) return { status: 400, body: 'invalid applicant_id provided' }
+
+                const householdMembers = await HouseholdMember.findAll({ where: { ApplicantId: request.query.get('applicant_id') } });
+                const jsonBody = [];
+                householdMembers.forEach(member => {
+                    jsonBody.push(member.dataValues);
+                })
+                return { jsonBody }
+
+            } else if (request.query.get('id')) {
+                Joi.assert(request.query.get('id'), Joi.string().guid());
+                const householdMember = await HouseholdMember.findByPk(request.query.get('id'));
+                if (!householdMember) {
+                    return { status: 400, body: 'invalid ID provided' }
+                }
+                return { jsonBody: householdMember.dataValues }
+            }
 
         } else if (request.method === 'POST') {
             context.debug('applicant_id:', request.query.get('applicant_id'));
