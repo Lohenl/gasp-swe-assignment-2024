@@ -103,9 +103,15 @@ export async function householdMembers(request: HttpRequest, context: Invocation
         if (request.method === 'GET') {
             context.debug('applicant_id:', request.query.get('applicant_id'));
             Joi.assert(request.query.get('applicant_id'), Joi.string().guid().required());
-
             const applicant = await Applicant.findByPk(request.query.get('applicant_id'));
-            return { jsonBody: applicant.dataValues.HouseholdMembers };
+            if (!applicant) return { status: 400, body: 'invalid ID provided' }
+            
+            const householdMembers = await HouseholdMember.findAll({ where: { ApplicantId: request.query.get('applicant_id') } });
+            const jsonBody = [];
+            householdMembers.forEach(member => {
+                jsonBody.push(member.dataValues);
+            })
+            return { jsonBody }
 
         } else if (request.method === 'POST') {
             context.debug('applicant_id:', request.query.get('applicant_id'));
