@@ -46,12 +46,12 @@ Coding Assignment for SWE role in GovTech GASP
     - [x] Eslint cleanup
     - [ ] Testing
     - [x] SAST (Synk again lol)
-- [ ] Missed Out on First Pass
-    - [ ] Applicant relationships in Households
+- [x] Missed Out on First Pass
+    - [x] Applicant relationships in Households
         - [x] Revisit DB Diagram
         - [x] Build Models
         - [x] Update Functions
-        - [ ] Test Regression urgh
+        - [x] Test Regression urgh
     - [x] Application Outcome - just 1 extra field because I simplified
     - [x] Update application API CU to include outcome
 - [ ] Documentation
