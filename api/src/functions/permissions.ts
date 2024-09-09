@@ -113,8 +113,8 @@ export async function permissions(request: HttpRequest, context: InvocationConte
 
         if (request.method === 'GET') {
             context.debug('id:', request.query.get('id'));
-            Joi.assert(request.query.get('id'), Joi.string().guid());
             if (!request.query.get('id')) {
+                Joi.assert(request.query.get('id'), Joi.string().guid());
                 const permissions = await Permission.findAll({});
                 return { jsonBody: permissions }
             } else {
