@@ -170,7 +170,7 @@ export async function householdMembers(request: HttpRequest, context: Invocation
             if (request.query.get('applicant_id')) {
                 Joi.assert(request.query.get('applicant_id'), Joi.string().guid());
                 const applicant = await Applicant.findByPk(request.query.get('applicant_id'));
-                if (!applicant) return { status: 400, body: 'invalid applicant_id provided' }
+                if (!applicant) return { status: 404, body: 'applicant not found' }
 
                 const householdMembers = await HouseholdMember.findAll({ where: { ApplicantId: request.query.get('applicant_id') } });
                 const jsonBody = [];
@@ -183,7 +183,7 @@ export async function householdMembers(request: HttpRequest, context: Invocation
                 Joi.assert(request.query.get('id'), Joi.string().guid());
                 const householdMember = await HouseholdMember.findByPk(request.query.get('id'));
                 if (!householdMember) {
-                    return { status: 400, body: 'invalid ID provided' }
+                    return { status: 404, body: 'household member not found' }
                 }
                 return { jsonBody: householdMember.dataValues }
             }
@@ -198,7 +198,7 @@ export async function householdMembers(request: HttpRequest, context: Invocation
             // check if applicant exists
             const applicant = Applicant.findByPk(request.query.get('applicant_id'));
             if (!applicant) {
-                return { status: 400, body: 'invalid applicant_id provided' }
+                return { status: 404, body: 'applicant not found' }
             }
 
             // do creation
@@ -215,7 +215,7 @@ export async function householdMembers(request: HttpRequest, context: Invocation
             // check if household member exists
             const householdMember = await HouseholdMember.findByPk(request.query.get('id'));
             if (!householdMember) {
-                return { status: 400, body: 'invalid household-member-id provided' }
+                return { status: 404, body: 'household member not found' }
             }
             householdMember.update(reqBody);
             await householdMember.save();
@@ -226,7 +226,7 @@ export async function householdMembers(request: HttpRequest, context: Invocation
             Joi.assert(request.query.get('id'), Joi.string().guid());
             const householdMember = await HouseholdMember.findByPk(request.query.get('id'));
             if (!householdMember) {
-                return { status: 400, body: 'invalid ID provided' }
+                return { status: 404, body: 'household member not found' }
             }
             await householdMember.destroy();
             return { body: request.query.get('id') }
