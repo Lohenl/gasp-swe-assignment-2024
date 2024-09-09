@@ -22,6 +22,11 @@ const sequelize = new Sequelize(process.env['PGDATABASE'], process.env['PGUSER']
 *       summary: Get all code tables / Get code table by name
 *       description: Get a specific code table's details by name. Omit ID to get all code table' details registered in system.
 *       parameters:
+*           - in: header
+*             name: authz_user_id
+*             description: (For Demo) Put user_id here to simulate an authenticated user, for authorization checks
+*             schema:
+*               type: string
 *           - in: query
 *             name: table_name
 *             description: Name of a specific code table to retrieve.
@@ -35,6 +40,11 @@ const sequelize = new Sequelize(process.env['PGDATABASE'], process.env['PGUSER']
 *       summary: Adds a codetable entry
 *       description: Adds a codetable entry
 *       parameters:
+*           - in: header
+*             name: authz_user_id
+*             description: (For Demo) Put user_id here to simulate an authenticated user, for authorization checks
+*             schema:
+*               type: string
 *           - in: query
 *             name: table_name
 *             description: Name of code table to add an entry to.
@@ -55,6 +65,11 @@ const sequelize = new Sequelize(process.env['PGDATABASE'], process.env['PGUSER']
 *       summary: Updates a code table
 *       description: Updates a code table
 *       parameters:
+*           - in: header
+*             name: authz_user_id
+*             description: (For Demo) Put user_id here to simulate an authenticated user, for authorization checks
+*             schema:
+*               type: string
 *           - in: query
 *             name: table_name
 *             required: true
@@ -81,6 +96,11 @@ const sequelize = new Sequelize(process.env['PGDATABASE'], process.env['PGUSER']
 *       summary: Delete code table entry by code table name and ID
 *       description: Delete code table entry by code table name and ID
 *       parameters:
+*           - in: header
+*             name: authz_user_id
+*             description: (For Demo) Put user_id here to simulate an authenticated user, for authorization checks
+*             schema:
+*               type: string
 *           - in: query
 *             name: table_name
 *             required: true

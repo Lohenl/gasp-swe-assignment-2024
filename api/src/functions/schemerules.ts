@@ -18,6 +18,11 @@ const sequelize = new Sequelize(process.env['PGDATABASE'], process.env['PGUSER']
 *       summary: Get scheme rules by scheme ID
 *       description: Get a specific scheme's details by scheme ID.
 *       parameters:
+*           - in: header
+*             name: authz_user_id
+*             description: (For Demo) Put user_id here to simulate an authenticated user, for authorization checks
+*             schema:
+*               type: string
 *           - in: query
 *             required: true
 *             name: scheme_id
@@ -32,6 +37,11 @@ const sequelize = new Sequelize(process.env['PGDATABASE'], process.env['PGUSER']
 *       summary: Creates a scheme rule for a specified scheme
 *       description: Creates a scheme rule for a specified scheme
 *       parameters:
+*           - in: header
+*             name: authz_user_id
+*             description: (For Demo) Put user_id here to simulate an authenticated user, for authorization checks
+*             schema:
+*               type: string
 *           - in: query
 *             name: scheme_id
 *             required: true
@@ -125,6 +135,11 @@ const sequelize = new Sequelize(process.env['PGDATABASE'], process.env['PGUSER']
 *       summary: Updates a scheme rule for a specified scheme
 *       description: Updates a scheme rule for a specified scheme
 *       parameters:
+*           - in: header
+*             name: authz_user_id
+*             description: (For Demo) Put user_id here to simulate an authenticated user, for authorization checks
+*             schema:
+*               type: string
 *           - in: query
 *             name: scheme_id
 *             required: true
@@ -217,6 +232,11 @@ const sequelize = new Sequelize(process.env['PGDATABASE'], process.env['PGUSER']
 *       summary: Delete scheme rule by scheme ID
 *       description: Delete a scheme rule from the system by scheme ID.
 *       parameters:
+*           - in: header
+*             name: authz_user_id
+*             description: (For Demo) Put user_id here to simulate an authenticated user, for authorization checks
+*             schema:
+*               type: string
 *           - in: query
 *             name: scheme_id
 *             required: true

@@ -19,6 +19,11 @@ const sequelize = new Sequelize(process.env['PGDATABASE'], process.env['PGUSER']
 *       summary: Get all eligible schemes for given applicant
 *       description: Get all schemes that an applicant is eligible to apply for
 *       parameters:
+*           - in: header
+*             name: authz_user_id
+*             description: (For Demo) Put user_id here to simulate an authenticated user, for authorization checks
+*             schema:
+*               type: string
 *           - in: query
 *             name: id
 *             required: true

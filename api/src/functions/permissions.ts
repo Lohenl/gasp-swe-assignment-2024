@@ -19,6 +19,11 @@ const sequelize = new Sequelize(process.env['PGDATABASE'], process.env['PGUSER']
 *       summary: Get all permissions / Get permission by ID
 *       description: Get a specific permission's details by ID. Omit ID to get all permissions' details registered in system.
 *       parameters:
+*           - in: header
+*             name: authz_user_id
+*             description: (For Demo) Put user_id here to simulate an authenticated user, for authorization checks
+*             schema:
+*               type: string
 *           - in: query
 *             name: id
 *             description: ID of a specific permission to retrieve.
@@ -32,6 +37,11 @@ const sequelize = new Sequelize(process.env['PGDATABASE'], process.env['PGUSER']
 *       summary: Creates a permission
 *       description: Creates a permission
 *       parameters:
+*           - in: header
+*             name: authz_user_id
+*             description: (For Demo) Put user_id here to simulate an authenticated user, for authorization checks
+*             schema:
+*               type: string
 *           - in: query
 *             name: admin_role_id
 *             required: true
@@ -52,6 +62,11 @@ const sequelize = new Sequelize(process.env['PGDATABASE'], process.env['PGUSER']
 *       summary: Deletes permission by ID
 *       description: Deletes permission by ID
 *       parameters:
+*           - in: header
+*             name: authz_user_id
+*             description: (For Demo) Put user_id here to simulate an authenticated user, for authorization checks
+*             schema:
+*               type: string
 *           - in: query
 *             name: id
 *             required: true

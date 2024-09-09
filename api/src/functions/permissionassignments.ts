@@ -19,6 +19,11 @@ const sequelize = new Sequelize(process.env['PGDATABASE'], process.env['PGUSER']
 *       summary: Get all assignments / Get assignment by ID / Permission / User 
 *       description: Get permission assignment by ID, or get all permission assignment's details by Permission / User, otherwise get all permission assignments registered in system.
 *       parameters:
+*           - in: header
+*             name: authz_user_id
+*             description: (For Demo) Put user_id here to simulate an authenticated user, for authorization checks
+*             schema:
+*               type: string
 *           - in: query
 *             name: id
 *             description: ID of a specific assignment to retrieve.
@@ -42,6 +47,11 @@ const sequelize = new Sequelize(process.env['PGDATABASE'], process.env['PGUSER']
 *       summary: Creates a permission assignment
 *       description: Creates a permission assignment
 *       parameters:
+*           - in: header
+*             name: authz_user_id
+*             description: (For Demo) Put user_id here to simulate an authenticated user, for authorization checks
+*             schema:
+*               type: string
 *           - in: query
 *             name: permission_id
 *             required: true
@@ -62,6 +72,11 @@ const sequelize = new Sequelize(process.env['PGDATABASE'], process.env['PGUSER']
 *       summary: Deletes permission assignment by ID / Deletes all permission assignments for a given permission or user 
 *       description: Deletes permission by ID / Deletes all permission assignments for a given permission or user 
 *       parameters:
+*           - in: header
+*             name: authz_user_id
+*             description: (For Demo) Put user_id here to simulate an authenticated user, for authorization checks
+*             schema:
+*               type: string
 *           - in: query
 *             name: id
 *             description: ID of the permission to delete.

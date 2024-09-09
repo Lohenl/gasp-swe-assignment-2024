@@ -11,7 +11,7 @@ const sequelize = new Sequelize(process.env['PGDATABASE'], process.env['PGUSER']
 });
 
 module.exports.checkAuthorization = async function (request: HttpRequest, context: InvocationContext, scopeId: number, roleId: number[]): Promise<void> {
-    context.log(request);
+    context.log("user_id", request.headers.get('user_id'))
     context.log('scopeId', scopeId);
     context.log('roleId', roleId);
 

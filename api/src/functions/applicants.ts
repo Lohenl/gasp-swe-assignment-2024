@@ -25,6 +25,11 @@ const sequelize = new Sequelize(process.env['PGDATABASE'], process.env['PGUSER']
 *       summary: Get all applicant details / Get applicant details by ID
 *       description: Get a specific applicant's details by ID. Omit ID to get all applicants' details registered in system.
 *       parameters:
+*           - in: header
+*             name: authz_user_id
+*             description: (For Demo) Put user_id here to simulate an authenticated user, for authorization checks
+*             schema:
+*               type: string
 *           - in: query
 *             name: id
 *             description: ID of a specific applicant to retrieve.
@@ -37,6 +42,12 @@ const sequelize = new Sequelize(process.env['PGDATABASE'], process.env['PGUSER']
 *   post:
 *       summary: Creates an applicant
 *       description: Creates an applicant
+*       parameters:
+*           - in: header
+*             name: authz_user_id
+*             description: (For Demo) Put user_id here to simulate an authenticated user, for authorization checks
+*             schema:
+*               type: string
 *       requestBody:
 *           description: JSON details of applicant to be created
 *           required: true
@@ -115,6 +126,11 @@ const sequelize = new Sequelize(process.env['PGDATABASE'], process.env['PGUSER']
 *       summary: Updates an applicant
 *       description: Updates an applicant (update household members with PATCH household-members instead)
 *       parameters:
+*           - in: header
+*             name: authz_user_id
+*             description: (For Demo) Put user_id here to simulate an authenticated user, for authorization checks
+*             schema:
+*               type: string
 *           - in: query
 *             name: id
 *             required: true
@@ -160,6 +176,11 @@ const sequelize = new Sequelize(process.env['PGDATABASE'], process.env['PGUSER']
 *       summary: Delete applicant by ID
 *       description: Delete an applicant from the system by ID.
 *       parameters:
+*           - in: header
+*             name: authz_user_id
+*             description: (For Demo) Put user_id here to simulate an authenticated user, for authorization checks
+*             schema:
+*               type: string
 *           - in: query
 *             name: id
 *             required: true

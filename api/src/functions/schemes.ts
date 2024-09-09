@@ -18,6 +18,11 @@ const sequelize = new Sequelize(process.env['PGDATABASE'], process.env['PGUSER']
 *       summary: Get all schemes / Get scheme details by ID
 *       description: Get a specific scheme's details by ID. Omit ID to get all schemes' details registered in system.
 *       parameters:
+*           - in: header
+*             name: authz_user_id
+*             description: (For Demo) Put user_id here to simulate an authenticated user, for authorization checks
+*             schema:
+*               type: string
 *           - in: query
 *             name: id
 *             description: ID of the scheme to retrieve.

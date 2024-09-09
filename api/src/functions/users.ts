@@ -19,6 +19,11 @@ const sequelize = new Sequelize(process.env['PGDATABASE'], process.env['PGUSER']
 *       summary: Get all user details / Get user details by ID
 *       description: Get a specific user's details by ID. Omit ID to get all users' details registered in system.
 *       parameters:
+*           - in: header
+*             name: user_id
+*             description: (For Demo) Put user_id here to simulate an authenticated user, for authorization checks
+*             schema:
+*               type: string
 *           - in: query
 *             name: id
 *             description: ID of a specific user to retrieve.
@@ -31,6 +36,12 @@ const sequelize = new Sequelize(process.env['PGDATABASE'], process.env['PGUSER']
 *   post:
 *       summary: Creates a user
 *       description: Creates a user
+*       parameters:
+*           - in: header
+*             name: authz_user_id
+*             description: (For Demo) Put user_id here to simulate an authenticated user, for authorization checks
+*             schema:
+*               type: string
 *       requestBody:
 *           description: JSON details of user to be created
 *           required: true
@@ -57,6 +68,11 @@ const sequelize = new Sequelize(process.env['PGDATABASE'], process.env['PGUSER']
 *       summary: Updates a user
 *       description: Updates a user
 *       parameters:
+*           - in: header
+*             name: authz_user_id
+*             description: (For Demo) Put user_id here to simulate an authenticated user, for authorization checks
+*             schema:
+*               type: string
 *           - in: query
 *             name: id
 *             required: true
@@ -87,6 +103,11 @@ const sequelize = new Sequelize(process.env['PGDATABASE'], process.env['PGUSER']
 *       summary: Delete user by ID
 *       description: Delete a user from the system by ID.
 *       parameters:
+*           - in: header
+*             name: authz_user_id
+*             description: (For Demo) Put user_id here to simulate an authenticated user, for authorization checks
+*             schema:
+*               type: string
 *           - in: query
 *             name: id
 *             required: true
