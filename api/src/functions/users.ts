@@ -78,7 +78,7 @@ const sequelize = new Sequelize(process.env['PGDATABASE'], process.env['PGUSER']
 *                               type: string
 *                   example:
 *                       name: "Koh Wen Hao"
-*                       email: "koh_wen_hao@tech.gov.sg"
+*                       email: "koh_wen_hao@cpf.gov.sg"
 *       responses:
 *           200:
 *               description: Successful response
@@ -107,14 +107,16 @@ export async function users(request: HttpRequest, context: InvocationContext): P
         await User.sync();
 
         if (request.method === 'GET') {
-            await checkAuthorization(request, context);
             context.debug('id:', request.query.get('id'));
             if (!request.query.get('id')) {
+                // await checkAuthorization(null, request, context);
                 const users = await User.findAll({});
                 return { jsonBody: users }
             } else {
                 Joi.assert(request.query.get('id'), Joi.string().guid());
+                // await checkAuthorization(null, request, context);
                 const user = await User.findByPk(request.query.get('id'));
+                if (!user) return { status: 404, body: 'user not found' }
                 return { jsonBody: user }
             }
 
@@ -122,7 +124,7 @@ export async function users(request: HttpRequest, context: InvocationContext): P
             const reqBody = await request.json();
             context.debug('reqBody:', reqBody);
             validateBody(reqBody);
-            // validation happens here, dont forget joi
+            // await checkAuthorization(null, request, context);
             const user = User.build({
                 name: reqBody['name'],
                 email: reqBody['email'],
@@ -136,21 +138,21 @@ export async function users(request: HttpRequest, context: InvocationContext): P
             context.debug('updateFields:', updateFields);
             Joi.assert(request.query.get('id'), Joi.string().guid().required());
             validateBody(updateFields);
+            // await checkAuthorization(null, request, context);
             const user = await User.findByPk(request.query.get('id'));
-            if (!user) {
-                return { status: 400, body: 'invalid id provided' }
-            }
+            if (!user) return { status: 404, body: 'user not found' }
+
             user.update(updateFields);
             await user.save();
             return { jsonBody: user.dataValues }
 
         } else if (request.method === 'DELETE') {
             context.debug('id:', request.query.get('id'));
-            const user = await User.findByPk(request.query.get('id'));
             Joi.assert(request.query.get('id'), Joi.string().guid().required());
-            if (!user) {
-                return { status: 400, body: 'invalid id provided' }
-            }
+            // await checkAuthorization(null, request, context);
+            const user = await User.findByPk(request.query.get('id'));
+            if (!user) return { status: 404, body: 'user not found' }
+
             await user.destroy();
             return { body: request.query.get('id') }
         }
