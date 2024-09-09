@@ -15,6 +15,8 @@ const sequelize = new Sequelize(process.env['PGDATABASE'], process.env['PGUSER']
 * @swagger
 * /schemes:
 *   get:
+*       tags:
+*           - Business - Scheme Management
 *       summary: Get all schemes / Get scheme details by ID
 *       description: Get a specific scheme's details by ID. Omit ID to get all schemes' details registered in system.
 *       parameters:
@@ -33,6 +35,8 @@ const sequelize = new Sequelize(process.env['PGDATABASE'], process.env['PGUSER']
 *               description: Successful response
 * 
 *   post:
+*       tags:
+*           - Business - Scheme Management
 *       summary: Creates a scheme
 *       description: Creates a scheme
 *       requestBody:
@@ -79,6 +83,8 @@ const sequelize = new Sequelize(process.env['PGDATABASE'], process.env['PGUSER']
 *               description: Successful response
 * 
 *   patch:
+*       tags:
+*           - Business - Scheme Management
 *       summary: Updates a scheme
 *       description: Updates a scheme
 *       parameters:
@@ -122,6 +128,8 @@ const sequelize = new Sequelize(process.env['PGDATABASE'], process.env['PGUSER']
 *               description: Successful response
 * 
 *   delete:
+*       tags:
+*           - Business - Scheme Management
 *       summary: Delete scheme by ID
 *       description: Delete a scheme from the system by ID.
 *       parameters:

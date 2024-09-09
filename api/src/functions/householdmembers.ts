@@ -15,6 +15,8 @@ const sequelize = new Sequelize(process.env['PGDATABASE'], process.env['PGUSER']
 * @swagger
 * /household-members:
 *   get:
+*       tags:
+*           - Business - Applicant Management
 *       summary: Get household members by applicant ID / Get household member by ID
 *       description: Get all household members registered under an applicant, or get a specific household member's details by household member ID
 *       parameters:
@@ -38,6 +40,8 @@ const sequelize = new Sequelize(process.env['PGDATABASE'], process.env['PGUSER']
 *               description: Successful response
 * 
 *   post:
+*       tags:
+*           - Business - Applicant Management
 *       summary: Adds a household member
 *       description: Adds a household member to the specified applicant
 *       parameters:
@@ -90,6 +94,8 @@ const sequelize = new Sequelize(process.env['PGDATABASE'], process.env['PGUSER']
 *               description: Successful response
 * 
 *   patch:
+*       tags:
+*           - Business - Applicant Management
 *       summary: Updates a household member
 *       description: Updates a household member
 *       parameters:
@@ -141,6 +147,8 @@ const sequelize = new Sequelize(process.env['PGDATABASE'], process.env['PGUSER']
 *               description: Successful response
 * 
 *   delete:
+*       tags:
+*           - Business - Applicant Management
 *       summary: Delete household member by ID
 *       description: Deletes a household member from the system by ID.
 *       parameters:

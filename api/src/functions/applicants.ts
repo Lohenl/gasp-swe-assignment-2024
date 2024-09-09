@@ -22,6 +22,8 @@ const sequelize = new Sequelize(process.env['PGDATABASE'], process.env['PGUSER']
 * /applicants:
 * 
 *   get:
+*       tags:
+*           - Business - Applicant Management
 *       summary: Get all applicant details / Get applicant details by ID
 *       description: Get a specific applicant's details by ID. Omit ID to get all applicants' details registered in system.
 *       parameters:
@@ -40,6 +42,8 @@ const sequelize = new Sequelize(process.env['PGDATABASE'], process.env['PGUSER']
 *               description: Successful response
 * 
 *   post:
+*       tags:
+*           - Business - Applicant Management
 *       summary: Creates an applicant
 *       description: Creates an applicant
 *       parameters:
@@ -123,6 +127,8 @@ const sequelize = new Sequelize(process.env['PGDATABASE'], process.env['PGUSER']
 *               description: Successful response
 * 
 *   patch:
+*       tags:
+*           - Business - Applicant Management
 *       summary: Updates an applicant
 *       description: Updates an applicant (update household members with PATCH household-members instead)
 *       parameters:
@@ -173,6 +179,8 @@ const sequelize = new Sequelize(process.env['PGDATABASE'], process.env['PGUSER']
 *               description: Successful response
 * 
 *   delete:
+*       tags:
+*           - Business - Applicant Management
 *       summary: Delete applicant by ID
 *       description: Delete an applicant from the system by ID.
 *       parameters:

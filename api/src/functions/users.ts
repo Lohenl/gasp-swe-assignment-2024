@@ -16,6 +16,8 @@ const sequelize = new Sequelize(process.env['PGDATABASE'], process.env['PGUSER']
 * /users:
 * 
 *   get:
+*       tags:
+*           - System Admin
 *       summary: Get all user details / Get user details by ID
 *       description: Get a specific user's details by ID. Omit ID to get all users' details registered in system.
 *       parameters:
@@ -34,6 +36,8 @@ const sequelize = new Sequelize(process.env['PGDATABASE'], process.env['PGUSER']
 *               description: Successful response
 * 
 *   post:
+*       tags:
+*           - System Admin
 *       summary: Creates a user
 *       description: Creates a user
 *       parameters:
@@ -65,6 +69,8 @@ const sequelize = new Sequelize(process.env['PGDATABASE'], process.env['PGUSER']
 *               description: Successful response
 * 
 *   patch:
+*       tags:
+*           - System Admin
 *       summary: Updates a user
 *       description: Updates a user
 *       parameters:
@@ -100,6 +106,8 @@ const sequelize = new Sequelize(process.env['PGDATABASE'], process.env['PGUSER']
 *               description: Successful response
 * 
 *   delete:
+*       tags:
+*           - System Admin
 *       summary: Delete user by ID
 *       description: Delete a user from the system by ID.
 *       parameters:

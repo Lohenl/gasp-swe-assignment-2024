@@ -19,6 +19,8 @@ const sequelize = new Sequelize(process.env['PGDATABASE'], process.env['PGUSER']
 * /codetables:
 * 
 *   get:
+*       tags:
+*           - Code Tables
 *       summary: Get all code tables / Get code table by name
 *       description: Get a specific code table's details by name. Omit ID to get all code table' details registered in system.
 *       parameters:
@@ -37,6 +39,8 @@ const sequelize = new Sequelize(process.env['PGDATABASE'], process.env['PGUSER']
 *               description: Successful response
 * 
 *   post:
+*       tags:
+*           - Code Tables
 *       summary: Adds a codetable entry
 *       description: Adds a codetable entry
 *       parameters:
@@ -62,6 +66,8 @@ const sequelize = new Sequelize(process.env['PGDATABASE'], process.env['PGUSER']
 *               description: Successful response
 * 
 *   patch:
+*       tags:
+*           - Code Tables
 *       summary: Updates a code table
 *       description: Updates a code table
 *       parameters:
@@ -93,6 +99,8 @@ const sequelize = new Sequelize(process.env['PGDATABASE'], process.env['PGUSER']
 *               description: Successful response
 * 
 *   delete:
+*       tags:
+*           - Code Tables
 *       summary: Delete code table entry by code table name and ID
 *       description: Delete code table entry by code table name and ID
 *       parameters:

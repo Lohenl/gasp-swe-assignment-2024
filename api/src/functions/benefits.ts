@@ -15,6 +15,8 @@ const sequelize = new Sequelize(process.env['PGDATABASE'], process.env['PGUSER']
 * @swagger
 * /benefits:
 *   get:
+*       tags:
+*           - Business - Scheme Management
 *       summary: Get benefit details by ID / Get benefit details by SchemeId
 *       description: Get a specific scheme's details by either ID or all benefit details under a specific Scheme with SchemeId
 *       parameters:
@@ -38,6 +40,8 @@ const sequelize = new Sequelize(process.env['PGDATABASE'], process.env['PGUSER']
 *               description: Successful response
 * 
 *   post:
+*       tags:
+*           - Business - Scheme Management
 *       summary: Creates a benefit under a given scheme
 *       description: Creates a benefit under a given scheme
 *       parameters:
@@ -77,6 +81,8 @@ const sequelize = new Sequelize(process.env['PGDATABASE'], process.env['PGUSER']
 *               description: Successful response
 * 
 *   patch:
+*       tags:
+*           - Business - Scheme Management
 *       summary: Updates a benefit
 *       description: Updates a benefit
 *       parameters:
@@ -114,6 +120,8 @@ const sequelize = new Sequelize(process.env['PGDATABASE'], process.env['PGUSER']
 *               description: Successful response
 * 
 *   delete:
+*       tags:
+*           - Business - Scheme Management
 *       summary: Delete benefit by ID
 *       description: Delete a benefit from the system by ID.
 *       parameters:

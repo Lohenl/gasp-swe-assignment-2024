@@ -16,6 +16,8 @@ const sequelize = new Sequelize(process.env['PGDATABASE'], process.env['PGUSER']
 * @swagger
 * /schemes/eligible:
 *   get:
+*       tags:
+*           - Business - Applicant Management
 *       summary: Get all eligible schemes for given applicant
 *       description: Get all schemes that an applicant is eligible to apply for
 *       parameters:

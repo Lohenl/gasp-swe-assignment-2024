@@ -16,6 +16,8 @@ const sequelize = new Sequelize(process.env['PGDATABASE'], process.env['PGUSER']
 * /applications:
 * 
 *   get:
+*       tags:
+*           - Business - Application Management
 *       summary: Get all applications / Get applications by scheme or applicant
 *       description: Get all applications registered in the system, or by scheme, or by applicant
 *       parameters:
@@ -44,6 +46,8 @@ const sequelize = new Sequelize(process.env['PGDATABASE'], process.env['PGUSER']
 *               description: Successful response
 * 
 *   post:
+*       tags:
+*           - Business - Application Management
 *       summary: Creates an application
 *       description: Creates an application, application will always start with a 'Pending Review' outcome
 *       parameters:
@@ -69,6 +73,8 @@ const sequelize = new Sequelize(process.env['PGDATABASE'], process.env['PGUSER']
 *               description: Successful response
 * 
 *   patch:
+*       tags:
+*           - Business - Application Management
 *       summary: Updates an application
 *       description: Updates an application, allows manual update of application outcome
 *       parameters:
@@ -95,6 +101,8 @@ const sequelize = new Sequelize(process.env['PGDATABASE'], process.env['PGUSER']
 *               description: Successful response
 * 
 *   delete:
+*       tags:
+*           - Business - Application Management
 *       summary: Deletes application by ID
 *       description: Deletes application by ID, though records are usually kept and housekeeping is usually automated - these APIs are strictly for L2 service requests 
 *       parameters:
