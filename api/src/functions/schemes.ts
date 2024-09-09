@@ -18,6 +18,11 @@ const sequelize = new Sequelize(process.env['PGDATABASE'], process.env['PGUSER']
 *       summary: Get all schemes / Get scheme details by ID
 *       description: Get a specific scheme's details by ID. Omit ID to get all schemes' details registered in system.
 *       parameters:
+*           - in: header
+*             name: authz_user_id
+*             description: (For Demo) Put user_id here to simulate an authenticated user, for authorization checks
+*             schema:
+*               type: string
 *           - in: query
 *             name: id
 *             description: ID of the scheme to retrieve.
@@ -157,6 +162,9 @@ export async function schemes(request: HttpRequest, context: InvocationContext):
             } else {
                 Joi.assert(request.query.get('id'), Joi.string().guid());
                 const scheme = await Scheme.findByPk(request.query.get('id'));
+                if (!scheme) {
+                    return { status: 404, body: 'scheme not found' }
+                }
                 return { jsonBody: scheme }
             }
 
@@ -201,7 +209,7 @@ export async function schemes(request: HttpRequest, context: InvocationContext):
             // get base scheme class
             const scheme = await Scheme.findByPk(request.query.get('id'));
             if (!scheme) {
-                return { status: 400, body: 'invalid id provided' }
+                return { status: 404, body: 'scheme not found' }
             }
             scheme.update(schemeToUpdate);
             await scheme.save();
@@ -213,7 +221,7 @@ export async function schemes(request: HttpRequest, context: InvocationContext):
             Joi.assert(request.query.get('id'), Joi.string().guid().required());
             const scheme = await Scheme.findByPk(request.query.get('id'));
             if (!scheme) {
-                return { status: 400, body: 'invalid id provided' }
+                return { status: 404, body: 'scheme not found' }
             }
             await scheme.destroy();
             return { body: request.query.get('id') }
@@ -222,6 +230,7 @@ export async function schemes(request: HttpRequest, context: InvocationContext):
 
     } catch (error) {
         context.error('schemes: error encountered:', error);
+        if (error?.message?.startsWith('unauthorized')) { return { status: 403, body: error } }
         if (Joi.isError(error)) { return { status: 400, jsonBody: error } }
         return { status: 500, body: `Unexpected error occured: ${error}` }
     }

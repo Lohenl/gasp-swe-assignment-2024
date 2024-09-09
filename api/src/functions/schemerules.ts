@@ -18,6 +18,11 @@ const sequelize = new Sequelize(process.env['PGDATABASE'], process.env['PGUSER']
 *       summary: Get scheme rules by scheme ID
 *       description: Get a specific scheme's details by scheme ID.
 *       parameters:
+*           - in: header
+*             name: authz_user_id
+*             description: (For Demo) Put user_id here to simulate an authenticated user, for authorization checks
+*             schema:
+*               type: string
 *           - in: query
 *             required: true
 *             name: scheme_id
@@ -32,6 +37,11 @@ const sequelize = new Sequelize(process.env['PGDATABASE'], process.env['PGUSER']
 *       summary: Creates a scheme rule for a specified scheme
 *       description: Creates a scheme rule for a specified scheme
 *       parameters:
+*           - in: header
+*             name: authz_user_id
+*             description: (For Demo) Put user_id here to simulate an authenticated user, for authorization checks
+*             schema:
+*               type: string
 *           - in: query
 *             name: scheme_id
 *             required: true
@@ -87,7 +97,6 @@ const sequelize = new Sequelize(process.env['PGDATABASE'], process.env['PGUSER']
 *                                               path:
 *                                                   type: string
 *                                                   example: "$.GenderId"
-* 
 *                           event:
 *                               type: object
 *                               properties:
@@ -100,6 +109,24 @@ const sequelize = new Sequelize(process.env['PGDATABASE'], process.env['PGUSER']
 *                                           message:
 *                                               type: string
 *                                               example: "Applicant is eligible for the scheme"
+*                   example:
+*                       name: employed-male-scheme
+*                       conditions:
+*                           all:
+*                               - fact: applicant-details
+*                                 path: "$.GenderId"
+*                                 operator: equal
+*                                 value: 1
+*                               - fact: applicant-details
+*                                 path: "$.EmploymentStatusId"
+*                                 operator: in
+*                                 value:
+*                                   - 2
+*                                   - 3
+*                       event:
+*                           "type": eligible
+*                           "params":
+*                               message: Applicant is eligible for CPF Medisave Benefit
 *       responses:
 *           200:
 *               description: Successful response
@@ -108,6 +135,11 @@ const sequelize = new Sequelize(process.env['PGDATABASE'], process.env['PGUSER']
 *       summary: Updates a scheme rule for a specified scheme
 *       description: Updates a scheme rule for a specified scheme
 *       parameters:
+*           - in: header
+*             name: authz_user_id
+*             description: (For Demo) Put user_id here to simulate an authenticated user, for authorization checks
+*             schema:
+*               type: string
 *           - in: query
 *             name: scheme_id
 *             required: true
@@ -176,7 +208,22 @@ const sequelize = new Sequelize(process.env['PGDATABASE'], process.env['PGUSER']
 *                                           message:
 *                                               type: string
 *                                               example: "Applicant is eligible for the scheme"
-*                           
+*                   example:
+*                       name: unemployed-male-scheme
+*                       conditions:
+*                           all:
+*                               - fact: applicant-details
+*                                 path: "$.GenderId"
+*                                 operator: equal
+*                                 value: 1
+*                               - fact: applicant-details
+*                                 path: "$.EmploymentStatusId"
+*                                 operator: equal
+*                                 value: 1
+*                       event:
+*                           "type": eligible
+*                           "params":
+*                               message: Applicant is eligible for CPF Medisave Benefit
 *       responses:
 *           200:
 *               description: Successful response
@@ -185,6 +232,11 @@ const sequelize = new Sequelize(process.env['PGDATABASE'], process.env['PGUSER']
 *       summary: Delete scheme rule by scheme ID
 *       description: Delete a scheme rule from the system by scheme ID.
 *       parameters:
+*           - in: header
+*             name: authz_user_id
+*             description: (For Demo) Put user_id here to simulate an authenticated user, for authorization checks
+*             schema:
+*               type: string
 *           - in: query
 *             name: scheme_id
 *             required: true
@@ -215,10 +267,16 @@ export async function schemeRules(request: HttpRequest, context: InvocationConte
         await Promise.allSettled(syncPromises);
 
         if (request.method === 'GET') {
-            context.debug('id:', request.query.get('id'));
-            Joi.assert(request.query.get('id'), Joi.string().guid().required());
+            context.debug('scheme_id:', request.query.get('scheme_id'));
+            Joi.assert(request.query.get('scheme_id'), Joi.string().guid().required());
             const scheme = await Scheme.findByPk(request.query.get('scheme_id'));
-            return { jsonBody: scheme.dataValues.eligibility_criteria }
+            if (!scheme) {
+                return { status: 404, body: 'scheme not found' }
+            }
+            if (!scheme.dataValues.eligibility_criteria) {
+                return { status: 404, body: 'rule is not defined for the given scheme' }
+            }
+            return { jsonBody: JSON.parse(scheme.dataValues.eligibility_criteria) }
 
         } else if (request.method === 'POST' || request.method === 'PATCH') {
             context.debug('scheme_id:', request.query.get('scheme_id'));
@@ -230,10 +288,10 @@ export async function schemeRules(request: HttpRequest, context: InvocationConte
             const schemeRuleStringified = JSON.stringify(schemeRuleToUpdate);
             const scheme = await Scheme.findByPk(request.query.get('scheme_id'));
             if (!scheme) {
-                return { status: 400, body: 'invalid scheme_id provided' }
+                return { status: 404, body: 'scheme not found' }
             }
             if (request.method === 'POST' && (scheme.dataValues.eligibility_criteria !== null)) {
-                return { status: 400, body: 'scheme rule is already declared, please use HTTP PATCH method to update' }
+                return { status: 422, body: 'scheme rule is already declared, please use HTTP PATCH method to update' }
             }
             scheme.update({ eligibility_criteria: schemeRuleStringified });
             await scheme.save();
@@ -244,7 +302,7 @@ export async function schemeRules(request: HttpRequest, context: InvocationConte
             Joi.assert(request.query.get('scheme_id'), Joi.string().guid().required());
             const scheme = await Scheme.findByPk(request.query.get('scheme_id'));
             if (!scheme) {
-                return { status: 400, body: 'invalid scheme_id provided' }
+                return { status: 404, body: 'scheme not found' }
             }
             scheme.update({ eligibility_criteria: null });
             await scheme.save();
@@ -252,6 +310,7 @@ export async function schemeRules(request: HttpRequest, context: InvocationConte
         }
     } catch (error) {
         context.error('schemes: error encountered:', error);
+        if (error?.message?.startsWith('unauthorized')) { return { status: 403, body: error } }
         if (Joi.isError(error)) { return { status: 400, jsonBody: error } }
         return { status: 500, body: `Unexpected error occured: ${error}` }
     }

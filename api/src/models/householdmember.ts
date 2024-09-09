@@ -1,5 +1,5 @@
 export default (sequelize, DataTypes) => sequelize.define(
-    'Applicant',
+    'HouseholdMember',
     {
         id: {
             type: DataTypes.UUID,
@@ -10,6 +10,7 @@ export default (sequelize, DataTypes) => sequelize.define(
         EmploymentStatusId: DataTypes.INTEGER,
         MaritalStatusId: DataTypes.INTEGER,
         GenderId: DataTypes.INTEGER,
+        RelationshipId: DataTypes.INTEGER,
         name: {
             type: DataTypes.STRING(50),
             allowNull: false,

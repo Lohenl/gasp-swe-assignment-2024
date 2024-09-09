@@ -3,6 +3,7 @@ import { Sequelize, DataTypes } from 'sequelize';
 import Joi = require('joi');
 import UserModel from '../models/user';
 const validateBody = require('../validators/usersValidate');
+const { checkAuthorization } = require('../services/authorizationService');
 
 const sequelize = new Sequelize(process.env['PGDATABASE'], process.env['PGUSER'], process.env['PGPASSWORD'], {
     host: process.env['PGHOST'],
@@ -18,6 +19,11 @@ const sequelize = new Sequelize(process.env['PGDATABASE'], process.env['PGUSER']
 *       summary: Get all user details / Get user details by ID
 *       description: Get a specific user's details by ID. Omit ID to get all users' details registered in system.
 *       parameters:
+*           - in: header
+*             name: authz_user_id
+*             description: (For Demo) Put user_id here to simulate an authenticated user, for authorization checks
+*             schema:
+*               type: string
 *           - in: query
 *             name: id
 *             description: ID of a specific user to retrieve.
@@ -30,6 +36,12 @@ const sequelize = new Sequelize(process.env['PGDATABASE'], process.env['PGUSER']
 *   post:
 *       summary: Creates a user
 *       description: Creates a user
+*       parameters:
+*           - in: header
+*             name: authz_user_id
+*             description: (For Demo) Put user_id here to simulate an authenticated user, for authorization checks
+*             schema:
+*               type: string
 *       requestBody:
 *           description: JSON details of user to be created
 *           required: true
@@ -56,6 +68,11 @@ const sequelize = new Sequelize(process.env['PGDATABASE'], process.env['PGUSER']
 *       summary: Updates a user
 *       description: Updates a user
 *       parameters:
+*           - in: header
+*             name: authz_user_id
+*             description: (For Demo) Put user_id here to simulate an authenticated user, for authorization checks
+*             schema:
+*               type: string
 *           - in: query
 *             name: id
 *             required: true
@@ -77,7 +94,7 @@ const sequelize = new Sequelize(process.env['PGDATABASE'], process.env['PGUSER']
 *                               type: string
 *                   example:
 *                       name: "Koh Wen Hao"
-*                       email: "koh_wen_hao@tech.gov.sg"
+*                       email: "koh_wen_hao@cpf.gov.sg"
 *       responses:
 *           200:
 *               description: Successful response
@@ -86,6 +103,11 @@ const sequelize = new Sequelize(process.env['PGDATABASE'], process.env['PGUSER']
 *       summary: Delete user by ID
 *       description: Delete a user from the system by ID.
 *       parameters:
+*           - in: header
+*             name: authz_user_id
+*             description: (For Demo) Put user_id here to simulate an authenticated user, for authorization checks
+*             schema:
+*               type: string
 *           - in: query
 *             name: id
 *             required: true
@@ -108,11 +130,15 @@ export async function users(request: HttpRequest, context: InvocationContext): P
         if (request.method === 'GET') {
             context.debug('id:', request.query.get('id'));
             if (!request.query.get('id')) {
+                // gets all users
+                await checkAuthorization(request, context, 6, [1]);
                 const users = await User.findAll({});
                 return { jsonBody: users }
             } else {
                 Joi.assert(request.query.get('id'), Joi.string().guid());
+                await checkAuthorization(request, context, 6, [1, 2, 3]);
                 const user = await User.findByPk(request.query.get('id'));
+                if (!user) return { status: 404, body: 'user not found' }
                 return { jsonBody: user }
             }
 
@@ -120,7 +146,7 @@ export async function users(request: HttpRequest, context: InvocationContext): P
             const reqBody = await request.json();
             context.debug('reqBody:', reqBody);
             validateBody(reqBody);
-            // validation happens here, dont forget joi
+            await checkAuthorization(request, context, 6, [1, 3]);
             const user = User.build({
                 name: reqBody['name'],
                 email: reqBody['email'],
@@ -134,26 +160,27 @@ export async function users(request: HttpRequest, context: InvocationContext): P
             context.debug('updateFields:', updateFields);
             Joi.assert(request.query.get('id'), Joi.string().guid().required());
             validateBody(updateFields);
+            await checkAuthorization(request, context, 6, [1, 3]);
             const user = await User.findByPk(request.query.get('id'));
-            if (!user) {
-                return { status: 400, body: 'invalid id provided' }
-            }
+            if (!user) return { status: 404, body: 'user not found' }
+
             user.update(updateFields);
             await user.save();
             return { jsonBody: user.dataValues }
 
         } else if (request.method === 'DELETE') {
             context.debug('id:', request.query.get('id'));
-            const user = await User.findByPk(request.query.get('id'));
             Joi.assert(request.query.get('id'), Joi.string().guid().required());
-            if (!user) {
-                return { status: 400, body: 'invalid id provided' }
-            }
+            await checkAuthorization(request, context, 6, [1, 3]);
+            const user = await User.findByPk(request.query.get('id'));
+            if (!user) return { status: 404, body: 'user not found' }
+
             await user.destroy();
             return { body: request.query.get('id') }
         }
     } catch (error) {
         context.error('users: error encountered:', error);
+        if (error?.message?.startsWith('unauthorized')) { return { status: 403, body: error } }
         if (Joi.isError(error)) { return { status: 400, jsonBody: error } }
         return { status: 500, body: `Unexpected error occured: ${error}` }
     }

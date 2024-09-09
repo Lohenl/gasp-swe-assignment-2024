@@ -10,6 +10,7 @@
     "prestart": "npm run clean && npm run build",
     "start": "func start --cors http://localhost:3000",
     "swagger": "node swagger-main.js",
+    "lint": "npx eslint .",
     "test": "echo \"No tests yet...\""
   },
   "dependencies": {
@@ -17,6 +18,7 @@
     "gasp-swe-assignment-2024-api": "file:",
     "joi": "^17.13.3",
     "json-rules-engine": "^6.5.0",
+    "lodash": "^4.17.21",
     "luxon": "^3.5.0",
     "pg": "^8.12.0",
     "pg-hstore": "^2.3.4",
@@ -27,6 +29,7 @@
   "devDependencies": {
     "@eslint/js": "^9.10.0",
     "@types/eslint__js": "^8.42.3",
+    "@types/lodash": "^4.17.7",
     "@types/node": "18.x",
     "azure-functions-core-tools": "^4.x",
     "eslint": "^9.10.0",

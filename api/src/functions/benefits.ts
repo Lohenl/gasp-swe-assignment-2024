@@ -18,6 +18,11 @@ const sequelize = new Sequelize(process.env['PGDATABASE'], process.env['PGUSER']
 *       summary: Get benefit details by ID / Get benefit details by SchemeId
 *       description: Get a specific scheme's details by either ID or all benefit details under a specific Scheme with SchemeId
 *       parameters:
+*           - in: header
+*             name: authz_user_id
+*             description: (For Demo) Put user_id here to simulate an authenticated user, for authorization checks
+*             schema:
+*               type: string
 *           - in: query
 *             name: id
 *             description: ID of the benefit to retrieve.
@@ -36,6 +41,11 @@ const sequelize = new Sequelize(process.env['PGDATABASE'], process.env['PGUSER']
 *       summary: Creates a benefit under a given scheme
 *       description: Creates a benefit under a given scheme
 *       parameters:
+*           - in: header
+*             name: authz_user_id
+*             description: (For Demo) Put user_id here to simulate an authenticated user, for authorization checks
+*             schema:
+*               type: string
 *           - in: query
 *             name: scheme_id
 *             description: ID of the scheme to create a benefit under.
@@ -70,6 +80,11 @@ const sequelize = new Sequelize(process.env['PGDATABASE'], process.env['PGUSER']
 *       summary: Updates a benefit
 *       description: Updates a benefit
 *       parameters:
+*           - in: header
+*             name: authz_user_id
+*             description: (For Demo) Put user_id here to simulate an authenticated user, for authorization checks
+*             schema:
+*               type: string
 *           - in: query
 *             name: benefit_id
 *             description: ID of the benefit to update
@@ -102,6 +117,11 @@ const sequelize = new Sequelize(process.env['PGDATABASE'], process.env['PGUSER']
 *       summary: Delete benefit by ID
 *       description: Delete a benefit from the system by ID.
 *       parameters:
+*           - in: header
+*             name: authz_user_id
+*             description: (For Demo) Put user_id here to simulate an authenticated user, for authorization checks
+*             schema:
+*               type: string
 *           - in: query
 *             name: id
 *             required: true
@@ -133,9 +153,7 @@ export async function benefits(request: HttpRequest, context: InvocationContext)
 
         if (request.method === 'GET') {
             context.debug('id:', request.query.get('id'));
-            context.debug('schema_id:', request.query.get('scheme_id'));
-            Joi.assert(request.query.get('id'), Joi.string().guid());
-            Joi.assert(request.query.get('scheme_id'), Joi.string().guid());
+            context.debug('scheme_id:', request.query.get('scheme_id'));
 
             if (request.query.get('id') && request.query.get('scheme_id')) {
                 return { status: 400, body: 'Provide either id or scheme_id, not both' }
@@ -144,10 +162,19 @@ export async function benefits(request: HttpRequest, context: InvocationContext)
             }
 
             if (request.query.get('id')) {
+                Joi.assert(request.query.get('id'), Joi.string().guid());
                 const benefit = await Benefit.findByPk(request.query.get('id'));
+                if (!benefit) {
+                    return { status: 404, body: 'benefit not found' }
+                }
                 return { jsonBody: benefit }
 
             } else if (request.query.get('scheme_id')) {
+                Joi.assert(request.query.get('scheme_id'), Joi.string().guid());
+                const scheme = await Scheme.findByPk(request.query.get('scheme_id'));
+                if (!scheme) {
+                    return { status: 404, body: 'scheme not found' }
+                }
                 const benefits = await Benefit.findAll({ where: { SchemeId: request.query.get('scheme_id') } });
                 context.debug('benefits', benefits);
                 const jsonBody = [];
@@ -162,13 +189,13 @@ export async function benefits(request: HttpRequest, context: InvocationContext)
             context.debug('scheme_id:', request.query.get('scheme_id'));
             const benefitToCreate = await request.json() as object;
             context.debug('benefitToCreate:', benefitToCreate);
-            Joi.assert(request.query.get('schema_id'), Joi.string().guid());
+            Joi.assert(request.query.get('scheme_id'), Joi.string().guid());
             validateBody(benefitToCreate);
 
             // check if scheme exists
-            const scheme = Scheme.findByPk(request.query.get('scheme_id'));
+            const scheme = await Scheme.findByPk(request.query.get('scheme_id'));
             if (!scheme) {
-                return { status: 400, body: 'invalid scheme_id provided' }
+                return { status: 404, body: 'scheme not found' }
             }
 
             // do creation
@@ -185,7 +212,7 @@ export async function benefits(request: HttpRequest, context: InvocationContext)
             // check if benefit exists
             const benefit = await Benefit.findByPk(request.query.get('benefit_id'));
             if (!benefit) {
-                return { status: 400, body: 'invalid benefit_id provided' }
+                return { status: 404, body: 'benefit not found' }
             }
             benefit.update(benefitToUpdate);
             await benefit.save();
@@ -196,7 +223,7 @@ export async function benefits(request: HttpRequest, context: InvocationContext)
             Joi.assert(request.query.get('id'), Joi.string().guid());
             const benefit = await Benefit.findByPk(request.query.get('id'));
             if (!benefit) {
-                return { status: 400, body: 'invalid id provided' }
+                return { status: 404, body: 'benefit not found' }
             }
             await benefit.destroy();
             return { body: request.query.get('id') }
@@ -204,6 +231,7 @@ export async function benefits(request: HttpRequest, context: InvocationContext)
 
     } catch (error) {
         context.error('schemes: error encountered:', error);
+        if (error?.message?.startsWith('unauthorized')) { return { status: 403, body: error } }
         if (Joi.isError(error)) { return { status: 400, jsonBody: error } }
         return { status: 500, body: `Unexpected error occured: ${error}` }
     }

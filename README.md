@@ -42,17 +42,29 @@ Coding Assignment for SWE role in GovTech GASP
     - [x] Integrate Rules Engine
         - [x] Update /schemes/eligible API
         - [x] make use of eligibility_criteria to Schemes model
-- [ ] Code Quality
+- [x] Code Quality
     - [x] Eslint cleanup
-    - [ ] Testing
-    - [ ] SAST (Likely Synk again lol)
+    - [x] Testing
+    - [x] SAST (Synk again lol)
+- [x] Missed Out on First Pass
+    - [x] Applicant relationships in Households
+        - [x] Revisit DB Diagram
+        - [x] Build Models
+        - [x] Update Functions
+        - [x] Test Regression urgh
+    - [x] Application Outcome - just 1 extra field because I simplified
+    - [x] Update application API CU to include outcome
+- [x] AuthN and AuthZ Integration
+    - [x] Design the approach
+    - [x] Make permission into a module
+    - [x] Build permission assignments CRUD APIs
+    - [x] Build authorization service using Permissions and Users
+    - [x] Implement authorization layer in APIs
+    - [x] Integrate with codebase
+        - [x] Extra Swagger header to mimic authenticated user
 - [ ] Documentation
     - [ ] README
-    - [ ] Swagger
-- [ ] AuthN and AuthZ Integration (hard pressed for time)
-    - [ ] Design
-    - [ ] Implement APIs
-    - [ ] Integrate with codebase
+    - [x] Swagger
 - [ ] Demonstration / Open House
     - [ ] Mock Data
     - [ ] Seed Script
@@ -84,3 +96,4 @@ Coding Assignment for SWE role in GovTech GASP
 - [Sequelize - Transactions](https://sequelize.org/docs/v6/other-topics/transactions/)
 - [JSON Rules Engine - Simpler explanation, but outdated](https://www.npmjs.com/package/json-rules-engine/v/1.0.0-beta9)
 - [JSON Rules Engine](https://www.npmjs.com/package/json-rules-engine)
+- [HTTP 422](https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/422)

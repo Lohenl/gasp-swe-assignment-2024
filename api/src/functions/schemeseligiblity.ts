@@ -19,6 +19,11 @@ const sequelize = new Sequelize(process.env['PGDATABASE'], process.env['PGUSER']
 *       summary: Get all eligible schemes for given applicant
 *       description: Get all schemes that an applicant is eligible to apply for
 *       parameters:
+*           - in: header
+*             name: authz_user_id
+*             description: (For Demo) Put user_id here to simulate an authenticated user, for authorization checks
+*             schema:
+*               type: string
 *           - in: query
 *             name: id
 *             required: true
@@ -53,9 +58,7 @@ export async function schemesEligibility(request: HttpRequest, context: Invocati
         context.debug('id:', request.query.get('id'));
         Joi.assert(request.query.get('id'), Joi.string().guid().required());
         const applicant = await Applicant.findByPk(request.query.get('id'))
-        if (!applicant) {
-            return { status: 400, body: 'invalid ID provided' }
-        }
+        if (!applicant) return { status: 404, body: 'no applicant found' }
 
         // get all schemes, also eagerly load associated benefits
         const schemes = await Scheme.findAll({ include: Benefit });
@@ -99,6 +102,7 @@ export async function schemesEligibility(request: HttpRequest, context: Invocati
 
     } catch (error) {
         context.error('schemes: error encountered:', error);
+        if (error?.message?.startsWith('unauthorized')) { return { status: 403, body: error } }
         if (Joi.isError(error)) { return { status: 400, jsonBody: error } }
         return { status: 500, body: `Unexpected error occured: ${error}` }
     }
