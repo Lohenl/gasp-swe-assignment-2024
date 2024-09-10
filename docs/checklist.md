@@ -66,9 +66,9 @@ If you are curious what it took, or how it went..
 - [x] Documentation
     - [x] README
     - [x] Swagger
-- [ ] Demonstration / Open House
+- [x] Demonstration / Open House
     - [x] Mock Data
     - [x] Seed Script
-    - [ ] Finish Guided Tour
+    - [x] Finish Guided Tour
     - [x] Finalize DB Diagram
-    - [ ] Set Repo to Public
+    - [x] Set Repo to Public

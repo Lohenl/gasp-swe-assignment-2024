@@ -66,9 +66,9 @@ This tour will walk you through on how to interact with the different parts of t
 - Guided User Story
 
 This guide also assumes you have the following in your machine:
-- Git
-- Visual Studio Code
-- Node with npm
+- [Git](https://git-scm.com/downloads)
+- [Visual Studio Code](https://code.visualstudio.com/)
+- [Node with npm](https://nodejs.org/en)
 - [Docker Desktop](https://www.docker.com/products/docker-desktop/)
 - Localhost Ports 7071, 5432, 3000 are free
 
