@@ -163,13 +163,14 @@ export async function schemes(request: HttpRequest, context: InvocationContext):
         await Promise.allSettled(syncPromises);
 
         if (request.method === 'GET') {
-            context.debug('id:', request.query.get('id'));
-            if (!request.query.get('id')) {
+            const id = request.query.get('id');
+            context.debug('id:', id);
+            if (!id) {
                 const schemes = await Scheme.findAll({});
                 return { jsonBody: schemes }
             } else {
-                Joi.assert(request.query.get('id'), Joi.string().guid());
-                const scheme = await Scheme.findByPk(request.query.get('id'));
+                Joi.assert(id, Joi.string().guid());
+                const scheme = await Scheme.findByPk(id);
                 if (!scheme) {
                     return { status: 404, body: 'scheme not found' }
                 }
@@ -208,14 +209,15 @@ export async function schemes(request: HttpRequest, context: InvocationContext):
             return { jsonBody: result.dataValues }
 
         } else if (request.method === 'PATCH') {
-            context.debug('id:', request.query.get('id'));
+            const id = request.query.get('id');
+            context.debug('id:', id);
             const schemeToUpdate = await request.json() as any;
             context.debug('schemeToUpdate:', schemeToUpdate);
-            Joi.assert(request.query.get('id'), Joi.string().guid().required());
+            Joi.assert(id, Joi.string().guid().required());
             validateBody(schemeToUpdate);
 
             // get base scheme class
-            const scheme = await Scheme.findByPk(request.query.get('id'));
+            const scheme = await Scheme.findByPk(id);
             if (!scheme) {
                 return { status: 404, body: 'scheme not found' }
             }
@@ -225,14 +227,15 @@ export async function schemes(request: HttpRequest, context: InvocationContext):
             return { jsonBody: scheme.dataValues }
 
         } else if (request.method === 'DELETE') {
-            context.debug('id:', request.query.get('id'));
-            Joi.assert(request.query.get('id'), Joi.string().guid().required());
-            const scheme = await Scheme.findByPk(request.query.get('id'));
+            const id = request.query.get('id');
+            context.debug('id:', id);
+            Joi.assert(id, Joi.string().guid().required());
+            const scheme = await Scheme.findByPk(id);
             if (!scheme) {
                 return { status: 404, body: 'scheme not found' }
             }
             await scheme.destroy();
-            return { body: request.query.get('id') }
+            return { body: id }
 
         }
 

@@ -57,9 +57,10 @@ export async function schemesEligibility(request: HttpRequest, context: Invocati
         syncPromises.push(Applicant.sync());
         await Promise.allSettled(syncPromises);
 
-        context.debug('id:', request.query.get('id'));
-        Joi.assert(request.query.get('id'), Joi.string().guid().required());
-        const applicant = await Applicant.findByPk(request.query.get('id'))
+        const id = request.query.get('id');
+        context.debug('id:', id);
+        Joi.assert(id, Joi.string().guid().required());
+        const applicant = await Applicant.findByPk(id)
         if (!applicant) return { status: 404, body: 'no applicant found' }
 
         // get all schemes, also eagerly load associated benefits
@@ -87,7 +88,7 @@ export async function schemesEligibility(request: HttpRequest, context: Invocati
         });
 
         // run rules engine for result
-        const facts = { applicantId: request.query.get('id') }
+        const facts = { applicantId: id }
         const engineResults = await engine.run(facts);
         engineResults.results.forEach((result, index) => {
             // TODO: test assumption that rules are evaluated in the order of adding to engine

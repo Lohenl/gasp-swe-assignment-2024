@@ -275,9 +275,10 @@ export async function schemeRules(request: HttpRequest, context: InvocationConte
         await Promise.allSettled(syncPromises);
 
         if (request.method === 'GET') {
-            context.debug('scheme_id:', request.query.get('scheme_id'));
-            Joi.assert(request.query.get('scheme_id'), Joi.string().guid().required());
-            const scheme = await Scheme.findByPk(request.query.get('scheme_id'));
+            const scheme_id = request.query.get('scheme_id');
+            context.debug('scheme_id:', scheme_id);
+            Joi.assert(scheme_id, Joi.string().guid().required());
+            const scheme = await Scheme.findByPk(scheme_id);
             if (!scheme) {
                 return { status: 404, body: 'scheme not found' }
             }
@@ -287,14 +288,15 @@ export async function schemeRules(request: HttpRequest, context: InvocationConte
             return { jsonBody: JSON.parse(scheme.dataValues.eligibility_criteria) }
 
         } else if (request.method === 'POST' || request.method === 'PATCH') {
-            context.debug('scheme_id:', request.query.get('scheme_id'));
+            const scheme_id = request.query.get('scheme_id');
+            context.debug('scheme_id:', scheme_id);
             const schemeRuleToUpdate = await request.json() as any;
             context.debug('schemeRuleToUpdate:', schemeRuleToUpdate);
-            Joi.assert(request.query.get('scheme_id'), Joi.string().guid().required());
+            Joi.assert(scheme_id, Joi.string().guid().required());
             validateBody(schemeRuleToUpdate);
             // stringify the JSON structure for persistence
             const schemeRuleStringified = JSON.stringify(schemeRuleToUpdate);
-            const scheme = await Scheme.findByPk(request.query.get('scheme_id'));
+            const scheme = await Scheme.findByPk(scheme_id);
             if (!scheme) {
                 return { status: 404, body: 'scheme not found' }
             }
@@ -306,15 +308,16 @@ export async function schemeRules(request: HttpRequest, context: InvocationConte
             return { jsonBody: scheme.dataValues }
 
         } else if (request.method === 'DELETE') {
-            context.debug('scheme_id:', request.query.get('scheme_id'));
-            Joi.assert(request.query.get('scheme_id'), Joi.string().guid().required());
-            const scheme = await Scheme.findByPk(request.query.get('scheme_id'));
+            const scheme_id = request.query.get('scheme_id');
+            context.debug('scheme_id:', scheme_id);
+            Joi.assert(scheme_id, Joi.string().guid().required());
+            const scheme = await Scheme.findByPk(scheme_id);
             if (!scheme) {
                 return { status: 404, body: 'scheme not found' }
             }
             scheme.update({ eligibility_criteria: null });
             await scheme.save();
-            return { body: request.query.get('scheme_id') }
+            return { body: scheme_id }
         }
     } catch (error) {
         context.error('schemes: error encountered:', error);

@@ -152,8 +152,9 @@ export async function codetables(request: HttpRequest, context: InvocationContex
         await Promise.allSettled(syncPromises);
 
         if (request.method === 'GET') {
-            context.debug('table_name:', request.query.get('table_name'));
-            if (!request.query.get('table_name')) {
+            const table_name = request.query.get('table_name');
+            context.debug('table_name:', table_name);
+            if (!table_name) {
                 const findallPromises = [];
                 findallPromises.push(AdminRole.findAll({}));
                 findallPromises.push(EmploymentStatus.findAll({}));
@@ -172,9 +173,9 @@ export async function codetables(request: HttpRequest, context: InvocationContex
                 };
                 return { jsonBody }
             } else {
-                Joi.assert(request.query.get('table_name'), Joi.string());
+                Joi.assert(table_name, Joi.string());
                 let jsonBody;
-                switch (request.query.get('table_name')) {
+                switch (table_name) {
                     case 'AdminRole':
                         jsonBody = await AdminRole.findAll({});
                         break;
@@ -198,13 +199,14 @@ export async function codetables(request: HttpRequest, context: InvocationContex
             }
 
         } else if (request.method === 'POST') {
-            // validation happens here, dont forget joi
-            context.debug('table_name:', request.query.get('table_name'));
-            context.debug('code_entry_value:', request.query.get('code_entry_value'));
-            Joi.assert(request.query.get('table_name'), Joi.string().required());
-            Joi.assert(request.query.get('code_entry_value'), Joi.string().required());
+            const table_name = request.query.get('table_name');
+            const code_entry_value = request.query.get('code_entry_value');
+            context.debug('table_name:', table_name);
+            context.debug('code_entry_value:', code_entry_value);
+            Joi.assert(table_name, Joi.string().required());
+            Joi.assert(code_entry_value, Joi.string().required());
             let CodeTable;
-            switch (request.query.get('table_name')) {
+            switch (table_name) {
                 case 'AdminRole':
                     CodeTable = AdminRole;
                     break;
@@ -224,20 +226,23 @@ export async function codetables(request: HttpRequest, context: InvocationContex
                     CodeTable = Relationship;
                     break;
             }
-            const codeValue = CodeTable.build({ name: request.query.get('code_entry_value') });
+            const codeValue = CodeTable.build({ name: code_entry_value });
             await codeValue.save();
             return { jsonBody: codeValue.dataValues }
 
         } else if (request.method === 'PATCH') {
             // validation happens here, dont forget joi
-            context.debug('table_name:', request.query.get('table_name'));
-            context.debug('code_entry_id:', request.query.get('code_entry_id'));
-            context.debug('code_entry_value:', request.query.get('code_entry_value'));
-            Joi.assert(request.query.get('table_name'), Joi.string().required());
-            Joi.assert(request.query.get('code_entry_id'), Joi.string().required());
-            Joi.assert(request.query.get('code_entry_value'), Joi.string().required());
+            const table_name = request.query.get('table_name');
+            const code_entry_id = request.query.get('code_entry_id');
+            const code_entry_value = request.query.get('code_entry_value');
+            context.debug('table_name:', table_name);
+            context.debug('code_entry_id:', code_entry_id);
+            context.debug('code_entry_value:', code_entry_value);
+            Joi.assert(table_name, Joi.string().required());
+            Joi.assert(code_entry_id, Joi.string().required());
+            Joi.assert(code_entry_value, Joi.string().required());
             let CodeTable;
-            switch (request.query.get('table_name')) {
+            switch (table_name) {
                 case 'AdminRole':
                     CodeTable = AdminRole;
                     break;
@@ -257,21 +262,23 @@ export async function codetables(request: HttpRequest, context: InvocationContex
                     CodeTable = Relationship;
                     break;
             }
-            const codeValue = await CodeTable.findByPk(request.query.get('code_entry_id'));
+            const codeValue = await CodeTable.findByPk(code_entry_id);
             if (!codeValue) {
                 return { status: 400, body: 'invalid id provided' }
             }
-            codeValue.update({ name: request.query.get('code_entry_value') });
+            codeValue.update({ name: code_entry_value });
             await codeValue.save();
             return { jsonBody: codeValue.dataValues }
 
         } else if (request.method === 'DELETE') {
-            context.debug('table_name:', request.query.get('table_name'));
-            context.debug('code_entry_id:', request.query.get('code_entry_id'));
-            Joi.assert(request.query.get('table_name'), Joi.string().required());
-            Joi.assert(request.query.get('code_entry_id'), Joi.string().required());
+            const table_name = request.query.get('table_name');
+            const code_entry_id = request.query.get('code_entry_id');
+            context.debug('table_name:', table_name);
+            context.debug('code_entry_id:', code_entry_id);
+            Joi.assert(table_name, Joi.string().required());
+            Joi.assert(code_entry_id, Joi.string().required());
             let CodeTable;
-            switch (request.query.get('table_name')) {
+            switch (table_name) {
                 case 'AdminRole':
                     CodeTable = AdminRole;
                     break;
@@ -291,12 +298,12 @@ export async function codetables(request: HttpRequest, context: InvocationContex
                     CodeTable = Relationship;
                     break;
             }
-            const codeValue = await CodeTable.findByPk(request.query.get('code_entry_id'));
+            const codeValue = await CodeTable.findByPk(code_entry_id);
             if (!codeValue) {
                 return { status: 400, body: 'invalid id provided' }
             }
             await codeValue.destroy();
-            return { body: request.query.get('code_entry_id') }
+            return { body: code_entry_id }
         }
 
     } catch (error) {
