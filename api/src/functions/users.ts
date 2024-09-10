@@ -16,6 +16,8 @@ const sequelize = new Sequelize(process.env['PGDATABASE'], process.env['PGUSER']
 * /users:
 * 
 *   get:
+*       tags:
+*           - System Admin
 *       summary: Get all user details / Get user details by ID
 *       description: Get a specific user's details by ID. Omit ID to get all users' details registered in system.
 *       parameters:
@@ -34,6 +36,8 @@ const sequelize = new Sequelize(process.env['PGDATABASE'], process.env['PGUSER']
 *               description: Successful response
 * 
 *   post:
+*       tags:
+*           - System Admin
 *       summary: Creates a user
 *       description: Creates a user
 *       parameters:
@@ -65,6 +69,8 @@ const sequelize = new Sequelize(process.env['PGDATABASE'], process.env['PGUSER']
 *               description: Successful response
 * 
 *   patch:
+*       tags:
+*           - System Admin
 *       summary: Updates a user
 *       description: Updates a user
 *       parameters:
@@ -100,6 +106,8 @@ const sequelize = new Sequelize(process.env['PGDATABASE'], process.env['PGUSER']
 *               description: Successful response
 * 
 *   delete:
+*       tags:
+*           - System Admin
 *       summary: Delete user by ID
 *       description: Delete a user from the system by ID.
 *       parameters:
@@ -128,16 +136,17 @@ export async function users(request: HttpRequest, context: InvocationContext): P
         await User.sync();
 
         if (request.method === 'GET') {
-            context.debug('id:', request.query.get('id'));
-            if (!request.query.get('id')) {
+            const id = request.query.get('id');
+            context.debug('id:', id);
+            if (!id) {
                 // gets all users
                 await checkAuthorization(request, context, 6, [1]);
                 const users = await User.findAll({});
                 return { jsonBody: users }
             } else {
-                Joi.assert(request.query.get('id'), Joi.string().guid());
+                Joi.assert(id, Joi.string().guid());
                 await checkAuthorization(request, context, 6, [1, 2, 3]);
-                const user = await User.findByPk(request.query.get('id'));
+                const user = await User.findByPk(id);
                 if (!user) return { status: 404, body: 'user not found' }
                 return { jsonBody: user }
             }
@@ -155,13 +164,14 @@ export async function users(request: HttpRequest, context: InvocationContext): P
             return { jsonBody: user.dataValues }
 
         } else if (request.method === 'PATCH') {
-            context.debug('id:', request.query.get('id'));
+            const id = request.query.get('id');
+            context.debug('id:', id);
             const updateFields = await request.json();
             context.debug('updateFields:', updateFields);
-            Joi.assert(request.query.get('id'), Joi.string().guid().required());
+            Joi.assert(id, Joi.string().guid().required());
             validateBody(updateFields);
             await checkAuthorization(request, context, 6, [1, 3]);
-            const user = await User.findByPk(request.query.get('id'));
+            const user = await User.findByPk(id);
             if (!user) return { status: 404, body: 'user not found' }
 
             user.update(updateFields);
@@ -169,14 +179,15 @@ export async function users(request: HttpRequest, context: InvocationContext): P
             return { jsonBody: user.dataValues }
 
         } else if (request.method === 'DELETE') {
-            context.debug('id:', request.query.get('id'));
-            Joi.assert(request.query.get('id'), Joi.string().guid().required());
+            const id = request.query.get('id');
+            context.debug('id:', id);
+            Joi.assert(id, Joi.string().guid().required());
             await checkAuthorization(request, context, 6, [1, 3]);
-            const user = await User.findByPk(request.query.get('id'));
+            const user = await User.findByPk(id);
             if (!user) return { status: 404, body: 'user not found' }
 
             await user.destroy();
-            return { body: request.query.get('id') }
+            return { body: id }
         }
     } catch (error) {
         context.error('users: error encountered:', error);

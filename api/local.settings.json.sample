@@ -1,0 +1,14 @@
+{
+  "IsEncrypted": false,
+  "Values": {
+    "FUNCTIONS_WORKER_RUNTIME": "node",
+    "AzureWebJobsFeatureFlags": "EnableWorkerIndexing",
+    "AzureWebJobsStorage": "UseDevelopmentStorage=true",
+    "PGUSER": "postgres",
+    "PGHOST": "localhost",
+    "PGPASSWORD": "test1234",
+    "PGDATABASE": "gaspsweassignment2024db",
+    "PGPORT": "5432",
+    "ENABLE_AUTHORIZATION": "false"
+  }
+}

@@ -15,6 +15,8 @@ const sequelize = new Sequelize(process.env['PGDATABASE'], process.env['PGUSER']
 * @swagger
 * /household-members:
 *   get:
+*       tags:
+*           - Business - Applicant Management
 *       summary: Get household members by applicant ID / Get household member by ID
 *       description: Get all household members registered under an applicant, or get a specific household member's details by household member ID
 *       parameters:
@@ -38,6 +40,8 @@ const sequelize = new Sequelize(process.env['PGDATABASE'], process.env['PGUSER']
 *               description: Successful response
 * 
 *   post:
+*       tags:
+*           - Business - Applicant Management
 *       summary: Adds a household member
 *       description: Adds a household member to the specified applicant
 *       parameters:
@@ -90,6 +94,8 @@ const sequelize = new Sequelize(process.env['PGDATABASE'], process.env['PGUSER']
 *               description: Successful response
 * 
 *   patch:
+*       tags:
+*           - Business - Applicant Management
 *       summary: Updates a household member
 *       description: Updates a household member
 *       parameters:
@@ -141,6 +147,8 @@ const sequelize = new Sequelize(process.env['PGDATABASE'], process.env['PGUSER']
 *               description: Successful response
 * 
 *   delete:
+*       tags:
+*           - Business - Applicant Management
 *       summary: Delete household member by ID
 *       description: Deletes a household member from the system by ID.
 *       parameters:
@@ -178,30 +186,32 @@ export async function householdMembers(request: HttpRequest, context: Invocation
         await Promise.allSettled(syncPromises);
 
         if (request.method === 'GET') {
-            context.debug('id:', request.query.get('id'));
-            context.debug('applicant_id:', request.query.get('applicant_id'));
+            const id = request.query.get('id');
+            const applicant_id = request.query.get('applicant_id');
+            context.debug('id:', id);
+            context.debug('applicant_id:', applicant_id);
 
-            if (request.query.get('id') && request.query.get('applicant_id')) {
+            if (id && applicant_id) {
                 return { status: 400, body: 'Provide either id or applicant_id, not both' }
-            } else if (!request.query.get('id') && !request.query.get('applicant_id')) {
+            } else if (!id && !applicant_id) {
                 return { status: 400, body: 'Provide either id or applicant_id' }
             }
 
-            if (request.query.get('applicant_id')) {
-                Joi.assert(request.query.get('applicant_id'), Joi.string().guid());
-                const applicant = await Applicant.findByPk(request.query.get('applicant_id'));
+            if (applicant_id) {
+                Joi.assert(applicant_id, Joi.string().guid());
+                const applicant = await Applicant.findByPk(applicant_id);
                 if (!applicant) return { status: 404, body: 'applicant not found' }
 
-                const householdMembers = await HouseholdMember.findAll({ where: { ApplicantId: request.query.get('applicant_id') } });
+                const householdMembers = await HouseholdMember.findAll({ where: { ApplicantId: applicant_id } });
                 const jsonBody = [];
                 householdMembers.forEach(member => {
                     jsonBody.push(member.dataValues);
                 })
                 return { jsonBody }
 
-            } else if (request.query.get('id')) {
-                Joi.assert(request.query.get('id'), Joi.string().guid());
-                const householdMember = await HouseholdMember.findByPk(request.query.get('id'));
+            } else if (id) {
+                Joi.assert(id, Joi.string().guid());
+                const householdMember = await HouseholdMember.findByPk(id);
                 if (!householdMember) {
                     return { status: 404, body: 'household member not found' }
                 }
@@ -209,31 +219,33 @@ export async function householdMembers(request: HttpRequest, context: Invocation
             }
 
         } else if (request.method === 'POST') {
-            context.debug('applicant_id:', request.query.get('applicant_id'));
-            Joi.assert(request.query.get('applicant_id'), Joi.string().guid().required());
+            const applicant_id = request.query.get('applicant_id');
+            context.debug('applicant_id:', applicant_id);
+            Joi.assert(applicant_id, Joi.string().guid().required());
             const reqBody = await request.json() as object;
             context.debug('reqBody:', reqBody);
             validateBody(reqBody);
 
             // check if applicant exists
-            const applicant = Applicant.findByPk(request.query.get('applicant_id'));
+            const applicant = Applicant.findByPk(applicant_id);
             if (!applicant) {
                 return { status: 404, body: 'applicant not found' }
             }
 
             // do creation
-            const householdMember = await HouseholdMember.create({ ...reqBody, ApplicantId: request.query.get('applicant_id') });
+            const householdMember = await HouseholdMember.create({ ...reqBody, ApplicantId: applicant_id });
             return { jsonBody: householdMember.dataValues }
 
         } else if (request.method === 'PATCH') {
-            context.debug('id:', request.query.get('id'));
+            const id = request.query.get('id');
+            context.debug('id:', id);
             const reqBody = await request.json();
             context.debug('reqBody:', reqBody);
-            Joi.assert(request.query.get('id'), Joi.string().guid().required());
+            Joi.assert(id, Joi.string().guid().required());
             validateBody(reqBody);
 
             // check if household member exists
-            const householdMember = await HouseholdMember.findByPk(request.query.get('id'));
+            const householdMember = await HouseholdMember.findByPk(id);
             if (!householdMember) {
                 return { status: 404, body: 'household member not found' }
             }
@@ -242,14 +254,15 @@ export async function householdMembers(request: HttpRequest, context: Invocation
             return { jsonBody: householdMember.dataValues }
 
         } else if (request.method === 'DELETE') {
-            context.debug('id:', request.query.get('id'));
-            Joi.assert(request.query.get('id'), Joi.string().guid());
-            const householdMember = await HouseholdMember.findByPk(request.query.get('id'));
+            const id = request.query.get('id');
+            context.debug('id:', id);
+            Joi.assert(id, Joi.string().guid());
+            const householdMember = await HouseholdMember.findByPk(id);
             if (!householdMember) {
                 return { status: 404, body: 'household member not found' }
             }
             await householdMember.destroy();
-            return { body: request.query.get('id') }
+            return { body: id }
         }
 
     } catch (error) {

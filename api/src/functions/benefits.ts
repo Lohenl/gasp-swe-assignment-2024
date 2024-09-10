@@ -15,6 +15,8 @@ const sequelize = new Sequelize(process.env['PGDATABASE'], process.env['PGUSER']
 * @swagger
 * /benefits:
 *   get:
+*       tags:
+*           - Business - Scheme Management
 *       summary: Get benefit details by ID / Get benefit details by SchemeId
 *       description: Get a specific scheme's details by either ID or all benefit details under a specific Scheme with SchemeId
 *       parameters:
@@ -38,6 +40,8 @@ const sequelize = new Sequelize(process.env['PGDATABASE'], process.env['PGUSER']
 *               description: Successful response
 * 
 *   post:
+*       tags:
+*           - Business - Scheme Management
 *       summary: Creates a benefit under a given scheme
 *       description: Creates a benefit under a given scheme
 *       parameters:
@@ -77,6 +81,8 @@ const sequelize = new Sequelize(process.env['PGDATABASE'], process.env['PGUSER']
 *               description: Successful response
 * 
 *   patch:
+*       tags:
+*           - Business - Scheme Management
 *       summary: Updates a benefit
 *       description: Updates a benefit
 *       parameters:
@@ -114,6 +120,8 @@ const sequelize = new Sequelize(process.env['PGDATABASE'], process.env['PGUSER']
 *               description: Successful response
 * 
 *   delete:
+*       tags:
+*           - Business - Scheme Management
 *       summary: Delete benefit by ID
 *       description: Delete a benefit from the system by ID.
 *       parameters:
@@ -152,30 +160,32 @@ export async function benefits(request: HttpRequest, context: InvocationContext)
         await Promise.allSettled(syncPromises);
 
         if (request.method === 'GET') {
-            context.debug('id:', request.query.get('id'));
-            context.debug('scheme_id:', request.query.get('scheme_id'));
+            const id = request.query.get('id');
+            const scheme_id = request.query.get('scheme_id');
+            context.debug('id:', id);
+            context.debug('scheme_id:', scheme_id);
 
-            if (request.query.get('id') && request.query.get('scheme_id')) {
+            if (id && scheme_id) {
                 return { status: 400, body: 'Provide either id or scheme_id, not both' }
-            } else if (!request.query.get('id') && !request.query.get('scheme_id')) {
+            } else if (!id && !scheme_id) {
                 return { status: 400, body: 'Provide either id or scheme_id' }
             }
 
-            if (request.query.get('id')) {
-                Joi.assert(request.query.get('id'), Joi.string().guid());
-                const benefit = await Benefit.findByPk(request.query.get('id'));
+            if (id) {
+                Joi.assert(id, Joi.string().guid());
+                const benefit = await Benefit.findByPk(id);
                 if (!benefit) {
                     return { status: 404, body: 'benefit not found' }
                 }
                 return { jsonBody: benefit }
 
-            } else if (request.query.get('scheme_id')) {
-                Joi.assert(request.query.get('scheme_id'), Joi.string().guid());
-                const scheme = await Scheme.findByPk(request.query.get('scheme_id'));
+            } else if (scheme_id) {
+                Joi.assert(scheme_id, Joi.string().guid());
+                const scheme = await Scheme.findByPk(scheme_id);
                 if (!scheme) {
                     return { status: 404, body: 'scheme not found' }
                 }
-                const benefits = await Benefit.findAll({ where: { SchemeId: request.query.get('scheme_id') } });
+                const benefits = await Benefit.findAll({ where: { SchemeId: scheme_id } });
                 context.debug('benefits', benefits);
                 const jsonBody = [];
                 benefits.forEach(benefit => {
@@ -186,20 +196,21 @@ export async function benefits(request: HttpRequest, context: InvocationContext)
             }
 
         } else if (request.method === 'POST') {
-            context.debug('scheme_id:', request.query.get('scheme_id'));
+            const scheme_id = request.query.get('scheme_id');
+            context.debug('scheme_id:', scheme_id);
             const benefitToCreate = await request.json() as object;
             context.debug('benefitToCreate:', benefitToCreate);
-            Joi.assert(request.query.get('scheme_id'), Joi.string().guid());
+            Joi.assert(scheme_id, Joi.string().guid());
             validateBody(benefitToCreate);
 
             // check if scheme exists
-            const scheme = await Scheme.findByPk(request.query.get('scheme_id'));
+            const scheme = await Scheme.findByPk(scheme_id);
             if (!scheme) {
                 return { status: 404, body: 'scheme not found' }
             }
 
             // do creation
-            const benefit = await Benefit.create({ ...benefitToCreate, SchemeId: request.query.get('scheme_id') });
+            const benefit = await Benefit.create({ ...benefitToCreate, SchemeId: scheme_id });
             return { jsonBody: benefit.dataValues }
 
         } else if (request.method === 'PATCH') {
@@ -219,14 +230,15 @@ export async function benefits(request: HttpRequest, context: InvocationContext)
             return { jsonBody: benefit.dataValues }
 
         } else if (request.method === 'DELETE') {
-            context.debug('id:', request.query.get('id'));
-            Joi.assert(request.query.get('id'), Joi.string().guid());
-            const benefit = await Benefit.findByPk(request.query.get('id'));
+            const id = request.query.get('id');
+            context.debug('id:', id);
+            Joi.assert(id, Joi.string().guid());
+            const benefit = await Benefit.findByPk(id);
             if (!benefit) {
                 return { status: 404, body: 'benefit not found' }
             }
             await benefit.destroy();
-            return { body: request.query.get('id') }
+            return { body: id }
         }
 
     } catch (error) {

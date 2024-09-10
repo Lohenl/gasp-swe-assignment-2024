@@ -16,6 +16,8 @@ const sequelize = new Sequelize(process.env['PGDATABASE'], process.env['PGUSER']
 * /permissions:
 * 
 *   get:
+*       tags:
+*           - System Admin
 *       summary: Get all permissions / Get permission by ID
 *       description: Get a specific permission's details by ID. Omit ID to get all permissions' details registered in system.
 *       parameters:
@@ -34,6 +36,8 @@ const sequelize = new Sequelize(process.env['PGDATABASE'], process.env['PGUSER']
 *               description: Successful response
 * 
 *   post:
+*       tags:
+*           - System Admin
 *       summary: Creates a permission
 *       description: Creates a permission
 *       parameters:
@@ -59,6 +63,8 @@ const sequelize = new Sequelize(process.env['PGDATABASE'], process.env['PGUSER']
 *               description: Successful response
 * 
 *   delete:
+*       tags:
+*           - System Admin
 *       summary: Deletes permission by ID
 *       description: Deletes permission by ID
 *       parameters:

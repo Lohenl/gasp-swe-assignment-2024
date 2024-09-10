@@ -22,6 +22,8 @@ const sequelize = new Sequelize(process.env['PGDATABASE'], process.env['PGUSER']
 * /applicants:
 * 
 *   get:
+*       tags:
+*           - Business - Applicant Management
 *       summary: Get all applicant details / Get applicant details by ID
 *       description: Get a specific applicant's details by ID. Omit ID to get all applicants' details registered in system.
 *       parameters:
@@ -40,6 +42,8 @@ const sequelize = new Sequelize(process.env['PGDATABASE'], process.env['PGUSER']
 *               description: Successful response
 * 
 *   post:
+*       tags:
+*           - Business - Applicant Management
 *       summary: Creates an applicant
 *       description: Creates an applicant
 *       parameters:
@@ -123,6 +127,8 @@ const sequelize = new Sequelize(process.env['PGDATABASE'], process.env['PGUSER']
 *               description: Successful response
 * 
 *   patch:
+*       tags:
+*           - Business - Applicant Management
 *       summary: Updates an applicant
 *       description: Updates an applicant (update household members with PATCH household-members instead)
 *       parameters:
@@ -173,6 +179,8 @@ const sequelize = new Sequelize(process.env['PGDATABASE'], process.env['PGUSER']
 *               description: Successful response
 * 
 *   delete:
+*       tags:
+*           - Business - Applicant Management
 *       summary: Delete applicant by ID
 *       description: Delete an applicant from the system by ID.
 *       parameters:
@@ -224,13 +232,14 @@ export async function applicants(request: HttpRequest, context: InvocationContex
         await Promise.allSettled(syncPromises);
 
         if (request.method === 'GET') {
-            context.debug('id:', request.query.get('id'));
-            if (!request.query.get('id')) {
+            const id = request.query.get('id');
+            context.debug('id:', id);
+            if (!id) {
                 const applicants = await Applicant.findAll({});
                 return { jsonBody: applicants }
             } else {
-                Joi.assert(request.query.get('id'), Joi.string().guid());
-                const applicant = await Applicant.findByPk(request.query.get('id'));
+                Joi.assert(id, Joi.string().guid());
+                const applicant = await Applicant.findByPk(id);
                 if (!applicant) {
                     return { status: 404, body: 'applicant not found' }
                 }
@@ -283,33 +292,35 @@ export async function applicants(request: HttpRequest, context: InvocationContex
             return { jsonBody: result.dataValues }
 
         } else if (request.method === 'PATCH') {
-            context.debug('id:', request.query.get('id'));
+            const id = request.query.get('id');
+            context.debug('id:', id);
             const reqBody = await request.json() as any;
             context.debug('reqBody:', reqBody);
-            Joi.assert(request.query.get('id'), Joi.string().guid().required());
+            Joi.assert(id, Joi.string().guid().required());
             validateBody(reqBody);
 
-            const applicant = await Applicant.findByPk(request.query.get('id'));
+            const applicant = await Applicant.findByPk(id);
             if (!applicant) {
                 return { status: 400, body: 'invalid id provided' }
             }
 
             const result = await sequelize.transaction(async t => {
-                const applicant = await Applicant.findByPk(request.query.get('id'), { transaction: t });
+                const applicant = await Applicant.findByPk(id, { transaction: t });
                 applicant.update(reqBody);
                 return applicant;
             });
             return { jsonBody: result.dataValues }
 
         } else if (request.method === 'DELETE') {
-            context.debug('id:', request.query.get('id'));
-            Joi.assert(request.query.get('id'), Joi.string().guid());
-            const applicant = await Applicant.findByPk(request.query.get('id'));
+            const id = request.query.get('id');
+            context.debug('id:', id);
+            Joi.assert(id, Joi.string().guid());
+            const applicant = await Applicant.findByPk(id);
             if (!applicant) {
                 return { status: 400, body: 'invalid id provided' }
             }
             await applicant.destroy();
-            return { body: request.query.get('id') }
+            return { body: id }
         }
 
     } catch (error) {

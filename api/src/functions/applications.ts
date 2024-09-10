@@ -16,6 +16,8 @@ const sequelize = new Sequelize(process.env['PGDATABASE'], process.env['PGUSER']
 * /applications:
 * 
 *   get:
+*       tags:
+*           - Business - Application Management
 *       summary: Get all applications / Get applications by scheme or applicant
 *       description: Get all applications registered in the system, or by scheme, or by applicant
 *       parameters:
@@ -44,6 +46,8 @@ const sequelize = new Sequelize(process.env['PGDATABASE'], process.env['PGUSER']
 *               description: Successful response
 * 
 *   post:
+*       tags:
+*           - Business - Application Management
 *       summary: Creates an application
 *       description: Creates an application, application will always start with a 'Pending Review' outcome
 *       parameters:
@@ -69,6 +73,8 @@ const sequelize = new Sequelize(process.env['PGDATABASE'], process.env['PGUSER']
 *               description: Successful response
 * 
 *   patch:
+*       tags:
+*           - Business - Application Management
 *       summary: Updates an application
 *       description: Updates an application, allows manual update of application outcome
 *       parameters:
@@ -95,6 +101,8 @@ const sequelize = new Sequelize(process.env['PGDATABASE'], process.env['PGUSER']
 *               description: Successful response
 * 
 *   delete:
+*       tags:
+*           - Business - Application Management
 *       summary: Deletes application by ID
 *       description: Deletes application by ID, though records are usually kept and housekeeping is usually automated - these APIs are strictly for L2 service requests 
 *       parameters:
@@ -136,12 +144,12 @@ export async function applications(request: HttpRequest, context: InvocationCont
         await Promise.allSettled(syncPromises);
 
         if (request.method === 'GET') {
-            context.debug('id:', request.query.get('id'));
-            context.debug('applicant_id:', request.query.get('applicant_id'));
-            context.debug('scheme_id:', request.query.get('scheme_id'));
             const id = request.query.get('id');
             const applicant_id = request.query.get('applicant_id');
             const scheme_id = request.query.get('scheme_id');
+            context.debug('id:', id);
+            context.debug('applicant_id:', request.query.get('applicant_id'));
+            context.debug('scheme_id:', scheme_id);
 
             if (!id && !applicant_id && !scheme_id) {
                 // omit all params to get everything
@@ -180,26 +188,28 @@ export async function applications(request: HttpRequest, context: InvocationCont
             }
 
         } else if (request.method === 'POST') {
-            context.debug('applicant_id:', request.query.get('applicant_id'));
-            context.debug('scheme_id:', request.query.get('scheme_id'));
-            Joi.assert(request.query.get('applicant_id'), Joi.string().guid().required());
-            Joi.assert(request.query.get('scheme_id'), Joi.string().guid().required());
+            const applicant_id = request.query.get('applicant_id');
+            const scheme_id = request.query.get('scheme_id');
+            context.debug('applicant_id:', applicant_id);
+            context.debug('scheme_id:', scheme_id);
+            Joi.assert(applicant_id, Joi.string().guid().required());
+            Joi.assert(scheme_id, Joi.string().guid().required());
 
             // practically speaking a UI would directly feed the respective IDs to this join table
             // so at best you would only need to check if the IDs exist in the respective tables
 
-            if (request.query.get('applicant_id') && request.query.get('scheme_id')) {
+            if (applicant_id && scheme_id) {
                 // check for applicant and scheme
-                const applicant = await Applicant.findByPk(request.query.get('applicant_id'));
+                const applicant = await Applicant.findByPk(applicant_id);
                 if (!applicant) return { status: 404, body: 'applicant not found' }
-                const scheme = await Scheme.findByPk(request.query.get('scheme_id'));
+                const scheme = await Scheme.findByPk(scheme_id);
                 if (!scheme) return { status: 404, body: 'scheme not found' }
 
                 // create transaction here (lots of FKs to make)
                 const application = await Application.create({
                     outcome: 'Pending Review',
-                    ApplicantId: request.query.get('applicant_id'),
-                    SchemeId: request.query.get('scheme_id'),
+                    ApplicantId: applicant_id,
+                    SchemeId: scheme_id,
                 });
                 return { jsonBody: application.dataValues };
             } else {
@@ -207,24 +217,26 @@ export async function applications(request: HttpRequest, context: InvocationCont
             }
 
         } else if (request.method === 'PATCH') {
-            context.debug('id:', request.query.get('id'));
+            const id = request.query.get('id');
+            context.debug('id:', id);
             context.debug('outcome:', request.query.get('outcome'));
-            Joi.assert(request.query.get('id'), Joi.string().guid().required());
+            Joi.assert(id, Joi.string().guid().required());
             Joi.assert(request.query.get('outcome'), Joi.string());
 
-            const application = await Application.findByPk(request.query.get('id'));
+            const application = await Application.findByPk(id);
             if (!application) return { status: 404, body: 'application not found' }
             application.update({ outcome: request.query.get('outcome') });
             return { jsonBody: application.dataValues };
 
         } else if (request.method === 'DELETE') {
-            context.debug('id:', request.query.get('id'));
-            Joi.assert(request.query.get('id'), Joi.string().guid().required());
+            const id = request.query.get('id');
+            context.debug('id:', id);
+            Joi.assert(id, Joi.string().guid().required());
 
-            const application = await Application.findByPk(request.query.get('id'));
+            const application = await Application.findByPk(id);
             if (!application) return { status: 404, body: 'application not found' }
             await application.destroy();
-            return { body: request.query.get('id') }
+            return { body: id }
 
         }
 
