@@ -80,7 +80,7 @@ Please google if you don't know or understand - I don't have a lot of time writi
 2. Press ```F1``` and type/select ```Terminal: Select Default Profile``` 
 3. Select ```Git Bash```
     - (If you don't see it, you have not installed Git yet)
-4. Open the terminal with ``` Ctrl + ` ``` (tilde key)
+4. Open the terminal with ``` Ctrl + ~ ``` (tilde key)
 5. Navigate to ```database``` directory with: 
 ``` 
 cd database/
@@ -98,33 +98,34 @@ docker run -d --name local-postgresdb-container -p 5432:5432 local-postgres-db
 ```
 cd ../api/
 ```
-9. Install the NPM dependencies with
+9. Rename the ```local.settings.json.sample``` file into ```local.settings.json```  
+10. Install the NPM dependencies with
 ```
 npm i
 ```
-10. Run the main application with
+11. Run the main application with
 ```
 npm start
 ```
-11. Wait till you see a list of functions like so:
+12. Wait till you see a list of functions like so:
 
 ![display of ready functions](./img/functions-are-ready.PNG)
 
-12. Press ```Ctrl + Shift + 5``` to split the screen
+13. Press ```Ctrl + Shift + 5``` to split the screen
 
-13. Click on the newly opened terminal, and start the Swagger UI app with
+14. Click on the newly opened terminal, and start the Swagger UI app with
 ```
 npm run swagger
 ```
-14. Wait till you see the following on the console:
+15. Wait till you see the following on the console:
 
 ![display that swagger is ready](./img/swagger-is-ready.PNG)
 
-15. Open your web browser, and navigate to ```http://localhost:3000/```
+16. Open your web browser, and navigate to ```http://localhost:3000/```
 
 ![swagger ui](./img/swagger-ui-sample.PNG)
 
-16. Here's a picture of what my screen typically looks like, building on this system: (I use a 2nd screen, and the swagger docs might look different)
+17. Here's a picture of what my screen typically looks like, building on this system: (I use a 2nd screen, and the swagger docs might look different)
 
 ![Sample layout](./img/sample-layout.PNG)
 
@@ -290,14 +291,155 @@ Lastly, you have some system admin work to do:
 
 #### 4. Register an application on behalf of the applicant to the financal assistance scheme
 
+1. Under Business - Application Management, look for ```POST /applications```
+2. Use Agnes' ```id``` for the ```applicant_id``` field, and ```1bed3b60-2988-4a7e-b47b-3825295a8b1``` (the default scheme id) for the ```scheme_id``` field, then execute the function.
+3. You should see a response that looks similar to the one below:
+```json
+{
+  "id": "a1463d59-52fe-4587-85a3-f3c1381cbb74",
+  "outcome": "Pending Review",
+  "ApplicantId": "0b49aa6a-8a8d-4a66-bd29-f5af454abc40",
+  "SchemeId": "1bed3b60-2988-4a7e-b47b-3825295a8b10",
+  "updatedAt": "2024-09-09T23:43:52.991Z",
+  "createdAt": "2024-09-09T23:43:52.991Z"
+}
+```
+Congratulations, you have finished Scenario A.
+
 ## Scenario B
 
 #### 1. Registering a new scheme
+
+1. Under Business - Scheme Management, look for ```POST /schemes```
+2. Replace the example value with the following, and execute the function
+
+```json
+{
+  "name": "SGWork Scheme",
+  "description": "Scheme to help the self-employed",
+  "benefits": [
+    {
+      "name": "U-Save Credits",
+      "description": "Additional U-Save Credits",
+      "amount": 800
+    }
+  ]
+}
+```
+3. The response should show look like the below - make sure to copy the ```id``` field like what you did for Agnes earlier
+```json
+{
+  "id": "471f81c9-959f-46bd-8af4-4276c82ac559",
+  "name": "SGWork Scheme",
+  "description": "Scheme to help the self-employed",
+  "updatedAt": "2024-09-09T23:49:18.102Z",
+  "createdAt": "2024-09-09T23:49:18.102Z",
+  "eligibility_criteria": null
+}
+```
+
 #### 2. Updating the eligility criteria of the scheme
+
+1. Under Business - Scheme Management, look for ```POST /scheme-rules```
+2. Replace the example with the following JSON
+```json
+{
+  "name": "self-employed",
+  "conditions": {
+    "all": [
+      {
+        "fact": "applicant-details",
+        "path": "$.EmploymentStatusId",
+        "operator": "equal",
+        "value": 3
+      }
+    ]
+  },
+  "event": {
+    "type": "self-employed",
+    "params": {
+      "message": "Applicant is self-employed"
+    }
+  }
+}
+```
+3. You will get the following response similar to the one below:
+```json
+{
+  "id": "471f81c9-959f-46bd-8af4-4276c82ac559",
+  "name": "SGWork Scheme",
+  "eligibility_criteria": "{\"name\":\"self-employed\",\"conditions\":{\"all\":[{\"fact\":\"applicant-details\",\"path\":\"$.EmploymentStatusId\",\"operator\":\"equal\",\"value\":3}]},\"event\":{\"type\":\"self-employed\",\"params\":{\"message\":\"Applicant is self-employed\"}}}",
+  "description": "Scheme to help the self-employed",
+  "createdAt": "2024-09-09T23:49:18.102Z",
+  "updatedAt": "2024-09-09T23:52:54.275Z"
+}
+```
+
 #### 3. Testing the eligility against applicants registered in the system
+
+1. The scheme should show up for self-employed applicants, here's a few ids available for testing against ```POST /schemes/eligible```
+
+- ```c5c697d0-31c9-4386-ac6a-09ebb9ff3c42``` : female, self-employed
+- ```cac1c073-6e00-4878-99d4-8cc79b62ea97``` : male, employed
+- ```c7eae7bd-ebfb-4da5-bb8d-a6a4f63e27e3``` : female, unemployed
+
+2. (Optional) play around with different eligibility_criteria, adding more schemes and applicants then modifying them 
 
 ## Scenario C
 
 #### 1. Register a new user
+
+1. Under System Admin, look for ```POST /users```
+2. Replace the example with the JSON below and execute the function
+```json
+{
+  "name": "Faizal Ibrahim bin Mohamed Noor",
+  "email": "faizal_ibrahim@tech.gov.sg"
+}
+```
+3. You should get a similar reponse to the one below, take note of his ```id``` - in this example it is ```665e4478-0e01-46af-b60b-9def6d4d531a```
+```json
+{
+  "id": "665e4478-0e01-46af-b60b-9def6d4d531a",
+  "name": "Faizal Ibrahim bin Mohamed Noor",
+  "email": "faizal_ibrahim@tech.gov.sg",
+  "updatedAt": "2024-09-10T00:12:49.172Z",
+  "createdAt": "2024-09-10T00:12:49.172Z"
+}
+```
+
 #### 2. Assign permissions to the new user
+
+1. Under System Admin, look for ```POST /permission-assignments```
+2. Enter ```6fe1107b-90a0-4bc2-a6d7-b2bc6c433534``` into the permission_id field, which represents the Applicant Contributor permission
+3. Enter the ```id``` into the user_id field
+4. Execute the function, the result would look like below - now Faizal can view, register, update and remove applicants, but will be prevented from doing anything else, until he is assigned more permissions
+```json
+{
+  "id": "23b88344-3756-4b49-9967-40953ab84451",
+  "PermissionId": "6fe1107b-90a0-4bc2-a6d7-b2bc6c433534",
+  "UserId": "665e4478-0e01-46af-b60b-9def6d4d531a",
+  "updatedAt": "2024-09-10T00:22:22.783Z",
+  "createdAt": "2024-09-10T00:22:22.783Z"
+}
+```
+
 #### 3. Bonus: Try out authorization
+
+1. Go to ```local.settings.json``` and change the last line from:
+
+```json
+    "ENABLE_AUTHORIZATION": "false"
+```
+
+to
+
+```json
+    "ENABLE_AUTHORIZATION": "true"
+```
+
+2. **Restart Azure Functions:** Go to the terminal where Azure Functions was running (where you last ran ```npm start``` and not ```npm run swagger```), and press ```Ctrl + C``` to terminate the process. Enter ```npm start``` again to start Azure functions again.
+
+3. Using Faizal's ```id``` from earlier, we can put it in the ```authz_user_id``` field to simulate an authenticated request, where Faizal has logged into his corporate account and is running the application.
+
+4. You should be able to run any ```/applicants``` endpoint just fine, but as soon as you try to ```GET /users```, you will see that the request has been rejected with HTTP error 403.
