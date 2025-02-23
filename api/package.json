@@ -20,7 +20,7 @@
     "json-rules-engine": "^6.5.0",
     "lodash": "^4.17.21",
     "luxon": "^3.5.0",
-    "pg": "^8.12.0",
+    "pg": "^8.13.0",
     "pg-hstore": "^2.3.4",
     "sequelize": "^6.37.3",
     "swagger-jsdoc": "^6.2.8",
