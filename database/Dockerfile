@@ -1,4 +1,4 @@
-FROM postgres:16.4
+FROM postgres:16.9
 ENV POSTGRES_USER=postgres
 # todo: replace thie password somewhere safe!
 ENV POSTGRES_PASSWORD=test1234
