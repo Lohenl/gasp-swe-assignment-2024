@@ -9,6 +9,6 @@
   },
   "dependencies": {
     "gasp-swe-assignment-2024-rules-engine": "file:",
-    "json-rules-engine": "^6.5.0"
+    "json-rules-engine": "^7.3.1"
   }
 }
